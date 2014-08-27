@@ -1,0 +1,6 @@
+AuthType Basic
+AuthName "Restricted Files"
+# (Following line optional)
+AuthBasicProvider file
+AuthUserFile /Users/sebastian-holtz/Sites/Kunden/emailfuerbodo.sh-dev.de/.htpasswd
+Require user bodo

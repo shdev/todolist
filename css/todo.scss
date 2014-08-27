@@ -1,0 +1,31 @@
+@import "/Users/sebastian-holtz/include/sass/stylevars.scss";
+
+$animationtime : 0.5s;
+
+html {
+
+}
+
+button {
+		@include transition(all, $animationtime);
+}
+
+.delete.badge {
+	@include transition;
+	
+	&:hover {
+		background-color : #d9534f;
+	}
+}
+
+.progressing.badge {
+	background-color : #428bca;
+}
+
+.welldone.badge {
+	background-color : #5cb85c;
+}
+
+.error.badge {
+	background-color : #d9534f;
+}

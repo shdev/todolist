@@ -1,0 +1,24 @@
+button {
+  -webkit-transition: all 0.5s ease-in-out 0s;
+  -moz-transition: all 0.5s ease-in-out 0s;
+  -ms-transition: all 0.5s ease-in-out 0s;
+  -o-transition: all 0.5s ease-in-out 0s;
+  transition: all 0.5s ease-in-out 0s; }
+
+.delete.badge {
+  -webkit-transition: all 0.5s ease-in-out 0s;
+  -moz-transition: all 0.5s ease-in-out 0s;
+  -ms-transition: all 0.5s ease-in-out 0s;
+  -o-transition: all 0.5s ease-in-out 0s;
+  transition: all 0.5s ease-in-out 0s; }
+  .delete.badge:hover {
+    background-color: #d9534f; }
+
+.progressing.badge {
+  background-color: #428bca; }
+
+.welldone.badge {
+  background-color: #5cb85c; }
+
+.error.badge {
+  background-color: #d9534f; }

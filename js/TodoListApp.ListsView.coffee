@@ -1,36 +1,37 @@
 App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _) ->
 
-	
-	class MainView extends Marionette.LayoutView
-		className : "container"
+	class ListItemView extends Marionette.ItemView
+		tagName : "li"
+		className : "list-group-item"
 		template : _.template """
-			<div id="todolistapp-lists">
-				<div id="todolistapp-list-input"></div>
-				<div id="todolistapp-lists-view"></div>
-			</div>
-			<div id="todolistapp-entries">
-				<div id="todolistapp-entry-input"></div>
-				<div id="todolistapp-entries-view"></div>
-			</div>
+		<%= name %> 
+		<span class="delete badge" data-toggle="tooltip" data-placement="top" title="Lösche Adresse"><i class="fa fa-trash-o fa-fw"></i></span>
 		"""
-		regions : 
-			listsArea : "#todolistapp-lists"
-			listInput : "#todolistapp-list-input"
-			listsView : "#todolistapp-lists-view"
-			entriesArea : "#todolistapp-entries"
-			entryInput : "#todolistapp-entry-input"
-			entriesView : "#todolistapp-entries-view"
+		initialize : ->
+			@model.correspondingView = @
 			
+		events :
+			'click .delete' : () ->
+				@model.destroy()
+		# onBeforeRender :  ->
+		# 	console.debug @model.get('eMail')
+		onRender : ->
+			@$el.find('span').tooltip()
+			return true
 
-	TodoListApp = 
-		run : -> 
-			@mainView = new MainView()
-			window.mainView = @mainView
-			
-			App.mainRegion.show(@mainView);
-			
-			App.vent.trigger('app:initialized', App)
-			
-	App.addInitializer ->
-		TodoListApp .run()
+	class ListCollectionView extends Marionette.CollectionView
+		tagName : "ul"
+		className : "list-group"
+		childView : ListItemView
+
+	class ListCollection extends Backbone.Collection
+		model : Backbone.Model
+
+	@run = ->
+		console.debug 'TodoListApp.ListsView'
+		@mainView = new ListCollectionView({ collection : new ListCollection() })
+		App.TodoListApp.mainView.listsView.show(@mainView)
+		App.TodoListApp.listCollection = @mainView.collection
+	
+	App.addInitializer @run
 

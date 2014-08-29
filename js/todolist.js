@@ -19,20 +19,60 @@
 
   $(init);
 
-  App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _) {
-    var MainView;
-    MainView = (function(_super) {
-      __extends(MainView, _super);
+  App.module('GeneralBehavior', function(GeneralBehavior, App, Backbone, Marionette, $, _) {
+    var AddSimpleItem;
+    if (window.Behaviors == null) {
+      window.Behaviors = {};
+    }
+    Marionette.Behaviors.behaviorsLookup = function() {
+      return window.Behaviors;
+    };
+    AddSimpleItem = (function(_super) {
+      __extends(AddSimpleItem, _super);
 
-      function MainView() {
-        return MainView.__super__.constructor.apply(this, arguments);
+      function AddSimpleItem() {
+        return AddSimpleItem.__super__.constructor.apply(this, arguments);
       }
 
-      MainView.prototype.className = "container";
+      AddSimpleItem.prototype.events = {
+        "click @ui.addItemButton": "addItem",
+        "change @ui.itemName": "inputChanged"
+      };
 
-      MainView.prototype.template = _.template("<div id=\"todolistapp-lists\">\n	<div id=\"todolistapp-list-input\"></div>\n	<div id=\"todolistapp-lists-view\"></div>\n</div>\n<div id=\"todolistapp-entries\">\n	<div id=\"todolistapp-entry-input\"></div>\n	<div id=\"todolistapp-entries-view\"></div>\n</div>");
+      AddSimpleItem.prototype.inputChanged = function(e) {
+        console.debug('d.fm');
+        return true;
+      };
 
-      MainView.prototype.regions = {
+      AddSimpleItem.prototype.addItem = function(e) {
+        console.debug(this);
+        console.debug('sdvknsdlvn');
+        this.view.getCollection().add({
+          name: this.view.ui.itemName.val()
+        });
+        return true;
+      };
+
+      return AddSimpleItem;
+
+    })(Marionette.Behavior);
+    return window.Behaviors.AddSimpleItem = AddSimpleItem;
+  });
+
+  App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _) {
+    var TodoListAppView;
+    TodoListAppView = (function(_super) {
+      __extends(TodoListAppView, _super);
+
+      function TodoListAppView() {
+        return TodoListAppView.__super__.constructor.apply(this, arguments);
+      }
+
+      TodoListAppView.prototype.className = "container";
+
+      TodoListAppView.prototype.template = _.template("<div id=\"todolistapp-lists\">\n	<div id=\"todolistapp-list-input\"></div>\n	<hr />\n	<div id=\"todolistapp-lists-view\"></div>\n</div>\n<hr />\n<hr />\n<div id=\"todolistapp-entries\">\n	<div id=\"todolistapp-entry-input\"></div>\n	<hr />\n	<div id=\"todolistapp-entries-view\"></div>\n</div>");
+
+      TodoListAppView.prototype.regions = {
         listsArea: "#todolistapp-lists",
         listInput: "#todolistapp-list-input",
         listsView: "#todolistapp-lists-view",
@@ -41,12 +81,12 @@
         entriesView: "#todolistapp-entries-view"
       };
 
-      return MainView;
+      return TodoListAppView;
 
     })(Marionette.LayoutView);
     TodoListApp.run = function() {
-      this.mainView = new MainView();
-      window.mainView = this.mainView;
+      this.mainView = new TodoListAppView();
+      window.TodoListApp = this;
       App.mainRegion.show(this.mainView);
       return App.vent.trigger('app:initialized', App);
     };
@@ -56,27 +96,143 @@
   });
 
   App.module('TodoListApp.EntryInput', function(EntryInput, App, Backbone, Marionette, $, _) {
-    var MainView;
-    MainView = (function(_super) {
-      __extends(MainView, _super);
+    var EntryInputView;
+    EntryInputView = (function(_super) {
+      __extends(EntryInputView, _super);
 
-      function MainView() {
-        return MainView.__super__.constructor.apply(this, arguments);
+      function EntryInputView() {
+        return EntryInputView.__super__.constructor.apply(this, arguments);
       }
 
-      MainView.prototype.template = _.template("<input type=\"text\" />");
+      EntryInputView.prototype.ui = {
+        "addItemButton": "button.add-item",
+        "itemName": "input"
+      };
 
-      return MainView;
+      EntryInputView.prototype.behaviors = {
+        AddSimpleItem: {}
+      };
+
+      EntryInputView.prototype.className = "form-group";
+
+      EntryInputView.prototype.template = _.template("<label for=\"entryname\">Eintrag eintragen</label>\n<div class=\"input-group\">\n	<input type=\"text\" class=\"form-control\" id=\"entryname\" placeholder=\"Eintrag\">\n	<span class=\"input-group-btn\">\n		<button class=\"btn btn-success add-item\" type=\"button\"><i class=\"fa fa-plus\"></i></button>\n	</span>\n</div>");
+
+      return EntryInputView;
 
     })(Marionette.LayoutView);
     EntryInput.run = function() {
       console.debug('TodoListApp.EntryInput');
-      this.mainView = new MainView();
-      console.debug(App);
-      console.debug(App.TodoListApp);
+      this.mainView = new EntryInputView();
       return App.TodoListApp.mainView.entryInput.show(this.mainView);
     };
     return EntryInput.addInitializer(EntryInput.run);
+  });
+
+  App.module('TodoListApp.ListInput', function(ListInput, App, Backbone, Marionette, $, _) {
+    var ListInputView;
+    ListInputView = (function(_super) {
+      __extends(ListInputView, _super);
+
+      function ListInputView() {
+        return ListInputView.__super__.constructor.apply(this, arguments);
+      }
+
+      ListInputView.prototype.ui = {
+        "addItemButton": "button.add-item",
+        "itemName": "input"
+      };
+
+      ListInputView.prototype.behaviors = {
+        AddSimpleItem: {}
+      };
+
+      ListInputView.prototype.getCollection = function() {
+        return App.TodoListApp.listCollection;
+      };
+
+      ListInputView.prototype.template = _.template("<label for=\"listname\">Liste anlegen</label>\n<div class=\"input-group\">\n	<input type=\"text\" class=\"form-control\" id=\"listname\" placeholder=\"Liste\">\n	<span class=\"input-group-btn\">\n		<button class=\"btn btn-success add-item\" type=\"button\"><i class=\"fa fa-plus\"></i></button>\n	</span>\n</div>");
+
+      return ListInputView;
+
+    })(Marionette.LayoutView);
+    ListInput.run = function() {
+      console.debug('TodoListApp.ListInput');
+      this.mainView = new ListInputView();
+      return App.TodoListApp.mainView.listInput.show(this.mainView);
+    };
+    return ListInput.addInitializer(ListInput.run);
+  });
+
+  App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionette, $, _) {
+    var ListCollection, ListCollectionView, ListItemView;
+    ListItemView = (function(_super) {
+      __extends(ListItemView, _super);
+
+      function ListItemView() {
+        return ListItemView.__super__.constructor.apply(this, arguments);
+      }
+
+      ListItemView.prototype.tagName = "li";
+
+      ListItemView.prototype.className = "list-group-item";
+
+      ListItemView.prototype.template = _.template("<%= name %> \n<span class=\"delete badge\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Lösche Adresse\"><i class=\"fa fa-trash-o fa-fw\"></i></span>");
+
+      ListItemView.prototype.initialize = function() {
+        return this.model.correspondingView = this;
+      };
+
+      ListItemView.prototype.events = {
+        'click .delete': function() {
+          return this.model.destroy();
+        }
+      };
+
+      ListItemView.prototype.onRender = function() {
+        this.$el.find('span').tooltip();
+        return true;
+      };
+
+      return ListItemView;
+
+    })(Marionette.ItemView);
+    ListCollectionView = (function(_super) {
+      __extends(ListCollectionView, _super);
+
+      function ListCollectionView() {
+        return ListCollectionView.__super__.constructor.apply(this, arguments);
+      }
+
+      ListCollectionView.prototype.tagName = "ul";
+
+      ListCollectionView.prototype.className = "list-group";
+
+      ListCollectionView.prototype.childView = ListItemView;
+
+      return ListCollectionView;
+
+    })(Marionette.CollectionView);
+    ListCollection = (function(_super) {
+      __extends(ListCollection, _super);
+
+      function ListCollection() {
+        return ListCollection.__super__.constructor.apply(this, arguments);
+      }
+
+      ListCollection.prototype.model = Backbone.Model;
+
+      return ListCollection;
+
+    })(Backbone.Collection);
+    this.run = function() {
+      console.debug('TodoListApp.ListsView');
+      this.mainView = new ListCollectionView({
+        collection: new ListCollection()
+      });
+      App.TodoListApp.mainView.listsView.show(this.mainView);
+      return App.TodoListApp.listCollection = this.mainView.collection;
+    };
+    return App.addInitializer(this.run);
   });
 
 }).call(this);

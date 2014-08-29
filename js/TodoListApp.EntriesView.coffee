@@ -1,6 +1,5 @@
 App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $, _) ->
 
-	
 	class MainView extends Marionette.LayoutView
 		className : "container"
 		template : _.template """
@@ -20,7 +19,6 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			entriesArea : "#todolistapp-entries"
 			entryInput : "#todolistapp-entry-input"
 			entriesView : "#todolistapp-entries-view"
-			
 
 	TodoListApp = 
 		run : -> 

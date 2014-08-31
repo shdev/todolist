@@ -24,8 +24,14 @@ App.module 'GeneralBehavior', (GeneralBehavior, App, Backbone, Marionette, $, _)
 			
 		addItem : (e) ->
 			console.debug 'addItem'
-			view = _.result(@view, 'managedCollection')
-			view.add  name : @view.ui.itemName.val() if view?
+			collection = _.result(@view, 'managedCollection')
+			modelClass = _.result(@view, 'modelClass')
+			if modelClass?
+				model = new modelClass( name : @view.ui.itemName.val() )
+				console.debug 'save new item'
+				model.save()
+				console.debug model.toJSON()
+				collection.add model if collection?
 			return false
 			
 		# onRender : ->

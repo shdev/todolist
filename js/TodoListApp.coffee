@@ -40,6 +40,9 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			
 			###
 
+
+
+			
 			@pouchdb = new PouchDB('svh_todo', adapter : 'websql')
 
 			@pouchdbRepTo = @pouchdb.replicate.to('http://uli-kunkel:5984/svh_todo', {live : true})
@@ -77,6 +80,8 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 							console.log '@pouchdb.replicate.from.on complete'
 							console.log a
 							App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
+
+			
 
 			@mainView = new TodoListAppView()
 

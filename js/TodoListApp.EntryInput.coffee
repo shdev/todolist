@@ -7,6 +7,12 @@ App.module 'TodoListApp.EntryInput', (EntryInput, App, Backbone, Marionette, $, 
 			"itemName" : "input"
 		behaviors :
 			AddSimpleItem : {}
+			
+		managedCollection : ->
+			return App.TodoListApp.entryCollection
+		modelClass : ->
+			return App.TodoListApp.classes.EntryModel
+			
 		className : "form-group"
 		template : _.template """
 			<label for="entryname">Eintrag eintragen</label>

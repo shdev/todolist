@@ -15,10 +15,16 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		events :
 			'click .delete' : () ->
 				@model.destroy()
+				return false
+			'click' : () ->
+				@$el.siblings().removeClass 'list-group-item-success'
+				@$el.addClass 'list-group-item-success'
+				App.vent.on 'EntriesView'
+				
 		# onBeforeRender :  ->
 		# 	console.debug @model.get('eMail')
 		onRender : ->
-			@$el.find('span').tooltip()
+			console.debug 'Render List: ' + @model.get('name') 
 			return true
 
 	class ListCollectionView extends Marionette.CollectionView

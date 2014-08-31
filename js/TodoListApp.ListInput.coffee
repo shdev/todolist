@@ -9,6 +9,8 @@ App.module 'TodoListApp.ListInput', (ListInput, App, Backbone, Marionette, $, _)
 			AddSimpleItem : {}
 		managedCollection : ->
 			return App.TodoListApp.listCollection
+		modelClass : ->
+			return App.TodoListApp.classes.ListModel
 		template : _.template """
 			<label class="control-label" for="listname">Liste anlegen</label>
 			<form>

@@ -74,13 +74,20 @@ App.module('GeneralBehavior', function(GeneralBehavior, App, Backbone, Marionett
     };
 
     AddSimpleItem.prototype.addItem = function(e) {
-      var view;
+      var collection, model, modelClass;
       console.debug('addItem');
-      view = _.result(this.view, 'managedCollection');
-      if (view != null) {
-        view.add({
+      collection = _.result(this.view, 'managedCollection');
+      modelClass = _.result(this.view, 'modelClass');
+      if (modelClass != null) {
+        model = new modelClass({
           name: this.view.ui.itemName.val()
         });
+        console.debug('save new item');
+        model.save();
+        console.debug(model.toJSON());
+        if (collection != null) {
+          collection.add(model);
+        }
       }
       return false;
     };
@@ -230,6 +237,14 @@ App.module('TodoListApp.EntryInput', function(EntryInput, App, Backbone, Marione
       AddSimpleItem: {}
     };
 
+    EntryInputView.prototype.managedCollection = function() {
+      return App.TodoListApp.entryCollection;
+    };
+
+    EntryInputView.prototype.modelClass = function() {
+      return App.TodoListApp.classes.EntryModel;
+    };
+
     EntryInputView.prototype.className = "form-group";
 
     EntryInputView.prototype.template = _.template("<label for=\"entryname\">Eintrag eintragen</label>\n<form>\n	<div class=\"input-group\">\n		<input type=\"text\" class=\"form-control\" id=\"entryname\" placeholder=\"Eintrag\">\n		<span class=\"input-group-btn\">\n			<button class=\"btn btn-success add-item\" type=\"submit\"><i class=\"fa fa-plus\"></i></button>\n		</span>\n	</div>\n</form>");
@@ -274,6 +289,10 @@ App.module('TodoListApp.ListInput', function(ListInput, App, Backbone, Marionett
 
     ListInputView.prototype.managedCollection = function() {
       return App.TodoListApp.listCollection;
+    };
+
+    ListInputView.prototype.modelClass = function() {
+      return App.TodoListApp.classes.ListModel;
     };
 
     ListInputView.prototype.template = _.template("<label class=\"control-label\" for=\"listname\">Liste anlegen</label>\n<form>\n<div class=\"input-group\">\n	<input type=\"text\" class=\"form-control\" id=\"listname\" placeholder=\"Liste\">\n	<span class=\"input-group-btn\">\n		<button class=\"btn btn-success add-item\" type=\"submit\"><i class=\"fa fa-plus\"></i></button>\n	</span>\n</div>\n</form>");
@@ -323,12 +342,18 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 
     ListItemView.prototype.events = {
       'click .delete': function() {
-        return this.model.destroy();
+        this.model.destroy();
+        return false;
+      },
+      'click': function() {
+        this.$el.siblings().removeClass('list-group-item-success');
+        this.$el.addClass('list-group-item-success');
+        return App.vent.on('EntriesView');
       }
     };
 
     ListItemView.prototype.onRender = function() {
-      this.$el.find('span').tooltip();
+      console.debug('Render List: ' + this.model.get('name'));
       return true;
     };
 
@@ -441,5 +466,190 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
   });
   return ListsView.on('all', function(a) {
     return console.log('ListsView events' + a);
+  });
+});
+
+App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Marionette, $, _) {
+  var EntryCollectionFactory, EntryCollectionView, EntryItemView, EntryModelFactory;
+  EntryItemView = (function(_super) {
+    __extends(EntryItemView, _super);
+
+    function EntryItemView() {
+      return EntryItemView.__super__.constructor.apply(this, arguments);
+    }
+
+    EntryItemView.prototype.tagName = "li";
+
+    EntryItemView.prototype.className = "list-group-item";
+
+    EntryItemView.prototype.template = _.template("<%= name %> \n<span class=\"delete badge\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Lösche Adresse\"><i class=\"fa fa-trash-o fa-fw\"></i></span>");
+
+    EntryItemView.prototype.behaviors = {
+      Tooltip: {}
+    };
+
+    EntryItemView.prototype.initialize = function() {
+      return this.model.correspondingView = this;
+    };
+
+    EntryItemView.prototype.events = {
+      'click .delete': function() {
+        this.model.destroy();
+        return false;
+      },
+      'click': function() {
+        this.$el.siblings().removeClass('list-group-item-success');
+        return this.$el.addClass('list-group-item-success');
+      }
+    };
+
+    EntryItemView.prototype.onRender = function() {
+      console.debug('Render Entry: ' + this.model.get('name'));
+      return true;
+    };
+
+    return EntryItemView;
+
+  })(Marionette.ItemView);
+  EntryCollectionView = (function(_super) {
+    __extends(EntryCollectionView, _super);
+
+    function EntryCollectionView() {
+      return EntryCollectionView.__super__.constructor.apply(this, arguments);
+    }
+
+    EntryCollectionView.prototype.tagName = "ul";
+
+    EntryCollectionView.prototype.className = "list-group";
+
+    EntryCollectionView.prototype.childView = EntryItemView;
+
+    return EntryCollectionView;
+
+  })(Marionette.CollectionView);
+  EntryModelFactory = function(todolistid) {
+    var EntryModel;
+    EntryModel = (function(_super) {
+      __extends(EntryModel, _super);
+
+      function EntryModel() {
+        return EntryModel.__super__.constructor.apply(this, arguments);
+      }
+
+      EntryModel.prototype.idAttribute = '_id';
+
+      EntryModel.prototype.defaults = {
+        type: 'todoentry',
+        created: (new Date()).toUTCString(),
+        "todolist-id": todolistid
+      };
+
+      EntryModel.prototype.sync = BackbonePouch.sync({
+        db: PouchDB('svh_todo', {
+          adapter: 'websql'
+        })
+      });
+
+      return EntryModel;
+
+    })(Backbone.Model);
+    return EntryModel;
+  };
+  EntryCollectionFactory = function(hasenbrot) {
+    var EntryCollection, mapfunc, pouchdbOptions;
+    console.debug('EntryCollectionFactory:' + hasenbrot);
+    console.debug(typeof hasenbrot);
+    mapfunc = function(doc, emit) {
+      console.debug('map entry');
+      console.debug(doc);
+      console.debug(hasenbrot);
+      if ((doc.type != null) && (doc["todolist-id"] != null)) {
+        if (doc.type === 'todoentry' && doc["todolist-id"] === hasenbrot) {
+          return emit([doc.position], null);
+        }
+      }
+    };
+    pouchdbOptions = {
+      db: PouchDB('svh_todo', {
+        adapter: 'websql'
+      }),
+      fetch: 'query',
+      options: {
+        query: {
+          include_docs: false,
+          fun: {
+            map: mapfunc
+          }
+        },
+        changes: {
+          include_docs: true,
+          filter: function(doc) {
+            return doc._deleted || doc.type === 'todoentry';
+          }
+        }
+      }
+    };
+    console.debug(pouchdbOptions);
+    EntryCollection = (function(_super) {
+      __extends(EntryCollection, _super);
+
+      function EntryCollection() {
+        return EntryCollection.__super__.constructor.apply(this, arguments);
+      }
+
+      EntryCollection.prototype.model = EntryModelFactory(hasenbrot);
+
+      EntryCollection.prototype.sync = BackbonePouch.sync(pouchdbOptions);
+
+      EntryCollection.prototype.parse = function(result) {
+        console.debug('parse');
+        console.debug(result);
+        return _.pluck(result.rows, 'doc');
+      };
+
+      return EntryCollection;
+
+    })(Backbone.Collection);
+    return EntryCollection;
+  };
+  if (App.TodoListApp.classes == null) {
+    App.TodoListApp.classes = {};
+  }
+  App.TodoListApp.classes.EntryItemView = EntryItemView;
+  App.TodoListApp.classes.EntryCollectionView = EntryCollectionView;
+  App.TodoListApp.classes.EntryCollectionFactory = EntryCollectionFactory;
+  App.TodoListApp.classes.EntryModelFactory = EntryModelFactory;
+  App.TodoListApp.classes.EntryModel = void 0;
+  App.TodoListApp.classes.EntryCollection = void 0;
+  EntriesView.run = function() {
+    return App.TodoListApp.entryCollection = void 0;
+  };
+  EntriesView.addInitializer(function() {
+    return EntriesView.run();
+  });
+  EntriesView.on("start", function() {
+    console.debug("EntriesView.onStart");
+    return true;
+  });
+  EntriesView.on('all', function(a) {
+    return console.log('EntriesView events' + a);
+  });
+  return App.commands.setHandler("showEntriesView", function(todolistid) {
+    console.debug('TodoListApp.EntriesView with todolistid:' + todolistid);
+    App.TodoListApp.classes.EntryModel = App.TodoListApp.classes.EntryModelFactory(todolistid);
+    console.debug('App.TodoListApp.classes.EntryModel = EntryModelFactory(todolistid)');
+    App.TodoListApp.classes.EntryCollection = App.TodoListApp.classes.EntryCollectionFactory(todolistid);
+    console.debug('App.TodoListApp.classes.EntryCollection = EntryCollectionFactory(todolistid)');
+    EntriesView.mainView = new EntryCollectionView({
+      collection: new App.TodoListApp.classes.EntryCollection(todolistid)
+    });
+    console.debug('EntriesView.mainView = new EntryCollectionView({ collection : new EntryCollectionFactory(todolistid) })');
+    App.TodoListApp.mainView.entriesView.show(EntriesView.mainView);
+    console.debug('App.TodoListApp.mainView.entriesView.show(EntriesView.mainView)');
+    App.TodoListApp.entryCollection = EntriesView.mainView.collection;
+    console.debug('App.TodoListApp.entryCollection = EntriesView.mainView.collection');
+    EntriesView.mainView.collection.fetch();
+    console.debug('EntriesView.mainView.collection.fetch()');
+    return void 0;
   });
 });

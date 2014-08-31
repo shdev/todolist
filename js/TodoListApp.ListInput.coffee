@@ -1,27 +1,36 @@
 App.module 'TodoListApp.ListInput', (ListInput, App, Backbone, Marionette, $, _) ->
 
 	class ListInputView extends Marionette.LayoutView
-#		className : "input-group"
+		className : "form-group"
 		ui : 
 			"addItemButton" : "button.add-item"
 			"itemName" : "input"
 		behaviors :
 			AddSimpleItem : {}
-		getCollection : ->
+		managedCollection : ->
 			return App.TodoListApp.listCollection
 		template : _.template """
-		<label for="listname">Liste anlegen</label>
-		<div class="input-group">
-			<input type="text" class="form-control" id="listname" placeholder="Liste">
-			<span class="input-group-btn">
-				<button class="btn btn-success add-item" type="button"><i class="fa fa-plus"></i></button>
-			</span>
-		</div>
+			<label class="control-label" for="listname">Liste anlegen</label>
+			<form>
+			<div class="input-group">
+				<input type="text" class="form-control" id="listname" placeholder="Liste">
+				<span class="input-group-btn">
+					<button class="btn btn-success add-item" type="submit"><i class="fa fa-plus"></i></button>
+				</span>
+			</div>
+			</form>
 		"""
-
+	
+	App.TodoListApp.classes = {} if not App.TodoListApp.classes?
+	App.TodoListApp.classes.ListInputView = ListInputView
+	
 	ListInput.run = ->
-			console.debug 'TodoListApp.ListInput'
+			console.debug 'TodoListApp.ListInput.run'
 			@mainView = new ListInputView()
 			App.TodoListApp.mainView.listInput.show(@mainView);
 
-	ListInput.addInitializer ListInput.run
+	ListInput.on 'all', (a)->
+		console.log 'ListInput events' + a
+
+	ListInput.addInitializer ->
+		ListInput.run()

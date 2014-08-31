@@ -20,8 +20,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			entryInput : "#todolistapp-entry-input"
 			entriesView : "#todolistapp-entries-view"
 
-	TodoListApp = 
-		run : -> 
+	EntriesView.run -> 
 			@mainView = new MainView()
 			window.mainView = @mainView
 			
@@ -42,4 +41,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			
 	App.addInitializer ->
 		TodoListApp .run()
+
+	EntriesView.on 'all', (a)->
+		console.log 'EntriesView events' + a
 

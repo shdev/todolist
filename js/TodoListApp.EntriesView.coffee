@@ -1,5 +1,16 @@
 App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $, _) ->
 
+	class NoEntrieView extends Marionette.ItemView
+		tagName : "li"
+		className : "list-group-item list-group-item-warning"
+		template : _.template """
+		Es gibt keine Einträge!
+		"""
+		# behaviors :
+		# 	Tooltip : {}
+		onRender : ->
+			console.debug 'Render NoEntrieView '
+
 	class EntryItemView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item"
@@ -23,15 +34,15 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		# 	console.debug @model.get('eMail')
 		onRender : ->
 			console.debug 'Render Entry: ' + @model.get('name') 
+			console.debug @model
 			return true
 
 	class EntryCollectionView extends Marionette.CollectionView
 		tagName : "ul"
 		className : "list-group"
 		childView : EntryItemView
-
-
-
+		emptyView : NoEntrieView
+		
 	EntryModelFactory = (todolistid) -> 
 		class EntryModel extends Backbone.Model
 			idAttribute : '_id'
@@ -42,19 +53,13 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			sync: BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql')
 		return EntryModel
 	
-	EntryCollectionFactory = (hasenbrot) ->
-		console.debug 'EntryCollectionFactory:' + hasenbrot
-		console.debug(typeof(hasenbrot))
+	EntryCollectionFactory = (todolistid) ->
+		console.debug 'EntryCollectionFactory:' + todolistid
+		console.debug(typeof(todolistid))
 		
-		mapfunc =  (doc, emit) ->
-			console.debug 'map entry'
-			console.debug doc
-			console.debug hasenbrot
-			
-			if doc.type? and doc["todolist-id"]?			
-				if doc.type == 'todoentry'  and doc["todolist-id"] == hasenbrot
-					emit [doc.position], null
-								
+		mapfunc =  (doc) ->
+			if doc.type? and doc["todolist-id"]?
+				emit doc["todolist-id"],doc if doc.type == 'todoentry'
 		
 		pouchdbOptions = 
 			db : PouchDB('svh_todo', adapter : 'websql')
@@ -64,6 +69,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 					include_docs: false
 					fun :
 						map : mapfunc
+					key : todolistid
 				changes :
 					include_docs: true,
 					filter : (doc) ->
@@ -72,15 +78,12 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		console.debug pouchdbOptions
 
 		class EntryCollection extends Backbone.Collection
-			model : EntryModelFactory(hasenbrot)
+			model : EntryModelFactory(todolistid)
 			sync : BackbonePouch.sync pouchdbOptions
 			parse : (result) ->
-				
 				console.debug 'parse'
-				
 				console.debug result
-				
-				return _.pluck(result.rows, 'doc')
+				return _.pluck(result.rows, 'value')
 		
 		return EntryCollection
 		
@@ -107,19 +110,25 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 	EntriesView.on 'all', (a)->
 		console.log 'EntriesView events' + a
 
-	App.commands.setHandler "showEntriesView" , (todolistid) ->
-		console.debug 'TodoListApp.EntriesView with todolistid:' + todolistid
+
+	App.vent.on 'todolist:changelist', (todolistmodel) ->
+		console.debug 'todolist:changelist EntriesView'
+		console.debug todolistmodel.id
+		todolistid = todolistmodel.id
+		
+		App.TodoListApp.EntryInput.run() if !App.TodoListApp.mainView.entryInput.hasView()
+		
 		App.TodoListApp.classes.EntryModel = App.TodoListApp.classes.EntryModelFactory(todolistid)
-		console.debug 'App.TodoListApp.classes.EntryModel = EntryModelFactory(todolistid)'
 		App.TodoListApp.classes.EntryCollection = App.TodoListApp.classes.EntryCollectionFactory(todolistid)
-		console.debug 'App.TodoListApp.classes.EntryCollection = EntryCollectionFactory(todolistid)'
 			
 		EntriesView.mainView = new EntryCollectionView({ collection : new App.TodoListApp.classes.EntryCollection(todolistid) })
-		console.debug 'EntriesView.mainView = new EntryCollectionView({ collection : new EntryCollectionFactory(todolistid) })'
+#		Why should I do this??
+		EntriesView.mainView.collection.reset()
+
 		App.TodoListApp.mainView.entriesView.show(EntriesView.mainView)
-		console.debug 'App.TodoListApp.mainView.entriesView.show(EntriesView.mainView)'
+
 		App.TodoListApp.entryCollection = EntriesView.mainView.collection
-		console.debug 'App.TodoListApp.entryCollection = EntriesView.mainView.collection'
+
 		EntriesView.mainView.collection.fetch()
-		console.debug 'EntriesView.mainView.collection.fetch()'
-		return undefined
+
+		return undefined		

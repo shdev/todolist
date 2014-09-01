@@ -49,8 +49,8 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			
 			@pouchdbRepTo.on 'uptodate', (a,b,c,d)->
 							console.log '@pouchdb.replicate.to.on uptodate'
-							console.log a
-							App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
+							App.vent.trigger 'replication:svh_todo:uptodate'
+							
 			pouchdbRepTo = @pouchdbRepTo
 			@pouchdbRepTo.on 'error', (a,b,c,d)->
 							console.log '@pouchdb.replicate.to.on error'
@@ -66,8 +66,7 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			
 			@pouchdbRepFrom.on 'uptodate', (a,b,c,d)->
 							console.log '@pouchdb.replicate.from.on uptodate'
-							console.log a
-							App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
+							App.vent.trigger 'replication:svh_todo:uptodate'
 
 
 			pouchdbRepFrom = @pouchdbRepFrom
@@ -97,6 +96,10 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			window.TodoListApp
 			
 			App.vent.trigger('app:initialized', App)
+	
+	App.vent.on 'replication:svh_todo:uptodate', () -> 
+		App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
+		App.TodoListApp.entryCollection.fetch() if App.TodoListApp.entryCollection?
 	
 	TodoListApp.on 'all', (a)->
 		console.log 'TodoListApp events' + a 

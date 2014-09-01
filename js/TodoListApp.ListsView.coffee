@@ -17,10 +17,13 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 				@model.destroy()
 				return false
 			'click' : () ->
-				@$el.siblings().removeClass 'list-group-item-success'
-				@$el.addClass 'list-group-item-success'
-				App.vent.on 'EntriesView'
-				
+				if not @$el.hasClass('list-group-item-success')
+					@$el.siblings().removeClass 'list-group-item-success'
+					App.vent.trigger 'todolist:changelist', @model
+		
+		clicked : () ->
+			@$el.addClass 'list-group-item-success'
+		
 		# onBeforeRender :  ->
 		# 	console.debug @model.get('eMail')
 		onRender : ->
@@ -76,6 +79,13 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		
 	ListsView.addInitializer ->
 		@run()
+		
+	App.vent.on 'todolist:changelist', (todolistmodel) ->
+		console.debug 'todolist:changelist ListsView'
+		console.debug todolistmodel.id
+		
+		todolistmodel.correspondingView.clicked()
+		
 	
 	ListsView.on "start", ->
 		console.debug "ListView.onStart"

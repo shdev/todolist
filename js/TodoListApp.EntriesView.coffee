@@ -13,9 +13,13 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 
 	class EntryItemView extends Marionette.ItemView
 		tagName : "li"
-		className : "list-group-item"
+		className : "list-group-item todolist-entry"
 		template : _.template """
-		<%= name %> 
+		<span class="fa-stack checkbox">
+		  <i class="fa fa-fw fa-square-o fa-stack-2x"></i>
+		  <i class="fa fa-fw fa-check fa-stack-1x checktoggle"></i>
+		</span>
+		<span class="content"><%= name %></span>
 		<span class="delete badge" data-toggle="tooltip" data-placement="top" title="Lösche Adresse"><i class="fa fa-trash-o fa-fw"></i></span>
 		"""
 		behaviors :
@@ -23,23 +27,38 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		initialize : ->
 			@model.correspondingView = @
 			
+		modelEvents :
+			"change:checked" : 'renderCheckStatus'
+			"change:name" : 'reRenderName'
 		events :
 			'click .delete' : () ->
 				@model.destroy()
-				return false
+				false
 			'click' : () ->
 				@$el.siblings().removeClass 'list-group-item-success'
 				@$el.addClass 'list-group-item-success'
+			'click .checkbox' : () ->
+				@model.toggleCheck() 
+				@model.save()
+				false
 		# onBeforeRender :  ->
 		# 	console.debug @model.get('eMail')
+		reRenderName : ->
+			@$('.content').text @model.get('name')
+		renderCheckStatus : ->
+			if @model.get('checked')?
+				@$el.removeClass 'ischecked'
+			else
+				@$el.addClass 'ischecked'
 		onRender : ->
 			console.debug 'Render Entry: ' + @model.get('name') 
 			console.debug @model
+			@renderCheckStatus()
 			return true
 
 	class EntryCollectionView extends Marionette.CollectionView
 		tagName : "ul"
-		className : "list-group"
+		className : "list-group todolist-entries-list"
 		childView : EntryItemView
 		emptyView : NoEntrieView
 		
@@ -48,9 +67,20 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			idAttribute : '_id'
 			defaults : 
 				type : 'todoentry'
-				created : (new Date()).toUTCString()
+				created : JSON.parse(JSON.stringify(new Date()))
 				"todolist-id" : todolistid
-			sync: BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql')
+			sync : BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql')
+			check : () ->
+				if not @get('checked')?
+					@.set('checked', JSON.parse(JSON.stringify(new Date())))
+			unCheck : ->
+				if @get('checked')?
+					@.set('checked', null)
+			toggleCheck : ->
+				if @get('checked')?
+					@unCheck()
+				else
+					@check()
 		return EntryModel
 	
 	EntryCollectionFactory = (todolistid) ->

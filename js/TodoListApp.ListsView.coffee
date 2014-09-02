@@ -3,14 +3,21 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	class ListItemView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item"
+		cid : 'ListItemView'
 		template : _.template """
-		<%= name %> 
-		<span class="delete badge" data-toggle="tooltip" data-placement="top" title="Lösche Adresse"><i class="fa fa-trash-o fa-fw"></i></span>
+		<span class="content"><%= name %></span>
+		<span class="badge delete" data-toggle="tooltip" data-placement="top" title="Lösche Adresse"><i class="fa fa-trash-o fa-fw" ></i></span>
 		"""
 		behaviors :
 			Tooltip : {}
 		initialize : ->
 			@model.correspondingView = @
+			@model.on 'change', (a,b,c) -> 
+				console.debug @cid 
+				console.debug a  
+				console.debug b
+				console.debug c
+				 
 			
 		events :
 			'click .delete' : () ->
@@ -39,7 +46,7 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		idAttribute : '_id'
 		defaults : 
 			type : 'todolist'
-			created : (new Date()).toUTCString()
+			created : JSON.parse(JSON.stringify(new Date()))
 		sync: BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql') 
 
 	pouchdbOptions = 

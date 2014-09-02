@@ -22,3 +22,25 @@ button {
 
 .error.badge {
   background-color: #d9534f; }
+
+#todolistapp-entries-view .todolist-entry.ischecked > * {
+  opacity: 0.3; }
+#todolistapp-entries-view .todolist-entry.ischecked .content {
+  text-decoration: line-through; }
+#todolistapp-entries-view .todolist-entry.ischecked .checktoggle {
+  opacity: 1; }
+#todolistapp-entries-view .todolist-entry.ischecked .delete {
+  display: none; }
+#todolistapp-entries-view .todolist-entry > * {
+  -webkit-transition: all 0.5s ease-in-out 0s;
+  -moz-transition: all 0.5s ease-in-out 0s;
+  -ms-transition: all 0.5s ease-in-out 0s;
+  -o-transition: all 0.5s ease-in-out 0s;
+  transition: all 0.5s ease-in-out 0s; }
+#todolistapp-entries-view .todolist-entry .checktoggle {
+  -webkit-transition: all 0.5s ease-in-out 0s;
+  -moz-transition: all 0.5s ease-in-out 0s;
+  -ms-transition: all 0.5s ease-in-out 0s;
+  -o-transition: all 0.5s ease-in-out 0s;
+  transition: all 0.5s ease-in-out 0s;
+  opacity: 0; }

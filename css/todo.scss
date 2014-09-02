@@ -29,3 +29,30 @@ button {
 .error.badge {
 	background-color : #d9534f;
 }
+
+
+#todolistapp-entries-view {
+	.todolist-entry {
+		&.ischecked {
+			&>* {
+				opacity : 0.3;
+			}
+			.content {
+				text-decoration: line-through;
+			}
+			.checktoggle {
+				opacity : 1;
+			}
+			.delete {
+				display:none;
+			}
+		}
+		&>* {
+			@include transition;
+		}
+		.checktoggle {
+			@include transition;
+			opacity : 0;
+		}
+	}
+}

@@ -155,7 +155,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
     this.pouchdb = new PouchDB('svh_todo', {
       adapter: 'websql'
     });
-    this.pouchdbRepTo = this.pouchdb.replicate.to('http://uli-kunkel:5984/svh_todo', {
+    this.pouchdbRepTo = this.pouchdb.replicate.to('http://192.168.50.30:5984/svh_todo', {
       live: true
     });
     this.pouchdbRepTo.on('uptodate', function(a, b, c, d) {
@@ -175,7 +175,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
         return App.TodoListApp.listCollection.fetch();
       }
     });
-    this.pouchdbRepFrom = this.pouchdb.replicate.from('http://uli-kunkel:5984/svh_todo', {
+    this.pouchdbRepFrom = this.pouchdb.replicate.from('http://192.168.50.30:5984/svh_todo', {
       live: true
     });
     this.pouchdbRepFrom.on('uptodate', function(a, b, c, d) {
@@ -332,14 +332,22 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 
     ListItemView.prototype.className = "list-group-item";
 
-    ListItemView.prototype.template = _.template("<%= name %> \n<span class=\"delete badge\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Lösche Adresse\"><i class=\"fa fa-trash-o fa-fw\"></i></span>");
+    ListItemView.prototype.cid = 'ListItemView';
+
+    ListItemView.prototype.template = _.template("<span class=\"content\"><%= name %></span>\n<span class=\"badge delete\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Lösche Adresse\"><i class=\"fa fa-trash-o fa-fw\" ></i></span>");
 
     ListItemView.prototype.behaviors = {
       Tooltip: {}
     };
 
     ListItemView.prototype.initialize = function() {
-      return this.model.correspondingView = this;
+      this.model.correspondingView = this;
+      return this.model.on('change', function(a, b, c) {
+        console.debug(this.cid);
+        console.debug(a);
+        console.debug(b);
+        return console.debug(c);
+      });
     };
 
     ListItemView.prototype.events = {
@@ -394,7 +402,7 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 
     ListModel.prototype.defaults = {
       type: 'todolist',
-      created: (new Date()).toUTCString()
+      created: JSON.parse(JSON.stringify(new Date()))
     };
 
     ListModel.prototype.sync = BackbonePouch.sync({
@@ -512,9 +520,9 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
     EntryItemView.prototype.tagName = "li";
 
-    EntryItemView.prototype.className = "list-group-item";
+    EntryItemView.prototype.className = "list-group-item todolist-entry";
 
-    EntryItemView.prototype.template = _.template("<%= name %> \n<span class=\"delete badge\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Lösche Adresse\"><i class=\"fa fa-trash-o fa-fw\"></i></span>");
+    EntryItemView.prototype.template = _.template("<span class=\"fa-stack checkbox\">\n  <i class=\"fa fa-fw fa-square-o fa-stack-2x\"></i>\n  <i class=\"fa fa-fw fa-check fa-stack-1x checktoggle\"></i>\n</span>\n<span class=\"content\"><%= name %></span>\n<span class=\"delete badge\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Lösche Adresse\"><i class=\"fa fa-trash-o fa-fw\"></i></span>");
 
     EntryItemView.prototype.behaviors = {
       Tooltip: {}
@@ -522,6 +530,11 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
     EntryItemView.prototype.initialize = function() {
       return this.model.correspondingView = this;
+    };
+
+    EntryItemView.prototype.modelEvents = {
+      "change:checked": 'renderCheckStatus',
+      "change:name": 'reRenderName'
     };
 
     EntryItemView.prototype.events = {
@@ -532,12 +545,30 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
       'click': function() {
         this.$el.siblings().removeClass('list-group-item-success');
         return this.$el.addClass('list-group-item-success');
+      },
+      'click .checkbox': function() {
+        this.model.toggleCheck();
+        this.model.save();
+        return false;
+      }
+    };
+
+    EntryItemView.prototype.reRenderName = function() {
+      return this.$('.content').text(this.model.get('name'));
+    };
+
+    EntryItemView.prototype.renderCheckStatus = function() {
+      if (this.model.get('checked') != null) {
+        return this.$el.removeClass('ischecked');
+      } else {
+        return this.$el.addClass('ischecked');
       }
     };
 
     EntryItemView.prototype.onRender = function() {
       console.debug('Render Entry: ' + this.model.get('name'));
       console.debug(this.model);
+      this.renderCheckStatus();
       return true;
     };
 
@@ -553,7 +584,7 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
     EntryCollectionView.prototype.tagName = "ul";
 
-    EntryCollectionView.prototype.className = "list-group";
+    EntryCollectionView.prototype.className = "list-group todolist-entries-list";
 
     EntryCollectionView.prototype.childView = EntryItemView;
 
@@ -575,7 +606,7 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
       EntryModel.prototype.defaults = {
         type: 'todoentry',
-        created: (new Date()).toUTCString(),
+        created: JSON.parse(JSON.stringify(new Date())),
         "todolist-id": todolistid
       };
 
@@ -584,6 +615,26 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
           adapter: 'websql'
         })
       });
+
+      EntryModel.prototype.check = function() {
+        if (this.get('checked') == null) {
+          return this.set('checked', JSON.parse(JSON.stringify(new Date())));
+        }
+      };
+
+      EntryModel.prototype.unCheck = function() {
+        if (this.get('checked') != null) {
+          return this.set('checked', null);
+        }
+      };
+
+      EntryModel.prototype.toggleCheck = function() {
+        if (this.get('checked') != null) {
+          return this.unCheck();
+        } else {
+          return this.check();
+        }
+      };
 
       return EntryModel;
 

@@ -46,13 +46,29 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		reRenderName : ->
 			@$('.content').text @model.get('name')
 		renderCheckStatus : ->
+			console.debug 'CheckStatus'
+			console.debug @model.get('checked')
 			if @model.get('checked')?
-				@$el.removeClass 'ischecked'
-			else
+				console.debug 'checked'
 				@$el.addClass 'ischecked'
+			else
+				console.debug 'unchecked'
+				@$el.removeClass 'ischecked'
 		onRender : ->
 			console.debug 'Render Entry: ' + @model.get('name') 
 			console.debug @model
+			thisModel = @model
+			@$(".content").editable
+				type	: 'text'
+				name	: 'Name eingeben'
+				value	: @model.get('name')
+				pk	: @model.get('id')
+				url	: ''
+				mode : 'inline'
+				success	: (response, newValue) ->
+					thisModel.set('name', newValue)
+					thisModel.save()
+			@renderCheckStatus()
 			@renderCheckStatus()
 			return true
 
@@ -69,6 +85,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 				type : 'todoentry'
 				created : JSON.parse(JSON.stringify(new Date()))
 				"todolist-id" : todolistid
+				checked : null
 			sync : BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql')
 			check : () ->
 				if not @get('checked')?
@@ -89,31 +106,33 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		
 		mapfunc =  (doc) ->
 			if doc.type? and doc["todolist-id"]?
-				emit doc["todolist-id"],doc if doc.type == 'todoentry'
+				emit doc["todolist-id"], doc.pos if doc.type == 'todoentry'
 		
 		pouchdbOptions = 
 			db : PouchDB('svh_todo', adapter : 'websql')
 			fetch : 'query'
 			options :
 				query :
-					include_docs: false
+					include_docs: true
 					fun :
 						map : mapfunc
 					key : todolistid
-				changes :
-					include_docs: true,
-					filter : (doc) ->
-						return doc._deleted || doc.type == 'todoentry'
+				# changes :
+				# 	include_docs: true,
+				# 	filter : (doc) ->
+				# 		return doc._deleted || doc.type == 'todoentry'
 						
 		console.debug pouchdbOptions
 
 		class EntryCollection extends Backbone.Collection
 			model : EntryModelFactory(todolistid)
 			sync : BackbonePouch.sync pouchdbOptions
+			"todolist-id" : todolistid
+			comparator : 'created'
 			parse : (result) ->
 				console.debug 'parse'
 				console.debug result
-				return _.pluck(result.rows, 'value')
+				return _.pluck(result.rows, 'doc')
 		
 		return EntryCollection
 		
@@ -140,6 +159,12 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 	EntriesView.on 'all', (a)->
 		console.log 'EntriesView events' + a
 
+	App.vent.on 'todolist:deleted-list' , (a) ->
+		if App.TodoListApp.entryCollection?
+			if a == App.TodoListApp.entryCollection["todolist-id"]
+				App.TodoListApp.mainView.entriesView.reset()
+				App.TodoListApp.mainView.entryInput.reset()	
+				App.TodoListApp.entryCollection = null
 
 	App.vent.on 'todolist:changelist', (todolistmodel) ->
 		console.debug 'todolist:changelist EntriesView'

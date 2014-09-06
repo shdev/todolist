@@ -12,13 +12,6 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 			Tooltip : {}
 		initialize : ->
 			@model.correspondingView = @
-			@model.on 'change', (a,b,c) -> 
-				console.debug @cid 
-				console.debug a  
-				console.debug b
-				console.debug c
-				 
-			
 		events :
 			'click .delete' : () ->
 				@model.destroy()
@@ -35,6 +28,17 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		# 	console.debug @model.get('eMail')
 		onRender : ->
 			console.debug 'Render List: ' + @model.get('name') 
+			thisModel = @model
+			@$(".content").editable
+				type	: 'text'
+				name	: 'Name eingeben'
+				value	: @model.get('name')
+				pk	: @model.get('id')
+				url	: ''
+				mode : 'inline'
+				success	: (response, newValue) ->
+					thisModel.set('name', newValue)
+					thisModel.save()
 			return true
 
 	class ListCollectionView extends Marionette.CollectionView
@@ -47,7 +51,10 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		defaults : 
 			type : 'todolist'
 			created : JSON.parse(JSON.stringify(new Date()))
-		sync: BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql') 
+		sync: BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql')
+		initialize : () -> 
+			@on 'destroy' , (a) -> 
+				App.vent.trigger 'todolist:deleted-list', a.id if a? and a.id?
 
 	pouchdbOptions = 
 		db : PouchDB('svh_todo', adapter : 'websql')
@@ -59,17 +66,19 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 					map : (doc) ->
 						if doc.type == 'todolist'
 							emit doc.position, null
-			changes :
-				include_docs: true,
-				filter : (doc) ->
-					return doc._deleted || doc.type == 'todolist'
+			# changes :
+			# 	include_docs: true,
+			# 	filter : (doc) ->
+			# 		return doc._deleted || doc.type == 'todolist'
 
 	class ListCollection extends Backbone.Collection
 		model : ListModel
 		sync : BackbonePouch.sync pouchdbOptions
+		comparator : 'created'
 		parse : (result) ->
+			console.debug 'parse lists'
+			console.debug result
 			return _.pluck(result.rows, 'doc')
-		
 		
 	App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 	App.TodoListApp.classes.ListItemView = ListItemView
@@ -90,9 +99,7 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	App.vent.on 'todolist:changelist', (todolistmodel) ->
 		console.debug 'todolist:changelist ListsView'
 		console.debug todolistmodel.id
-		
 		todolistmodel.correspondingView.clicked()
-		
 	
 	ListsView.on "start", ->
 		console.debug "ListView.onStart"

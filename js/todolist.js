@@ -155,7 +155,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
     this.pouchdb = new PouchDB('svh_todo', {
       adapter: 'websql'
     });
-    this.pouchdbRepTo = this.pouchdb.replicate.to('http://192.168.50.30:5984/svh_todo', {
+    this.pouchdbRepTo = this.pouchdb.replicate.to('http://127.0.0.1:5984/svh_todo', {
       live: true
     });
     this.pouchdbRepTo.on('uptodate', function(a, b, c, d) {
@@ -175,7 +175,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
         return App.TodoListApp.listCollection.fetch();
       }
     });
-    this.pouchdbRepFrom = this.pouchdb.replicate.from('http://192.168.50.30:5984/svh_todo', {
+    this.pouchdbRepFrom = this.pouchdb.replicate.from('http://127.0.0.1:5984/svh_todo', {
       live: true
     });
     this.pouchdbRepFrom.on('uptodate', function(a, b, c, d) {
@@ -341,13 +341,7 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
     };
 
     ListItemView.prototype.initialize = function() {
-      this.model.correspondingView = this;
-      return this.model.on('change', function(a, b, c) {
-        console.debug(this.cid);
-        console.debug(a);
-        console.debug(b);
-        return console.debug(c);
-      });
+      return this.model.correspondingView = this;
     };
 
     ListItemView.prototype.events = {
@@ -368,7 +362,21 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
     };
 
     ListItemView.prototype.onRender = function() {
+      var thisModel;
       console.debug('Render List: ' + this.model.get('name'));
+      thisModel = this.model;
+      this.$(".content").editable({
+        type: 'text',
+        name: 'Name eingeben',
+        value: this.model.get('name'),
+        pk: this.model.get('id'),
+        url: '',
+        mode: 'inline',
+        success: function(response, newValue) {
+          thisModel.set('name', newValue);
+          return thisModel.save();
+        }
+      });
       return true;
     };
 
@@ -411,6 +419,14 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
       })
     });
 
+    ListModel.prototype.initialize = function() {
+      return this.on('destroy', function(a) {
+        if ((a != null) && (a.id != null)) {
+          return App.vent.trigger('todolist:deleted-list', a.id);
+        }
+      });
+    };
+
     return ListModel;
 
   })(Backbone.Model);
@@ -429,12 +445,6 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
             }
           }
         }
-      },
-      changes: {
-        include_docs: true,
-        filter: function(doc) {
-          return doc._deleted || doc.type === 'todolist';
-        }
       }
     }
   };
@@ -449,7 +459,11 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 
     ListCollection.prototype.sync = BackbonePouch.sync(pouchdbOptions);
 
+    ListCollection.prototype.comparator = 'created';
+
     ListCollection.prototype.parse = function(result) {
+      console.debug('parse lists');
+      console.debug(result);
       return _.pluck(result.rows, 'doc');
     };
 
@@ -558,16 +572,35 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
     };
 
     EntryItemView.prototype.renderCheckStatus = function() {
+      console.debug('CheckStatus');
+      console.debug(this.model.get('checked'));
       if (this.model.get('checked') != null) {
-        return this.$el.removeClass('ischecked');
-      } else {
+        console.debug('checked');
         return this.$el.addClass('ischecked');
+      } else {
+        console.debug('unchecked');
+        return this.$el.removeClass('ischecked');
       }
     };
 
     EntryItemView.prototype.onRender = function() {
+      var thisModel;
       console.debug('Render Entry: ' + this.model.get('name'));
       console.debug(this.model);
+      thisModel = this.model;
+      this.$(".content").editable({
+        type: 'text',
+        name: 'Name eingeben',
+        value: this.model.get('name'),
+        pk: this.model.get('id'),
+        url: '',
+        mode: 'inline',
+        success: function(response, newValue) {
+          thisModel.set('name', newValue);
+          return thisModel.save();
+        }
+      });
+      this.renderCheckStatus();
       this.renderCheckStatus();
       return true;
     };
@@ -607,7 +640,8 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
       EntryModel.prototype.defaults = {
         type: 'todoentry',
         created: JSON.parse(JSON.stringify(new Date())),
-        "todolist-id": todolistid
+        "todolist-id": todolistid,
+        checked: null
       };
 
       EntryModel.prototype.sync = BackbonePouch.sync({
@@ -648,7 +682,7 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
     mapfunc = function(doc) {
       if ((doc.type != null) && (doc["todolist-id"] != null)) {
         if (doc.type === 'todoentry') {
-          return emit(doc["todolist-id"], doc);
+          return emit(doc["todolist-id"], doc.pos);
         }
       }
     };
@@ -659,17 +693,11 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
       fetch: 'query',
       options: {
         query: {
-          include_docs: false,
+          include_docs: true,
           fun: {
             map: mapfunc
           },
           key: todolistid
-        },
-        changes: {
-          include_docs: true,
-          filter: function(doc) {
-            return doc._deleted || doc.type === 'todoentry';
-          }
         }
       }
     };
@@ -685,10 +713,14 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
       EntryCollection.prototype.sync = BackbonePouch.sync(pouchdbOptions);
 
+      EntryCollection.prototype["todolist-id"] = todolistid;
+
+      EntryCollection.prototype.comparator = 'created';
+
       EntryCollection.prototype.parse = function(result) {
         console.debug('parse');
         console.debug(result);
-        return _.pluck(result.rows, 'value');
+        return _.pluck(result.rows, 'doc');
       };
 
       return EntryCollection;
@@ -717,6 +749,15 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
   });
   EntriesView.on('all', function(a) {
     return console.log('EntriesView events' + a);
+  });
+  App.vent.on('todolist:deleted-list', function(a) {
+    if (App.TodoListApp.entryCollection != null) {
+      if (a === App.TodoListApp.entryCollection["todolist-id"]) {
+        App.TodoListApp.mainView.entriesView.reset();
+        App.TodoListApp.mainView.entryInput.reset();
+        return App.TodoListApp.entryCollection = null;
+      }
+    }
   });
   return App.vent.on('todolist:changelist', function(todolistmodel) {
     var todolistid;

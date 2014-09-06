@@ -27,7 +27,8 @@ App.module 'GeneralBehavior', (GeneralBehavior, App, Backbone, Marionette, $, _)
 			collection = _.result(@view, 'managedCollection')
 			modelClass = _.result(@view, 'modelClass')
 			if modelClass?
-				model = new modelClass( name : @view.ui.itemName.val() )
+				model = new modelClass
+					name : @view.ui.itemName.val()
 				console.debug 'save new item'
 				model.save()
 				console.debug model.toJSON()

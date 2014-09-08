@@ -35,17 +35,12 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			# Backbone.sync =  BackbonePouch.sync db: PouchDB('svh_todo')
 
 			###
-			
-			TODO a better 
-			
+			TODO a better replication handling
 			###
-
-
-
 			
 			@pouchdb = new PouchDB('svh_todo', adapter : 'websql')
 
-			@pouchdbRepTo = @pouchdb.replicate.to('http://127.0.0.1:5984/svh_todo', {live : true})
+			@pouchdbRepTo = @pouchdb.replicate.to('http://192.168.50.30:5984/svh_todo', {live : true})
 			
 			@pouchdbRepTo.on 'uptodate', (a,b,c,d)->
 							console.log '@pouchdb.replicate.to.on uptodate'
@@ -62,7 +57,7 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 							console.log a
 							App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
 							
-			@pouchdbRepFrom = @pouchdb.replicate.from('http://127.0.0.1:5984/svh_todo', {live : true})
+			@pouchdbRepFrom = @pouchdb.replicate.from('http://192.168.50.30:5984/svh_todo', {live : true})
 			
 			@pouchdbRepFrom.on 'uptodate', (a,b,c,d)->
 							console.log '@pouchdb.replicate.from.on uptodate'
@@ -79,8 +74,6 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 							console.log '@pouchdb.replicate.from.on complete'
 							console.log a
 							App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
-
-			
 
 			@mainView = new TodoListAppView()
 

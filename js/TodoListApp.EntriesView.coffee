@@ -146,6 +146,9 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 	App.TodoListApp.classes.EntryCollection = undefined
 
 	EntriesView.run = ( )->
+		console.debug "EntriesView.run"
+		console.debug App
+		console.debug App.TodolistApp
 		App.TodoListApp.entryCollection = undefined
 
 		
@@ -157,7 +160,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		return true
 		
 	EntriesView.on 'all', (a)->
-		console.log 'EntriesView events' + a
+		console.log 'EntriesView events ' + a
 
 	App.vent.on 'todolist:deleted-list' , (a) ->
 		if App.TodoListApp.entryCollection?

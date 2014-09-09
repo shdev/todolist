@@ -125,7 +125,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
 
     TodoListAppView.prototype.className = "container";
 
-    TodoListAppView.prototype.template = _.template("<div id=\"todolistapp-lists\">\n	<div id=\"todolistapp-list-input\"></div>\n	<hr />\n	<div id=\"todolistapp-lists-view\"></div>\n</div>\n<hr />\n<hr />\n<div id=\"todolistapp-entries\">\n	<div id=\"todolistapp-entry-input\"></div>\n	<hr />\n	<div id=\"todolistapp-entries-view\"></div>\n</div>");
+    TodoListAppView.prototype.template = _.template("\n<div id=\"todolistapp-lists\">\n	<div id=\"todolistapp-list-input\"></div>\n	<hr />\n	<div id=\"todolistapp-lists-view\"></div>\n</div>\n<hr />\n<hr />\n<div id=\"todolistapp-entries\">\n	<div id=\"todolistapp-entry-input\"></div>\n	<hr />\n	<div id=\"todolistapp-entries-view\"></div>\n</div>\n<hr />\n<hr />\n<div id=\"todolistapp-configuration\">\n	<form role=\"form\">\n		<div class=\"form-group\">\n			<label for=\"username\">Benutzername</label>\n			<input type=\"url\" class=\"form-control username\" placeholder=\"Mein Name ist??\" required />\n		</div>\n		<hr />\n		<div class=\"form-group\">\n			<label for=\"replicateurl\">Adresse zum Replizieren</label>\n			<input type=\"url\" class=\"form-control replicateurl\" placeholder=\"http://\" required />\n		</div>\n		<div class=\"checkbox\">\n			<label>\n				<input type=\"checkbox\" class=\"continuousreplication\" required> Durchgängige Replikation\n			</label>\n		</div>\n		<div class=\"form-group replicationinterval\">\n			<label for=\"replicationinterval\">Replikationsinterval</label>\n			<div class=\"input-group\">\n				<input class=\"form-control replicationinterval\" required type=\"number\" min=\"0\" step=\"3\" placeholder=\"0\" />\n				<div class=\"input-group-addon\">sek</div>\n			</div>\n		</div>\n		<hr />\n		<button type=\"reset\" class=\"btn btn-default\">Zurücksetzen</button>\n		<button type=\"submit\" class=\"btn btn-default\">Speichern</button>\n	</form>\n</div>");
 
     TodoListAppView.prototype.regions = {
       listsArea: "#todolistapp-lists",
@@ -516,6 +516,11 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
     NoEntrieView.prototype.className = "list-group-item list-group-item-warning";
 
     NoEntrieView.prototype.template = _.template("Es gibt keine Einträge!");
+
+
+    /*
+    		TODO watch out for the collection loads data
+     */
 
     NoEntrieView.prototype.onRender = function() {
       return console.debug('Render NoEntrieView ');

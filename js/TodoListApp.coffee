@@ -3,6 +3,7 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 	class TodoListAppView extends Marionette.LayoutView
 		className : "container"
 		template : _.template """
+		
 		<div id="todolistapp-lists">
 			<div id="todolistapp-list-input"></div>
 			<hr />
@@ -14,6 +15,36 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			<div id="todolistapp-entry-input"></div>
 			<hr />
 			<div id="todolistapp-entries-view"></div>
+		</div>
+		<hr />
+		<hr />
+		<div id="todolistapp-configuration">
+			<form role="form">
+				<div class="form-group">
+					<label for="username">Benutzername</label>
+					<input type="url" class="form-control username" placeholder="Mein Name ist??" required />
+				</div>
+				<hr />
+				<div class="form-group">
+					<label for="replicateurl">Adresse zum Replizieren</label>
+					<input type="url" class="form-control replicateurl" placeholder="http://" required />
+				</div>
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" class="continuousreplication" required> Durchgängige Replikation
+					</label>
+				</div>
+				<div class="form-group replicationinterval">
+					<label for="replicationinterval">Replikationsinterval</label>
+					<div class="input-group">
+						<input class="form-control replicationinterval" required type="number" min="0" step="3" placeholder="0" />
+						<div class="input-group-addon">sek</div>
+					</div>
+				</div>
+				<hr />
+				<button type="reset" class="btn btn-default">Zurücksetzen</button>
+				<button type="submit" class="btn btn-default">Speichern</button>
+			</form>
 		</div>
 		"""
 		regions : 

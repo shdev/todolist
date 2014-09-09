@@ -6,6 +6,10 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		template : _.template """
 		Es gibt keine Einträge!
 		"""
+		
+		###
+		TODO watch out for the collection loads data
+		###
 		# behaviors :
 		# 	Tooltip : {}
 		onRender : ->

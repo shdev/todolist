@@ -115,7 +115,7 @@ App.module('GeneralBehavior', function(GeneralBehavior, App, Backbone, Marionett
 });
 
 App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _) {
-  var TodoListAppView;
+  var TodoListAppView, pouchDB, pouchdbRepFrom, pouchdbRepTo;
   TodoListAppView = (function(_super) {
     __extends(TodoListAppView, _super);
 
@@ -143,17 +143,80 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
     App.TodoListApp.classes = {};
   }
   App.TodoListApp.classes.TodoListAppView;
+  pouchDB = void 0;
+  App.reqres.setHandler("TodoListApp:PouchDB", function() {
+    if (typeof pouch === "undefined" || pouch === null) {
+      pouchDB = new PouchDB('svh_todo', {
+        adapter: 'websql'
+      });
+    }
+    return pouchDB;
+  });
+  App.vent.on('todolist:configurationloaded', function(config) {
+    App.vent.trigger('todolistapp:startReplication');
+    return App.vent.trigger('todolistapp:initViews');
+  });
+  App.vent.on('todolistapp:initViews', function() {
+    TodoListApp.mainView = new TodoListAppView();
+    window.TodoListApp = TodoListApp;
+    return App.mainRegion.show(this.mainView);
+  });
+  pouchdbRepTo = void 0;
+  pouchdbRepFrom = void 0;
+  App.vent.on('todolistapp:startReplication', function() {
+    var currentConfiguration, currentPouchDB;
+    currentPouchDB = App.request("TodoListApp:PouchDB");
+    currentConfiguration = App.request("TodoListApp:Configuration");
+    if (pouchdbRepTo != null) {
+      pouchdbRepTo.cancel();
+    }
+    if (pouchdbRepTo == null) {
+      pouchdbRepTo = currentPouchDB.replicate.to(currentConfiguration.get('replicateurl'), {
+        live: currentConfiguration.get('continuousreplication')
+      });
+    }
+    pouchdbRepTo.on('uptodate', function() {
+      return App.vent.trigger('replication:pouchdb:to:uptodate');
+    });
+    pouchdbRepTo.on('error', function() {
+      pouchdbRepTo.cancel();
+      pouchdbRepTo = void 0;
+      return App.vent.trigger('replication:pouchdb:to:error');
+    });
+    pouchdbRepTo.on('complete', function() {
+      App.vent.trigger('replication:pouchdb:to:complete');
+      if (App.TodoListApp.listCollection != null) {
+        return App.TodoListApp.listCollection.fetch();
+      }
+    });
+    if (pouchdbRepFrom != null) {
+      pouchdbRepFrom.cancel();
+    }
+    if (pouchdbRepFrom == null) {
+      pouchdbRepFrom = currentPouchDB.replicate.from(currentConfiguration.get('replicateurl'), {
+        live: currentConfiguration.get('continuousreplication')
+      });
+    }
+    pouchdbRepFrom.on('uptodate', function() {
+      return App.vent.trigger('replication:pouchdb:from:uptodate');
+    });
+    pouchdbRepFrom.on('error', function() {
+      pouchdbRepFrom.cancel();
+      pouchdbRepFrom = void 0;
+      return App.vent.trigger('replication:pouchdb:from:error');
+    });
+    return pouchdbRepFrom.on('complete', function() {
+      App.vent.trigger('replication:pouchdb:from:complete');
+      if (App.TodoListApp.listCollection != null) {
+        return App.TodoListApp.listCollection.fetch();
+      }
+    });
+  });
   TodoListApp.run = function() {
-    var pouchdbRepFrom, pouchdbRepTo;
-    console.debug('TodoListApp.run');
-    console.debug(this);
 
     /*
     			TODO a better replication handling
      */
-    this.pouchdb = new PouchDB('svh_todo', {
-      adapter: 'websql'
-    });
     this.pouchdbRepTo = this.pouchdb.replicate.to('http://192.168.50.30:5984/svh_todo', {
       live: true
     });
@@ -194,12 +257,6 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
         return App.TodoListApp.listCollection.fetch();
       }
     });
-    this.mainView = new TodoListAppView();
-    console.debug(this.mainView);
-    window.TodoListApp = this;
-    App.mainRegion.show(this.mainView);
-    console.debug(this.mainView.entryInput);
-    console.debug(App.TodoListApp.mainView.entryInput);
     window.TodoListApp;
     return App.vent.trigger('app:initialized', App);
   };
@@ -210,9 +267,6 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
     if (App.TodoListApp.entryCollection != null) {
       return App.TodoListApp.entryCollection.fetch();
     }
-  });
-  TodoListApp.on('all', function(a) {
-    return console.log('TodoListApp events' + a);
   });
   return App.addInitializer(function() {
     console.debug(this);
@@ -798,6 +852,13 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
 
     TodoConfiguration.prototype.localStorage = new Backbone.LocalStorage("TodoListApp");
 
+    TodoConfiguration.prototype.defaults = {
+      continuousreplication: false,
+      username: "Rodosch",
+      replicateurl: "http://host:port/database",
+      replicationinterval: 5 * 60 * 1000
+    };
+
     return TodoConfiguration;
 
   })(Backbone.Collection);
@@ -813,7 +874,7 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
       return Configuration.todoConfiguration;
     });
     return Configuration.todoConfiguration.fetch().done(function() {
-      return App.vent.trigger('todolist:configurationloaded');
+      return App.vent.trigger('todolist:configurationloaded', Configuration.todoConfiguration);
     });
   };
   return Configuration.addInitializer(function() {

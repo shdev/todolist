@@ -58,18 +58,71 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 	App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 	App.TodoListApp.classes.TodoListAppView
 
-	TodoListApp.run = -> 
-			console.debug 'TodoListApp.run'
-			console.debug @
+	pouchDB = undefined
+
+	App.reqres.setHandler "TodoListApp:PouchDB", () ->
+		pouchDB = new PouchDB('svh_todo', adapter : 'websql') if not pouch?
+		pouchDB
+
+	App.vent.on 'todolist:configurationloaded', (config) ->
+		App.vent.trigger 'todolistapp:startReplication'
+		App.vent.trigger 'todolistapp:initViews'
+		
+	App.vent.on 'todolistapp:initViews', () ->
+		TodoListApp.mainView = new TodoListAppView()
+		window.TodoListApp = TodoListApp
+		App.mainRegion.show(@mainView)
+	
+	pouchdbRepTo = undefined
+	pouchdbRepFrom = undefined
+		
+	App.vent.on 'todolistapp:startReplication', () -> 
+		currentPouchDB = App.request("TodoListApp:PouchDB");
+		currentConfiguration = App.request("TodoListApp:Configuration")
+
+		pouchdbRepTo.cancel() if pouchdbRepTo?
+		if not pouchdbRepTo?
+			pouchdbRepTo = currentPouchDB.replicate.to(currentConfiguration.get('replicateurl'), {live : currentConfiguration.get('continuousreplication')}) 
+
+		pouchdbRepTo.on 'uptodate', ()->
+			App.vent.trigger 'replication:pouchdb:to:uptodate'
 			
+		pouchdbRepTo.on 'error', ()->
+			pouchdbRepTo.cancel()
+			pouchdbRepTo = undefined
+			App.vent.trigger 'replication:pouchdb:to:error'
+			
+		pouchdbRepTo.on 'complete', ()->
+			App.vent.trigger 'replication:pouchdb:to:complete'
+			# TODO move it to listcollection module
+			App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
+
+		pouchdbRepFrom.cancel() if pouchdbRepFrom?
+		if not pouchdbRepFrom?
+			pouchdbRepFrom = currentPouchDB.replicate.from(currentConfiguration.get('replicateurl'), {live : currentConfiguration.get('continuousreplication')}) 
+		
+		pouchdbRepFrom.on 'uptodate', ()->
+			App.vent.trigger 'replication:pouchdb:from:uptodate'
+
+		pouchdbRepFrom.on 'error', ()->
+			pouchdbRepFrom.cancel()
+			pouchdbRepFrom = undefined
+			App.vent.trigger 'replication:pouchdb:from:error'
+						
+		pouchdbRepFrom.on 'complete', ()->
+			App.vent.trigger 'replication:pouchdb:from:complete'
+			# TODO move it to listcollection module
+			App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
+		
+	
+
+	TodoListApp.run = -> 
 			# Backbone.sync = BackbonePouch.sync()
 			# Backbone.sync =  BackbonePouch.sync db: PouchDB('svh_todo')
-
 			###
 			TODO a better replication handling
 			###
-			
-			@pouchdb = new PouchDB('svh_todo', adapter : 'websql')
+			# @pouchdb = new PouchDB('svh_todo', adapter : 'websql')
 
 			@pouchdbRepTo = @pouchdb.replicate.to('http://192.168.50.30:5984/svh_todo', {live : true})
 			
@@ -106,19 +159,9 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 							console.log a
 							App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
 
-			@mainView = new TodoListAppView()
 
-			console.debug @mainView
-
-			window.TodoListApp = @
-			
-			App.mainRegion.show(@mainView)
-			
-			console.debug @mainView.entryInput
-			console.debug App.TodoListApp.mainView.entryInput
 			
 			window.TodoListApp
-			
 			App.vent.trigger('app:initialized', App)
 	
 	App.vent.on 'replication:svh_todo:uptodate', () -> 
@@ -126,8 +169,8 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 		App.TodoListApp.entryCollection.fetch() if App.TodoListApp.entryCollection?
 			
 	
-	TodoListApp.on 'all', (a)->
-		console.log 'TodoListApp events' + a 
+	# TodoListApp.on 'all', (a)->
+	# console.log 'TodoListApp events' + a
 
 	App.addInitializer () ->
 		console.debug @

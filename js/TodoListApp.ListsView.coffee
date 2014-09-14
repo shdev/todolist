@@ -1,5 +1,20 @@
 App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _) ->
 
+	class NoEntrieView extends Marionette.ItemView
+		tagName : "li"
+		className : "list-group-item list-group-item-warning"
+		template : _.template """
+		Es gibt keine Einträge!
+		"""
+		
+		###
+		TODO watch out for the collection loads data
+		###
+		# behaviors :
+		# 	Tooltip : {}
+		onRender : ->
+			console.debug 'Render NoEntrieView'
+
 	class ListItemView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item"
@@ -45,6 +60,7 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		tagName : "ul"
 		className : "list-group"
 		childView : ListItemView
+		emptyView : NoEntrieView
 
 	class ListModel extends Backbone.Model
 		idAttribute : '_id'
@@ -94,12 +110,30 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		@mainView.collection.fetch()
 		
 	ListsView.addInitializer ->
-		@run()
+		# @run()
 		
 	App.vent.on 'todolist:changelist', (todolistmodel) ->
 		console.debug 'todolist:changelist ListsView'
 		console.debug todolistmodel.id
 		todolistmodel.correspondingView.clicked()
+	
+	###
+	TODO request Handling
+	###
+	
+	listCollection = undefined
+	
+	App.mainRegion.on 'before:show', (view) -> 
+		console.debug "App.mainregion.on 'before:show'"
+		console.debug view
+		###
+		TODO check with instanceof
+		###
+		ListsView.mainView = new ListCollectionView({ collection : new ListCollection() })
+		view.listsView.show(ListsView.mainView)
+		App.TodoListApp.listCollection = ListsView.mainView.collection
+		ListsView.mainView.collection.fetch()
+		
 	
 	ListsView.on "start", ->
 		console.debug "ListView.onStart"

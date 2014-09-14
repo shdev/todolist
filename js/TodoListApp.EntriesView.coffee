@@ -13,7 +13,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		# behaviors :
 		# 	Tooltip : {}
 		onRender : ->
-			console.debug 'Render NoEntrieView '
+			console.debug 'Render NoEntrieView'
 
 	class EntryItemView extends Marionette.ItemView
 		tagName : "li"

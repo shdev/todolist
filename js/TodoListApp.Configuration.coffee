@@ -2,10 +2,12 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 
 	class TodoConfigurationModel extends Backbone.Model
 		defaults : 
-			continuousreplication : false
+			continuousreplication : false # 
 			username : "Rodosch"
 			replicateurl : null
 			replicationinterval : 5 * 60 * 1000
+			deleteCheckedEntries : 5 * 24 *  60 * 60 
+			deleteUnusedEntries : 24 *  60 * 60
 		validate : (attributes, options) ->
 			console.debug 'validate'
 			console.debug attributes
@@ -13,17 +15,13 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			if not attributes.username? or not _.isString(attributes.username) or attributes.username.trim().length = 0
 				return  'username'
 			attributes.username = attributes.username.trim()
-			@set({username : attributes.username.trim()}, {silent : true})
 			urlRegEx = /^(https?:\/\/)(?:\S+(?::\S*)?@)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i
 			
 			if not attributes.replicateurl? or not _.isString(attributes.replicateurl) or attributes.replicateurl.trim().length = 0
-				@set({replicateurl : null}, {silent : true})
+				
 			else 
 				if not urlRegEx.test(attributes.replicateurl)
 					return 'replicateurl'
-
-			if not attributes.continuousreplication? or not _.isBoolean(attributes.continuousreplication)
-				@set({continuousreplication : false }, {silent : false})
 					
 			undefined
 			
@@ -53,9 +51,12 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			@$('input.replicationinterval').val(@model.get('replicationinterval'))
 		events : 
 			'change input.username' : () ->
-				@model.save({username : @$('input.username').val()})
+				@model.save({username : @$('input.username').val().trim()})
 			'change input.replicateurl' : () ->
-				@model.save({replicateurl: @$('input.replicateurl').val()})
+				@model.save({replicateurl: @$('input.replicateurl').val().trim()})
+			'change input.replicateurl' : () ->
+				@model.save({replicateurl: @$('input.replicateurl').val().trim()})
+			
 		modelEvents : 
 			'change' : () ->
 				@setValues()
@@ -63,27 +64,64 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 				console.debug 'invalid'
 				console.debug @model.validationError
 		template : _.template """
-			<div class="form-group">
-				<label for="username">Benutzername</label>
+			<div class="form-group has-error">
+				<label class="control-label" for="username">Benutzername</label>
 				<input type="text" class="form-control username" placeholder="Mein Name ist??" required />
 			</div>
 			<hr />
-			<div class="form-group">
-				<label for="replicateurl">Adresse zum Replizieren</label>
+			<div class="form-group has-error">
+				<label class="control-label" for="replicateurl">Adresse zum Replizieren</label>
 				<input type="url" class="form-control replicateurl" placeholder="http://" required />
 			</div>
-			<div class="checkbox">
+			<div class="checkbox has-error">
 				<label>
 					<input type="checkbox" class="continuousreplication" required> Durchgängige Replikation
 				</label>
 			</div>
-			<div class="form-group replicationinterval">
-				<label for="replicationinterval">Replikationsinterval</label>
+			<div class="form-group replicationinterval has-error">
+				<label class="control-label" for="replicationinterval">Replikationsinterval</label>
 				<div class="input-group">
 					<input class="form-control replicationinterval" required type="number" min="0" step="3" placeholder="0" />
-					<div class="input-group-addon">sek</div>
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="button-caption">sek</span> <span class="caret"></span></button>
+						<ul class="dropdown-menu dropdown-menu-right" role="menu">
+							<li><a href="#" class="sek">sek</a></li>
+							<li><a href="#" class="min">min</a></li>
+							<li><a href="#" class="h">h</a></li>
+						</ul>
+					</div><!-- /btn-group -->
 				</div>
 			</div>
+			<hr />
+			<div class="form-group delete-checked-entries has-error">
+				<label class="control-label" for="delete-checked-entries">Löschen von abgearbeiteten Einträgen nach</label>
+				<div class="input-group">
+					<input type="number" class="form-control delete-checked-entries">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="button-caption">sek</span> <span class="caret"></span></button>
+						<ul class="dropdown-menu dropdown-menu-right" role="menu">
+							<li><a href="#" class="sek">sek</a></li>
+							<li><a href="#" class="min">min</a></li>
+							<li><a href="#" class="h">h</a></li>
+						</ul>
+					</div><!-- /btn-group -->
+				</div><!-- /input-group -->
+			</div><!-- /form-group -->
+			<div class="form-group delete-unused-entries has-error">
+				<label class="control-label" for="delete-unused-entries">Löschen von ungenutzen Einträgen nach</label>
+				<div class="input-group">
+					<input type="number" class="form-control delete-unused-entries">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="button-caption">sek</span> <span class="caret"></span></button>
+						<ul class="dropdown-menu dropdown-menu-right" role="menu">
+							<li><a href="#" class="sek">sek</a></li>
+							<li><a href="#" class="min">min</a></li>
+							<li><a href="#" class="h">h</a></li>
+						</ul>
+					</div><!-- /btn-group -->
+				</div><!-- /input-group -->
+			</div><!-- /form-group -->
+
 			<hr />
 			<button type="reset" class="btn btn-warning">Zurücksetzen</button>
 			<button type="submit" class="btn btn-primary">Speichern</button>

@@ -876,7 +876,9 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
       continuousreplication: false,
       username: "Rodosch",
       replicateurl: null,
-      replicationinterval: 5 * 60 * 1000
+      replicationinterval: 5 * 60 * 1000,
+      deleteCheckedEntries: 5 * 24 * 60 * 60,
+      deleteUnusedEntries: 24 * 60 * 60
     };
 
     TodoConfigurationModel.prototype.validate = function(attributes, options) {
@@ -888,29 +890,13 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
         return 'username';
       }
       attributes.username = attributes.username.trim();
-      this.set({
-        username: attributes.username.trim()
-      }, {
-        silent: true
-      });
       urlRegEx = /^(https?:\/\/)(?:\S+(?::\S*)?@)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
       if ((attributes.replicateurl == null) || !_.isString(attributes.replicateurl) || (attributes.replicateurl.trim().length = 0)) {
-        this.set({
-          replicateurl: null
-        }, {
-          silent: true
-        });
+
       } else {
         if (!urlRegEx.test(attributes.replicateurl)) {
           return 'replicateurl';
         }
-      }
-      if ((attributes.continuousreplication == null) || !_.isBoolean(attributes.continuousreplication)) {
-        this.set({
-          continuousreplication: false
-        }, {
-          silent: false
-        });
       }
       return void 0;
     };
@@ -963,12 +949,17 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
     ConfigurationView.prototype.events = {
       'change input.username': function() {
         return this.model.save({
-          username: this.$('input.username').val()
+          username: this.$('input.username').val().trim()
         });
       },
       'change input.replicateurl': function() {
         return this.model.save({
-          replicateurl: this.$('input.replicateurl').val()
+          replicateurl: this.$('input.replicateurl').val().trim()
+        });
+      },
+      'change input.replicateurl': function() {
+        return this.model.save({
+          replicateurl: this.$('input.replicateurl').val().trim()
         });
       }
     };
@@ -983,7 +974,7 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
       }
     };
 
-    ConfigurationView.prototype.template = _.template("<div class=\"form-group\">\n	<label for=\"username\">Benutzername</label>\n	<input type=\"text\" class=\"form-control username\" placeholder=\"Mein Name ist??\" required />\n</div>\n<hr />\n<div class=\"form-group\">\n	<label for=\"replicateurl\">Adresse zum Replizieren</label>\n	<input type=\"url\" class=\"form-control replicateurl\" placeholder=\"http://\" required />\n</div>\n<div class=\"checkbox\">\n	<label>\n		<input type=\"checkbox\" class=\"continuousreplication\" required> Durchgängige Replikation\n	</label>\n</div>\n<div class=\"form-group replicationinterval\">\n	<label for=\"replicationinterval\">Replikationsinterval</label>\n	<div class=\"input-group\">\n		<input class=\"form-control replicationinterval\" required type=\"number\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-addon\">sek</div>\n	</div>\n</div>\n<hr />\n<button type=\"reset\" class=\"btn btn-warning\">Zurücksetzen</button>\n<button type=\"submit\" class=\"btn btn-primary\">Speichern</button>");
+    ConfigurationView.prototype.template = _.template("<div class=\"form-group has-error\">\n	<label class=\"control-label\" for=\"username\">Benutzername</label>\n	<input type=\"text\" class=\"form-control username\" placeholder=\"Mein Name ist??\" required />\n</div>\n<hr />\n<div class=\"form-group has-error\">\n	<label class=\"control-label\" for=\"replicateurl\">Adresse zum Replizieren</label>\n	<input type=\"url\" class=\"form-control replicateurl\" placeholder=\"http://\" required />\n</div>\n<div class=\"checkbox has-error\">\n	<label>\n		<input type=\"checkbox\" class=\"continuousreplication\" required> Durchgängige Replikation\n	</label>\n</div>\n<div class=\"form-group replicationinterval has-error\">\n	<label class=\"control-label\" for=\"replicationinterval\">Replikationsinterval</label>\n	<div class=\"input-group\">\n		<input class=\"form-control replicationinterval\" required type=\"number\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div>\n</div>\n<hr />\n<div class=\"form-group delete-checked-entries has-error\">\n	<label class=\"control-label\" for=\"delete-checked-entries\">Löschen von abgearbeiteten Einträgen nach</label>\n	<div class=\"input-group\">\n		<input type=\"number\" class=\"form-control delete-checked-entries\">\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div><!-- /input-group -->\n</div><!-- /form-group -->\n<div class=\"form-group delete-unused-entries has-error\">\n	<label class=\"control-label\" for=\"delete-unused-entries\">Löschen von ungenutzen Einträgen nach</label>\n	<div class=\"input-group\">\n		<input type=\"number\" class=\"form-control delete-unused-entries\">\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div><!-- /input-group -->\n</div><!-- /form-group -->\n\n<hr />\n<button type=\"reset\" class=\"btn btn-warning\">Zurücksetzen</button>\n<button type=\"submit\" class=\"btn btn-primary\">Speichern</button>");
 
     ConfigurationView.prototype.onRender = function() {
       return this.setValues();

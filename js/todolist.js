@@ -882,23 +882,27 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
     };
 
     TodoConfigurationModel.prototype.validate = function(attributes, options) {
-      var urlRegEx;
+      var returnValue, urlRegEx;
       console.debug('validate');
       console.debug(attributes);
       console.debug(options);
-      if ((attributes.username == null) || !_.isString(attributes.username) || (attributes.username.trim().length = 0)) {
-        return 'username';
+      returnValue = [];
+      if ((attributes.username == null) || !_.isString(attributes.username) || attributes.username.trim().length === 0) {
+        returnValue.push('username');
       }
-      attributes.username = attributes.username.trim();
       urlRegEx = /^(https?:\/\/)(?:\S+(?::\S*)?@)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
       if ((attributes.replicateurl == null) || !_.isString(attributes.replicateurl) || (attributes.replicateurl.trim().length = 0)) {
 
       } else {
         if (!urlRegEx.test(attributes.replicateurl)) {
-          return 'replicateurl';
+          returnValue.push('replicateurl');
         }
       }
-      return void 0;
+      if (returnValue.length === 0) {
+        return void 0;
+      } else {
+        return returnValue;
+      }
     };
 
     return TodoConfigurationModel;
@@ -934,6 +938,7 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
     ConfigurationView.prototype.tagName = "form";
 
     ConfigurationView.prototype.setValues = function() {
+      var field, _i, _len, _ref, _results;
       console.debug('ConfigurationView.setValues');
       console.debug(this.model.toJSON());
       console.debug(this.$('input.username'));
@@ -943,7 +948,19 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
       console.debug(this.$('input.continuousreplication'));
       this.$('input.continuousreplication').val(this.model.get('continuousreplication'));
       console.debug(this.$('input.replicationinterval'));
-      return this.$('input.replicationinterval').val(this.model.get('replicationinterval'));
+      this.$('input.replicationinterval').val(this.model.get('replicationinterval'));
+      if (this.model.isValid()) {
+        return this.$('.form-group').removeClass('has-error');
+      } else {
+        _ref = this.model.validationError;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          field = _ref[_i];
+          console.debug('invalid Field');
+          _results.push(console.debug(field));
+        }
+        return _results;
+      }
     };
 
     ConfigurationView.prototype.events = {
@@ -968,13 +985,26 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
       'change': function() {
         return this.setValues();
       },
+      'submit form': function() {
+        console.debug('submit');
+        return false;
+      },
       'invalid': function() {
+        var field, _i, _len, _ref, _results;
         console.debug('invalid');
-        return console.debug(this.model.validationError);
+        console.debug(this.model.validationError);
+        _ref = this.model.validationError;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          field = _ref[_i];
+          console.debug('invalid Field');
+          _results.push(this.$('.form-group.' + field).addClass('has-error'));
+        }
+        return _results;
       }
     };
 
-    ConfigurationView.prototype.template = _.template("<div class=\"form-group has-error\">\n	<label class=\"control-label\" for=\"username\">Benutzername</label>\n	<input type=\"text\" class=\"form-control username\" placeholder=\"Mein Name ist??\" required />\n</div>\n<hr />\n<div class=\"form-group has-error\">\n	<label class=\"control-label\" for=\"replicateurl\">Adresse zum Replizieren</label>\n	<input type=\"url\" class=\"form-control replicateurl\" placeholder=\"http://\" required />\n</div>\n<div class=\"checkbox has-error\">\n	<label>\n		<input type=\"checkbox\" class=\"continuousreplication\" required> Durchgängige Replikation\n	</label>\n</div>\n<div class=\"form-group replicationinterval has-error\">\n	<label class=\"control-label\" for=\"replicationinterval\">Replikationsinterval</label>\n	<div class=\"input-group\">\n		<input class=\"form-control replicationinterval\" required type=\"number\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div>\n</div>\n<hr />\n<div class=\"form-group delete-checked-entries has-error\">\n	<label class=\"control-label\" for=\"delete-checked-entries\">Löschen von abgearbeiteten Einträgen nach</label>\n	<div class=\"input-group\">\n		<input type=\"number\" class=\"form-control delete-checked-entries\">\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div><!-- /input-group -->\n</div><!-- /form-group -->\n<div class=\"form-group delete-unused-entries has-error\">\n	<label class=\"control-label\" for=\"delete-unused-entries\">Löschen von ungenutzen Einträgen nach</label>\n	<div class=\"input-group\">\n		<input type=\"number\" class=\"form-control delete-unused-entries\">\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div><!-- /input-group -->\n</div><!-- /form-group -->\n\n<hr />\n<button type=\"reset\" class=\"btn btn-warning\">Zurücksetzen</button>\n<button type=\"submit\" class=\"btn btn-primary\">Speichern</button>");
+    ConfigurationView.prototype.template = _.template("<div class=\"username form-group has-error\">\n	<label class=\"control-label\" for=\"username\">Benutzername</label>\n	<input type=\"text\" class=\"form-control username\" placeholder=\"Mein Name ist??\" required />\n</div>\n<hr />\n<div class=\"replicateurl form-group has-error\">\n	<label class=\"control-label\" for=\"replicateurl\">Adresse zum Replizieren</label>\n	<input type=\"url\" class=\"form-control replicateurl\" placeholder=\"http://\" required />\n</div>\n<div class=\"continuousreplication form-group has-error\">\n	<div class=\"checkbox\">\n		<label>\n			<input type=\"checkbox\" class=\"continuousreplication\"><strong>Durchgängige Replikation</strong>\n		</label>\n	</div>\n</div>\n<div class=\"form-group replicationinterval has-error\">\n	<label class=\"control-label\" for=\"replicationinterval\">Replikationsinterval</label>\n	<div class=\"input-group\">\n		<input class=\"form-control replicationinterval\" required type=\"number\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div>\n</div>\n<hr />\n<div class=\"form-group delete-checked-entries has-error\">\n	<label class=\"control-label\" for=\"delete-checked-entries\">Löschen von abgearbeiteten Einträgen nach</label>\n	<div class=\"input-group\">\n		<input type=\"number\" class=\"form-control delete-checked-entries\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div><!-- /input-group -->\n</div><!-- /form-group -->\n<div class=\"form-group delete-unused-entries has-error\">\n	<label class=\"control-label\" for=\"delete-unused-entries\">Löschen von ungenutzen Einträgen nach</label>\n	<div class=\"input-group\">\n		<input type=\"number\" class=\"form-control delete-unused-entries\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div><!-- /input-group -->\n</div><!-- /form-group -->\n\n<hr />\n<div class=\"row\">\n	<div class=\"col-xs-6\">\n		<button type=\"reset\" class=\"btn-block btn btn-warning \">Zurücksetzen</button>\n	</div>\n	<div class=\"col-xs-6\">\n		<button type=\"submit\" class=\"btn-block btn btn-primary \">Speichern</button>\n	</div>\n</div>");
 
     ConfigurationView.prototype.onRender = function() {
       return this.setValues();

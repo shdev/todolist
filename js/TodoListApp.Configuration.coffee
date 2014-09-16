@@ -12,18 +12,24 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			console.debug 'validate'
 			console.debug attributes
 			console.debug options
-			if not attributes.username? or not _.isString(attributes.username) or attributes.username.trim().length = 0
-				return  'username'
-			attributes.username = attributes.username.trim()
+			
+			returnValue = []
+			
+			if not attributes.username? or not _.isString(attributes.username) or attributes.username.trim().length == 0
+				returnValue.push  'username'
+				
 			urlRegEx = /^(https?:\/\/)(?:\S+(?::\S*)?@)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i
 			
 			if not attributes.replicateurl? or not _.isString(attributes.replicateurl) or attributes.replicateurl.trim().length = 0
 				
 			else 
 				if not urlRegEx.test(attributes.replicateurl)
-					return 'replicateurl'
+					returnValue.push 'replicateurl'
 					
-			undefined
+			if returnValue.length == 0
+				undefined
+			else
+				returnValue
 			
 	class TodoConfigurationCollection extends Backbone.Collection
 		localStorage: new Backbone.LocalStorage("TodoListApp")
@@ -49,6 +55,14 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			@$('input.continuousreplication').val(@model.get('continuousreplication'))
 			console.debug @$('input.replicationinterval')
 			@$('input.replicationinterval').val(@model.get('replicationinterval'))
+			
+			if (@model.isValid())
+				@$('.form-group').removeClass('has-error')
+			else
+				for field in @model.validationError
+					console.debug 'invalid Field'
+					console.debug field
+				
 		events : 
 			'change input.username' : () ->
 				@model.save({username : @$('input.username').val().trim()})
@@ -60,23 +74,33 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 		modelEvents : 
 			'change' : () ->
 				@setValues()
+			'submit form' : () ->
+				console.debug 'submit'
+				false
 			'invalid' : () ->
 				console.debug 'invalid'
 				console.debug @model.validationError
+				
+				for field in @model.validationError
+					console.debug 'invalid Field'
+					@$('.form-group.' + field).addClass('has-error')
+					
 		template : _.template """
-			<div class="form-group has-error">
+			<div class="username form-group has-error">
 				<label class="control-label" for="username">Benutzername</label>
 				<input type="text" class="form-control username" placeholder="Mein Name ist??" required />
 			</div>
 			<hr />
-			<div class="form-group has-error">
+			<div class="replicateurl form-group has-error">
 				<label class="control-label" for="replicateurl">Adresse zum Replizieren</label>
 				<input type="url" class="form-control replicateurl" placeholder="http://" required />
 			</div>
-			<div class="checkbox has-error">
-				<label>
-					<input type="checkbox" class="continuousreplication" required> Durchgängige Replikation
-				</label>
+			<div class="continuousreplication form-group has-error">
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" class="continuousreplication"><strong>Durchgängige Replikation</strong>
+					</label>
+				</div>
 			</div>
 			<div class="form-group replicationinterval has-error">
 				<label class="control-label" for="replicationinterval">Replikationsinterval</label>
@@ -96,7 +120,7 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			<div class="form-group delete-checked-entries has-error">
 				<label class="control-label" for="delete-checked-entries">Löschen von abgearbeiteten Einträgen nach</label>
 				<div class="input-group">
-					<input type="number" class="form-control delete-checked-entries">
+					<input type="number" class="form-control delete-checked-entries" min="0" step="3" placeholder="0" />
 					<div class="input-group-btn">
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="button-caption">sek</span> <span class="caret"></span></button>
 						<ul class="dropdown-menu dropdown-menu-right" role="menu">
@@ -110,7 +134,7 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			<div class="form-group delete-unused-entries has-error">
 				<label class="control-label" for="delete-unused-entries">Löschen von ungenutzen Einträgen nach</label>
 				<div class="input-group">
-					<input type="number" class="form-control delete-unused-entries">
+					<input type="number" class="form-control delete-unused-entries" min="0" step="3" placeholder="0" />
 					<div class="input-group-btn">
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="button-caption">sek</span> <span class="caret"></span></button>
 						<ul class="dropdown-menu dropdown-menu-right" role="menu">
@@ -123,8 +147,14 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			</div><!-- /form-group -->
 
 			<hr />
-			<button type="reset" class="btn btn-warning">Zurücksetzen</button>
-			<button type="submit" class="btn btn-primary">Speichern</button>
+			<div class="row">
+				<div class="col-xs-6">
+					<button type="reset" class="btn-block btn btn-warning ">Zurücksetzen</button>
+				</div>
+				<div class="col-xs-6">
+					<button type="submit" class="btn-block btn btn-primary ">Speichern</button>
+				</div>
+			</div>
 		"""
 		onRender : () ->
 			@setValues()

@@ -876,7 +876,7 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
       continuousreplication: false,
       username: "Rodosch",
       replicateurl: null,
-      replicationinterval: 5 * 60 * 1000,
+      replicationinterval: 5 * 60,
       deleteCheckedEntries: 5 * 24 * 60 * 60,
       deleteUnusedEntries: 24 * 60 * 60
     };
@@ -946,9 +946,13 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
       console.debug(this.$('input.replicateurl'));
       this.$('input.replicateurl').val(this.model.get('replicateurl'));
       console.debug(this.$('input.continuousreplication'));
-      this.$('input.continuousreplication').val(this.model.get('continuousreplication'));
+      this.$('input.continuousreplication').prop('checked', this.model.get('continuousreplication'));
       console.debug(this.$('input.replicationinterval'));
       this.$('input.replicationinterval').val(this.model.get('replicationinterval'));
+      console.debug(this.$('input.delete-checked-entries'));
+      this.$('input.delete-checked-entries').val(this.model.get('deleteCheckedEntries'));
+      console.debug(this.$('input.delete-unused-entries'));
+      this.$('input.delete-unused-entries').val(this.model.get('deleteUnusedEntries'));
       if (this.model.isValid()) {
         return this.$('.form-group').removeClass('has-error');
       } else {
@@ -974,9 +978,24 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
           replicateurl: this.$('input.replicateurl').val().trim()
         });
       },
-      'change input.replicateurl': function() {
+      'change input.replicationinterval': function() {
         return this.model.save({
-          replicateurl: this.$('input.replicateurl').val().trim()
+          replicationinterval: parseInt(this.$('input.replicationinterval').val().trim())
+        });
+      },
+      'change input.continuousreplication': function() {
+        return this.model.save({
+          continuousreplication: this.$('input.continuousreplication').prop('checked')
+        });
+      },
+      'change input.delete-checked-entries': function() {
+        return this.model.save({
+          deleteCheckedEntries: parseInt(this.$('input.delete-checked-entries').val().trim())
+        });
+      },
+      'change input.delete-unused-entries': function() {
+        return this.model.save({
+          deleteUnusedEntries: parseInt(this.$('input.delete-unused-entries').val().trim())
         });
       }
     };

@@ -13,6 +13,7 @@ App.module 'GeneralBehavior', (GeneralBehavior, App, Backbone, Marionette, $, _)
 	
 		TODO: add some smarter handling to prevent empty names
 	###
+	
 	class AddSimpleItem extends Marionette.Behavior
 		events : 
 			"click @ui.addItemButton" : "addItem"
@@ -34,9 +35,6 @@ App.module 'GeneralBehavior', (GeneralBehavior, App, Backbone, Marionette, $, _)
 				console.debug model.toJSON()
 				collection.add model if collection?
 			return false
-			
-		# onRender : ->
-		#
 
 	Marionette.Behaviors.behaviorsLookup().AddSimpleItem = AddSimpleItem
 	

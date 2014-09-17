@@ -6,6 +6,11 @@ html {
 
 }
 
+body {
+	margin : 10px 0px;
+	padding: 10px 0px;
+}
+
 button {
 		@include transition(all, $animationtime);
 }
@@ -30,6 +35,9 @@ button {
 	background-color : #d9534f;
 }
 
+input[type="number"] {
+	text-align : right;
+}
 
 #todolistapp-entries-view {
 	.todolist-entry {

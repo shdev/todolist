@@ -1,3 +1,7 @@
+body {
+  margin: 10px 0px;
+  padding: 10px 0px; }
+
 button {
   -webkit-transition: all 0.5s ease-in-out 0s;
   -moz-transition: all 0.5s ease-in-out 0s;
@@ -22,6 +26,9 @@ button {
 
 .error.badge {
   background-color: #d9534f; }
+
+input[type="number"] {
+  text-align: right; }
 
 #todolistapp-entries-view .todolist-entry.ischecked > * {
   opacity: 0.3; }

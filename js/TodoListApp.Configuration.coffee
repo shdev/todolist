@@ -5,7 +5,7 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			continuousreplication : false # 
 			username : "Rodosch"
 			replicateurl : null
-			replicationinterval : 5 * 60 * 1000
+			replicationinterval : 5 * 60
 			deleteCheckedEntries : 5 * 24 *  60 * 60 
 			deleteUnusedEntries : 24 *  60 * 60
 		validate : (attributes, options) ->
@@ -52,10 +52,15 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			console.debug @$('input.replicateurl')
 			@$('input.replicateurl').val(@model.get('replicateurl'))
 			console.debug @$('input.continuousreplication')
-			@$('input.continuousreplication').val(@model.get('continuousreplication'))
+			@$('input.continuousreplication').prop('checked', @model.get('continuousreplication'))
 			console.debug @$('input.replicationinterval')
 			@$('input.replicationinterval').val(@model.get('replicationinterval'))
-			
+
+			console.debug @$('input.delete-checked-entries')
+			@$('input.delete-checked-entries').val(@model.get('deleteCheckedEntries'))
+			console.debug @$('input.delete-unused-entries')
+			@$('input.delete-unused-entries').val(@model.get('deleteUnusedEntries'))
+
 			if (@model.isValid())
 				@$('.form-group').removeClass('has-error')
 			else
@@ -68,8 +73,14 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 				@model.save({username : @$('input.username').val().trim()})
 			'change input.replicateurl' : () ->
 				@model.save({replicateurl: @$('input.replicateurl').val().trim()})
-			'change input.replicateurl' : () ->
-				@model.save({replicateurl: @$('input.replicateurl').val().trim()})
+			'change input.replicationinterval' : () ->
+				@model.save({replicationinterval: parseInt(@$('input.replicationinterval').val().trim())})
+			'change input.continuousreplication' : () ->
+				@model.save({continuousreplication: @$('input.continuousreplication').prop('checked')})
+			'change input.delete-checked-entries' : () ->
+				@model.save({deleteCheckedEntries: parseInt(@$('input.delete-checked-entries').val().trim())})
+			'change input.delete-unused-entries' : () ->
+				@model.save({deleteUnusedEntries: parseInt(@$('input.delete-unused-entries').val().trim())})
 			
 		modelEvents : 
 			'change' : () ->

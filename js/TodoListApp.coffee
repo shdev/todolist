@@ -57,14 +57,22 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 	
 	pouchdbRepTo = undefined
 	pouchdbRepFrom = undefined
-		
-	App.vent.on 'todolistapp:startReplication', () -> 
+	
+	timeOutRepTo = undefined
+	timeOutRepFrom = undefined
+	
+	doReplicationTo = () ->
+		console.debug 'doReplicationTo'
 		currentPouchDB = App.request("TodoListApp:PouchDB");
 		currentConfiguration = App.request("TodoListApp:Configuration")
-
-		console.debug currentConfiguration 
-
-		pouchdbRepTo.cancel() if pouchdbRepTo?
+		
+		if timeOutRepTo?
+			clearTimeout(timeOutRepTo)
+			timeOutRepTo = undefined
+		
+		if pouchdbRepTo?
+			pouchdbRepTo.cancel()
+			App.vent.trigger 'replication:pouchdb:to:cancel'
 		
 		if not pouchdbRepTo? and currentConfiguration.get('replicateurl')?
 			pouchdbRepTo = currentPouchDB.replicate.to( currentConfiguration.get('replicateurl'), {live : currentConfiguration.get('continuousreplication')}) 
@@ -81,8 +89,22 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 				App.vent.trigger 'replication:pouchdb:to:complete'
 				# TODO move it to listcollection module
 				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
-
-		pouchdbRepFrom.cancel() if pouchdbRepFrom?
+			
+			if not currentConfiguration.get('continuousreplication') and currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
+				setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval'))
+				
+	doReplicationFrom = () ->
+		console.debug 'doReplicationFrom'
+		currentPouchDB = App.request("TodoListApp:PouchDB");
+		currentConfiguration = App.request("TodoListApp:Configuration")
+		
+		if timeOutRepFrom?
+			clearTimeout(timeOutRepFrom)
+			timeOutRepFrom = undefined
+		
+		if pouchdbRepFrom?
+			pouchdbRepFrom.cancel()
+			App.vent.trigger 'replication:pouchdb:from:cancel'
 		
 		if not pouchdbRepFrom? and currentConfiguration.get('replicateurl')?
 			pouchdbRepFrom = currentPouchDB.replicate.from(currentConfiguration.get('replicateurl'), {live : currentConfiguration.get('continuousreplication')}) 
@@ -99,8 +121,10 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 				App.vent.trigger 'replication:pouchdb:from:complete'
 				# TODO move it to listcollection module
 				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
-		
 	
+	App.vent.on 'todolistapp:startReplication', () -> 
+		doReplicationTo()
+		doReplicationFrom()
 
 	TodoListApp.run = -> 
 			# Backbone.sync = BackbonePouch.sync()

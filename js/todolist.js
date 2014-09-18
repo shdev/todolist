@@ -119,7 +119,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
   /*
   	TODO requestHandling for the classes
    */
-  var TodoListAppView, pouchDB, pouchdbRepFrom, pouchdbRepTo;
+  var TodoListAppView, doReplicationFrom, doReplicationTo, pouchDB, pouchdbRepFrom, pouchdbRepTo, timeOutRepFrom, timeOutRepTo;
   TodoListAppView = (function(_super) {
     __extends(TodoListAppView, _super);
 
@@ -172,13 +172,20 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
   });
   pouchdbRepTo = void 0;
   pouchdbRepFrom = void 0;
-  App.vent.on('todolistapp:startReplication', function() {
+  timeOutRepTo = void 0;
+  timeOutRepFrom = void 0;
+  doReplicationTo = function() {
     var currentConfiguration, currentPouchDB;
+    console.debug('doReplicationTo');
     currentPouchDB = App.request("TodoListApp:PouchDB");
     currentConfiguration = App.request("TodoListApp:Configuration");
-    console.debug(currentConfiguration);
+    if (timeOutRepTo != null) {
+      clearTimeout(timeOutRepTo);
+      timeOutRepTo = void 0;
+    }
     if (pouchdbRepTo != null) {
       pouchdbRepTo.cancel();
+      App.vent.trigger('replication:pouchdb:to:cancel');
     }
     if ((pouchdbRepTo == null) && (currentConfiguration.get('replicateurl') != null)) {
       pouchdbRepTo = currentPouchDB.replicate.to(currentConfiguration.get('replicateurl'), {
@@ -198,9 +205,23 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
           return App.TodoListApp.listCollection.fetch();
         }
       });
+      if (!currentConfiguration.get('continuousreplication') && (currentConfiguration.get('replicationinterval') != null) && currentConfiguration.get('replicationinterval') > 0) {
+        return setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval'));
+      }
+    }
+  };
+  doReplicationFrom = function() {
+    var currentConfiguration, currentPouchDB;
+    console.debug('doReplicationFrom');
+    currentPouchDB = App.request("TodoListApp:PouchDB");
+    currentConfiguration = App.request("TodoListApp:Configuration");
+    if (timeOutRepFrom != null) {
+      clearTimeout(timeOutRepFrom);
+      timeOutRepFrom = void 0;
     }
     if (pouchdbRepFrom != null) {
       pouchdbRepFrom.cancel();
+      App.vent.trigger('replication:pouchdb:from:cancel');
     }
     if ((pouchdbRepFrom == null) && (currentConfiguration.get('replicateurl') != null)) {
       pouchdbRepFrom = currentPouchDB.replicate.from(currentConfiguration.get('replicateurl'), {
@@ -221,6 +242,10 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
         }
       });
     }
+  };
+  App.vent.on('todolistapp:startReplication', function() {
+    doReplicationTo();
+    return doReplicationFrom();
   });
   TodoListApp.run = function() {
 

@@ -158,10 +158,15 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
     return pouchDB;
   });
   App.vent.on('todolist:configurationloaded', function(config) {
+    var currentConfiguration;
     console.debug('todolist:configurationloaded');
     App.request("TodoListApp:PouchDB");
     App.vent.trigger('todolistapp:startReplication');
-    return App.vent.trigger('todolistapp:initViews');
+    App.vent.trigger('todolistapp:initViews');
+    currentConfiguration = App.request("TodoListApp:Configuration");
+    return currentConfiguration.on('change', function() {
+      return App.vent.trigger('todolistapp:startReplication');
+    });
   });
   App.vent.on('todolistapp:initViews', function() {
     console.debug('todolistapp:initViews');
@@ -180,6 +185,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
     currentPouchDB = App.request("TodoListApp:PouchDB");
     currentConfiguration = App.request("TodoListApp:Configuration");
     if (timeOutRepTo != null) {
+      console.debug('Clear To Timer');
       clearTimeout(timeOutRepTo);
       timeOutRepTo = void 0;
     }
@@ -192,22 +198,28 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
         live: currentConfiguration.get('continuousreplication')
       });
       pouchdbRepTo.on('uptodate', function() {
+        console.debug('pouchdbRepTo:update');
         return App.vent.trigger('replication:pouchdb:to:uptodate');
       });
       pouchdbRepTo.on('error', function() {
+        console.debug('pouchdbRepTo:error');
         pouchdbRepTo.cancel();
         pouchdbRepTo = void 0;
-        return App.vent.trigger('replication:pouchdb:to:error');
+        App.vent.trigger('replication:pouchdb:to:error');
+        if ((currentConfiguration.get('replicationinterval') != null) && currentConfiguration.get('replicationinterval') > 0) {
+          return timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000);
+        }
       });
-      pouchdbRepTo.on('complete', function() {
+      return pouchdbRepTo.on('complete', function() {
+        console.debug('pouchdbRepTo:complete');
         App.vent.trigger('replication:pouchdb:to:complete');
+        if (!currentConfiguration.get('continuousreplication') && (currentConfiguration.get('replicationinterval') != null) && currentConfiguration.get('replicationinterval') > 0) {
+          timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000);
+        }
         if (App.TodoListApp.listCollection != null) {
           return App.TodoListApp.listCollection.fetch();
         }
       });
-      if (!currentConfiguration.get('continuousreplication') && (currentConfiguration.get('replicationinterval') != null) && currentConfiguration.get('replicationinterval') > 0) {
-        return setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval'));
-      }
     }
   };
   doReplicationFrom = function() {
@@ -228,15 +240,24 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
         live: currentConfiguration.get('continuousreplication')
       });
       pouchdbRepFrom.on('uptodate', function() {
+        console.debug('pouchdbRepFrom:update');
         return App.vent.trigger('replication:pouchdb:from:uptodate');
       });
       pouchdbRepFrom.on('error', function() {
+        console.debug('pouchdbRepFrom:error');
         pouchdbRepFrom.cancel();
         pouchdbRepFrom = void 0;
-        return App.vent.trigger('replication:pouchdb:from:error');
+        App.vent.trigger('replication:pouchdb:from:error');
+        if ((currentConfiguration.get('replicationinterval') != null) && currentConfiguration.get('replicationinterval') > 0) {
+          return timeOutRepFrom = setTimeout(doReplicationFrom, currentConfiguration.get('replicationinterval') * 1000);
+        }
       });
       return pouchdbRepFrom.on('complete', function() {
+        console.debug('pouchdbRepFrom:complete');
         App.vent.trigger('replication:pouchdb:from:complete');
+        if (!currentConfiguration.get('continuousreplication') && (currentConfiguration.get('replicationinterval') != null) && currentConfiguration.get('replicationinterval') > 0) {
+          timeOutRepFrom = setTimeout(doReplicationFrom, currentConfiguration.get('replicationinterval') * 1000);
+        }
         if (App.TodoListApp.listCollection != null) {
           return App.TodoListApp.listCollection.fetch();
         }
@@ -732,7 +753,12 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
   })(Marionette.CollectionView);
   EntryModelFactory = function(todolistid) {
-    var EntryModel;
+    var EntryModel, currentAuthor, currentConfiguration;
+    currentConfiguration = App.request("TodoListApp:Configuration");
+    currentAuthor = void 0;
+    if (currentConfiguration != null) {
+      currentAuthor = currentConfiguration.get('username');
+    }
     EntryModel = (function(_super) {
       __extends(EntryModel, _super);
 
@@ -746,7 +772,8 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
         type: 'todoentry',
         created: JSON.parse(JSON.stringify(new Date())),
         "todolist-id": todolistid,
-        checked: null
+        checked: null,
+        username: currentAuthor
       };
 
       EntryModel.prototype.sync = BackbonePouch.sync({
@@ -1048,7 +1075,7 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
       }
     };
 
-    ConfigurationView.prototype.template = _.template("<div class=\"username form-group has-error\">\n	<label class=\"control-label\" for=\"username\">Benutzername</label>\n	<input type=\"text\" class=\"form-control username\" placeholder=\"Mein Name ist??\" required />\n</div>\n<hr />\n<div class=\"replicateurl form-group has-error\">\n	<label class=\"control-label\" for=\"replicateurl\">Adresse zum Replizieren</label>\n	<input type=\"url\" class=\"form-control replicateurl\" placeholder=\"http://\" required />\n</div>\n<div class=\"continuousreplication form-group has-error\">\n	<div class=\"checkbox\">\n		<label>\n			<input type=\"checkbox\" class=\"continuousreplication\"><strong>Durchgängige Replikation</strong>\n		</label>\n	</div>\n</div>\n<div class=\"form-group replicationinterval has-error\">\n	<label class=\"control-label\" for=\"replicationinterval\">Replikationsinterval</label>\n	<div class=\"input-group\">\n		<input class=\"form-control replicationinterval\" required type=\"number\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div>\n</div>\n<hr />\n<div class=\"form-group delete-checked-entries has-error\">\n	<label class=\"control-label\" for=\"delete-checked-entries\">Löschen von abgearbeiteten Einträgen nach</label>\n	<div class=\"input-group\">\n		<input type=\"number\" class=\"form-control delete-checked-entries\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div><!-- /input-group -->\n</div><!-- /form-group -->\n<div class=\"form-group delete-unused-entries has-error\">\n	<label class=\"control-label\" for=\"delete-unused-entries\">Löschen von ungenutzen Einträgen nach</label>\n	<div class=\"input-group\">\n		<input type=\"number\" class=\"form-control delete-unused-entries\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div><!-- /input-group -->\n</div><!-- /form-group -->\n\n<hr />\n<div class=\"row\">\n	<div class=\"col-xs-6\">\n		<button type=\"reset\" class=\"btn-block btn btn-warning \">Zurücksetzen</button>\n	</div>\n	<div class=\"col-xs-6\">\n		<button type=\"submit\" class=\"btn-block btn btn-primary \">Speichern</button>\n	</div>\n</div>");
+    ConfigurationView.prototype.template = _.template("<div class=\"username form-group has-error\">\n	<label class=\"control-label\" for=\"username\">Benutzername</label>\n	<input type=\"text\" class=\"form-control username\" placeholder=\"Mein Name ist??\" required />\n</div>\n<hr />\n<div class=\"replicateurl form-group has-error\">\n	<label class=\"control-label\" for=\"replicateurl\">Adresse zum Replizieren</label>\n	<input type=\"url\" class=\"form-control replicateurl\" placeholder=\"http://\" required />\n</div>\n<div class=\"continuousreplication form-group has-error\">\n	<div class=\"checkbox\">\n		<label>\n			<input type=\"checkbox\" class=\"continuousreplication\"><strong>Durchgängige Replikation</strong>\n		</label>\n	</div>\n</div>\n<div class=\"form-group replicationinterval has-error\">\n	<label class=\"control-label\" for=\"replicationinterval\">Replikations- / Wiederversuchsinterval</label>\n	<div class=\"input-group\">\n		<input class=\"form-control replicationinterval\" required type=\"number\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div>\n</div>\n<hr />\n<div class=\"form-group delete-checked-entries has-error\">\n	<label class=\"control-label\" for=\"delete-checked-entries\">Löschen von abgearbeiteten Einträgen nach</label>\n	<div class=\"input-group\">\n		<input type=\"number\" class=\"form-control delete-checked-entries\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div><!-- /input-group -->\n</div><!-- /form-group -->\n<div class=\"form-group delete-unused-entries has-error\">\n	<label class=\"control-label\" for=\"delete-unused-entries\">Löschen von ungenutzen Einträgen nach</label>\n	<div class=\"input-group\">\n		<input type=\"number\" class=\"form-control delete-unused-entries\" min=\"0\" step=\"3\" placeholder=\"0\" />\n		<div class=\"input-group-btn\">\n			<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"button-caption\">sek</span> <span class=\"caret\"></span></button>\n			<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n				<li><a href=\"#\" class=\"sek\">sek</a></li>\n				<li><a href=\"#\" class=\"min\">min</a></li>\n				<li><a href=\"#\" class=\"h\">h</a></li>\n			</ul>\n		</div><!-- /btn-group -->\n	</div><!-- /input-group -->\n</div><!-- /form-group -->\n\n<hr />\n<div class=\"row\">\n	<div class=\"col-xs-6\">\n		<button type=\"reset\" class=\"btn-block btn btn-warning \">Zurücksetzen</button>\n	</div>\n	<div class=\"col-xs-6\">\n		<button type=\"submit\" class=\"btn-block btn btn-primary \">Speichern</button>\n	</div>\n</div>");
 
     ConfigurationView.prototype.onRender = function() {
       return this.setValues();

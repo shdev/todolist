@@ -114,7 +114,7 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 				</div>
 			</div>
 			<div class="form-group replicationinterval has-error">
-				<label class="control-label" for="replicationinterval">Replikationsinterval</label>
+				<label class="control-label" for="replicationinterval">Replikations- / Wiederversuchsinterval</label>
 				<div class="input-group">
 					<input class="form-control replicationinterval" required type="number" min="0" step="3" placeholder="0" />
 					<div class="input-group-btn">

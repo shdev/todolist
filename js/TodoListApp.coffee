@@ -48,6 +48,12 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 		App.vent.trigger 'todolistapp:startReplication'
 		App.vent.trigger 'todolistapp:initViews'
 		
+		currentConfiguration = App.request("TodoListApp:Configuration")
+		
+		currentConfiguration.on 'change', () ->
+			App.vent.trigger 'todolistapp:startReplication'
+		
+		
 	App.vent.on 'todolistapp:initViews', () ->
 		console.debug 'todolistapp:initViews'
 		TodoListApp.mainView = new TodoListAppView()
@@ -67,6 +73,7 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 		currentConfiguration = App.request("TodoListApp:Configuration")
 		
 		if timeOutRepTo?
+			console.debug 'Clear To Timer'
 			clearTimeout(timeOutRepTo)
 			timeOutRepTo = undefined
 		
@@ -77,21 +84,29 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 		if not pouchdbRepTo? and currentConfiguration.get('replicateurl')?
 			pouchdbRepTo = currentPouchDB.replicate.to( currentConfiguration.get('replicateurl'), {live : currentConfiguration.get('continuousreplication')}) 
 
-			pouchdbRepTo.on 'uptodate', ()->
+			pouchdbRepTo.on 'uptodate', () ->
+				console.debug 'pouchdbRepTo:update'
 				App.vent.trigger 'replication:pouchdb:to:uptodate'
-			
-			pouchdbRepTo.on 'error', ()->
+		
+			pouchdbRepTo.on 'error', () ->
+				console.debug 'pouchdbRepTo:error'
 				pouchdbRepTo.cancel()
 				pouchdbRepTo = undefined
 				App.vent.trigger 'replication:pouchdb:to:error'
-			
-			pouchdbRepTo.on 'complete', ()->
+				if currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
+					timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000)
+		
+			pouchdbRepTo.on 'complete', () ->
+				console.debug 'pouchdbRepTo:complete'
 				App.vent.trigger 'replication:pouchdb:to:complete'
+				
+				if not currentConfiguration.get('continuousreplication') and currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
+					timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000)
+				
 				# TODO move it to listcollection module
 				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
-			
-			if not currentConfiguration.get('continuousreplication') and currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
-				setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval'))
+		
+
 				
 	doReplicationFrom = () ->
 		console.debug 'doReplicationFrom'
@@ -110,17 +125,26 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			pouchdbRepFrom = currentPouchDB.replicate.from(currentConfiguration.get('replicateurl'), {live : currentConfiguration.get('continuousreplication')}) 
 		
 			pouchdbRepFrom.on 'uptodate', ()->
+				console.debug 'pouchdbRepFrom:update'
 				App.vent.trigger 'replication:pouchdb:from:uptodate'
 
 			pouchdbRepFrom.on 'error', ()->
+				console.debug 'pouchdbRepFrom:error'
 				pouchdbRepFrom.cancel()
 				pouchdbRepFrom = undefined
 				App.vent.trigger 'replication:pouchdb:from:error'
+				if currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
+					timeOutRepFrom = setTimeout(doReplicationFrom, currentConfiguration.get('replicationinterval') * 1000)
 						
-			pouchdbRepFrom.on 'complete', ()->
+			pouchdbRepFrom.on 'complete', () ->
+				console.debug 'pouchdbRepFrom:complete'
 				App.vent.trigger 'replication:pouchdb:from:complete'
 				# TODO move it to listcollection module
+				if not currentConfiguration.get('continuousreplication') and currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
+					timeOutRepFrom = setTimeout(doReplicationFrom, currentConfiguration.get('replicationinterval') * 1000)
 				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
+		
+		
 	
 	App.vent.on 'todolistapp:startReplication', () -> 
 		doReplicationTo()

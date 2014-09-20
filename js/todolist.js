@@ -129,9 +129,10 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
 
     TodoListAppView.prototype.className = "container";
 
-    TodoListAppView.prototype.template = _.template("\n<div id=\"todolistapp-lists\">\n	<div id=\"todolistapp-list-input\"></div>\n	<hr />\n	<div id=\"todolistapp-lists-view\"></div>\n</div>\n<hr />\n<hr />\n<div id=\"todolistapp-entries\">\n	<div id=\"todolistapp-entry-input\"></div>\n	<hr />\n	<div id=\"todolistapp-entries-view\"></div>\n</div>\n<hr />\n<hr />\n<div id=\"todolistapp-configuration\"></div>");
+    TodoListAppView.prototype.template = _.template("<div id=\"topbar\"></div>\n<div id=\"todolistapp-lists\">\n	<div id=\"todolistapp-list-input\"></div>\n	<hr />\n	<div id=\"todolistapp-lists-view\"></div>\n</div>\n<hr />\n<hr />\n<div id=\"todolistapp-entries\">\n	<div id=\"todolistapp-entry-input\"></div>\n	<hr />\n	<div id=\"todolistapp-entries-view\"></div>\n</div>\n<hr />\n<hr />\n<div id=\"todolistapp-configuration\"></div>");
 
     TodoListAppView.prototype.regions = {
+      topBar: "#topbar",
       listsArea: "#todolistapp-lists",
       listInput: "#todolistapp-list-input",
       listsView: "#todolistapp-lists-view",
@@ -1125,5 +1126,34 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
   });
   return Configuration.addInitializer(function() {
     return Configuration.run();
+  });
+});
+
+App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, _) {
+  var TopBarView;
+  TopBarView = (function(_super) {
+    __extends(TopBarView, _super);
+
+    function TopBarView() {
+      return TopBarView.__super__.constructor.apply(this, arguments);
+    }
+
+    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default\" role=\"navigation\">\n	<div class=\"container\">\n		<!-- Brand and toggle get grouped for better mobile display -->\n		<div class=\"navbar-header\">\n			<a class=\"navbar-brand\" href=\"#\"></a>\n			<p class=\"navbar-text\"><button type=\"button\" class=\"btn btn-success\"><i class=\"fa fa-refresh fa-spin\"></i></button> Signed in as <a href=\"#\" class=\"navbar-link\">Mark Otto</a></p>\n\n		</div>\n	</div><!-- /.container-fluid -->\n</nav>");
+
+    return TopBarView;
+
+  })(Marionette.LayoutView);
+  App.reqres.setHandler("TodoListApp:class:TopBarView", function() {
+    return TopBarView;
+  });
+  return App.mainRegion.on('before:show', function(view) {
+    console.debug("App.mainregion.on 'before:show'");
+    console.debug(view);
+
+    /*
+    		TODO check with instanceof
+     */
+    TopBar.mainView = new TopBarView();
+    return view.topBar.show(TopBar.mainView);
   });
 });

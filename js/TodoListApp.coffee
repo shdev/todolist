@@ -7,7 +7,7 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 	class TodoListAppView extends Marionette.LayoutView
 		className : "container"
 		template : _.template """
-		
+		<div id="topbar"></div>
 		<div id="todolistapp-lists">
 			<div id="todolistapp-list-input"></div>
 			<hr />
@@ -25,6 +25,7 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 		<div id="todolistapp-configuration"></div>
 		"""
 		regions : 
+			topBar : "#topbar"
 			listsArea : "#todolistapp-lists"
 			listInput : "#todolistapp-list-input"
 			listsView : "#todolistapp-lists-view"

@@ -127,9 +127,9 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
       return TodoListAppView.__super__.constructor.apply(this, arguments);
     }
 
-    TodoListAppView.prototype.className = "container";
+    TodoListAppView.prototype.className = "container-fluid";
 
-    TodoListAppView.prototype.template = _.template("<div id=\"topbar\"></div>\n<div id=\"todolistapp-lists\">\n	<div id=\"todolistapp-list-input\"></div>\n	<hr />\n	<div id=\"todolistapp-lists-view\"></div>\n</div>\n<hr />\n<hr />\n<div id=\"todolistapp-entries\">\n	<div id=\"todolistapp-entry-input\"></div>\n	<hr />\n	<div id=\"todolistapp-entries-view\"></div>\n</div>\n<hr />\n<hr />\n<div id=\"todolistapp-configuration\"></div>");
+    TodoListAppView.prototype.template = _.template("<div id=\"topbar\"></div>\n<div id=\"todolistapp-lists\" class=\"col-md-4\">\n	<div id=\"todolistapp-list-input\"></div>\n	<hr />\n	<div id=\"todolistapp-lists-view\"></div>\n</div>\n<hr class=\"hidden-md hidden-lg\" />\n<hr class=\"hidden-md hidden-lg\" />\n<div id=\"todolistapp-entries\" class=\"col-md-4\">\n	<div id=\"todolistapp-entry-input\"></div>\n	<hr />\n	<div id=\"todolistapp-entries-view\"></div>\n</div>\n<hr  class=\"hidden-md hidden-lg\" />\n<hr  class=\"hidden-md hidden-lg\" />\n<div id=\"todolistapp-configuration\" class=\"col-md-4\"></div>");
 
     TodoListAppView.prototype.regions = {
       topBar: "#topbar",
@@ -178,6 +178,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
   });
   pouchdbRepTo = void 0;
   pouchdbRepFrom = void 0;
+  window.pouchdbRepTo = pouchdbRepTo;
   timeOutRepTo = void 0;
   timeOutRepFrom = void 0;
   doReplicationTo = function() {
@@ -198,9 +199,10 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
       pouchdbRepTo = currentPouchDB.replicate.to(currentConfiguration.get('replicateurl'), {
         live: currentConfiguration.get('continuousreplication')
       });
+      window.pouchdbRepTo = pouchdbRepTo;
       pouchdbRepTo.on('uptodate', function() {
-        console.debug('pouchdbRepTo:update');
-        return App.vent.trigger('replication:pouchdb:to:uptodate');
+        console.debug('pouchdbRepTo:complete');
+        return App.vent.trigger('replication:pouchdb:to:complete');
       });
       pouchdbRepTo.on('error', function() {
         console.debug('pouchdbRepTo:error');
@@ -210,6 +212,10 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
         if ((currentConfiguration.get('replicationinterval') != null) && currentConfiguration.get('replicationinterval') > 0) {
           return timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000);
         }
+      });
+      pouchdbRepTo.on('change', function() {
+        console.debug('pouchdbRepTo:change');
+        return App.vent.trigger('replication:pouchdb:to:change');
       });
       return pouchdbRepTo.on('complete', function() {
         console.debug('pouchdbRepTo:complete');
@@ -242,7 +248,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
       });
       pouchdbRepFrom.on('uptodate', function() {
         console.debug('pouchdbRepFrom:update');
-        return App.vent.trigger('replication:pouchdb:from:uptodate');
+        return App.vent.trigger('replication:pouchdb:from:complete');
       });
       pouchdbRepFrom.on('error', function() {
         console.debug('pouchdbRepFrom:error');
@@ -252,6 +258,10 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
         if ((currentConfiguration.get('replicationinterval') != null) && currentConfiguration.get('replicationinterval') > 0) {
           return timeOutRepFrom = setTimeout(doReplicationFrom, currentConfiguration.get('replicationinterval') * 1000);
         }
+      });
+      pouchdbRepFrom.on('change', function() {
+        console.debug('pouchdbRepFrom:change');
+        return App.vent.trigger('replication:pouchdb:from:change');
       });
       return pouchdbRepFrom.on('complete', function() {
         console.debug('pouchdbRepFrom:complete');
@@ -1138,7 +1148,67 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       return TopBarView.__super__.constructor.apply(this, arguments);
     }
 
-    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default\" role=\"navigation\">\n	<div class=\"container\">\n		<!-- Brand and toggle get grouped for better mobile display -->\n		<div class=\"navbar-header\">\n			<a class=\"navbar-brand\" href=\"#\"></a>\n			<p class=\"navbar-text\"><button type=\"button\" class=\"btn btn-success\"><i class=\"fa fa-refresh fa-spin\"></i></button> Signed in as <a href=\"#\" class=\"navbar-link\">Mark Otto</a></p>\n\n		</div>\n	</div><!-- /.container-fluid -->\n</nav>");
+    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default\" role=\"navigation\">\n   <div class=\"navbar-header\">\n      <a class=\"navbar-brand\" href=\"#\">TutorialsPoint</a>\n   </div>\n   <div>\n      <p class=\"navbar-text\">Signed in as Thomas</p>\n   </div>\n</nav>\n\n	<nav class=\"navbar navbar-default\" role=\"navigation\">\n		<div class=\"container\">\n			<!-- Brand and toggle get grouped for better mobile display -->\n			<div class=\"navbar-header\">\n				<a class=\"navbar-brand\" href=\"#\"></a>\n				<p class=\"navbar-text\">\n					<button type=\"button\" class=\"btn btn-default sync-pouchdb\">\n						<i class=\"fa fa-long-arrow-down text-muted\"></i>\n						<i class=\"fa fa-long-arrow-up text-muted\"></i>\n							\n					</button> Signed in as <a href=\"#\" class=\"navbar-link\">\n												Mark Otto\n											</a>\n				</p>\n\n			</div>\n		</div><!-- /.container-fluid -->\n	</nav>");
+
+
+    /*
+    		replication:pouchdb:to:cancel
+    		replication:pouchdb:to:uptodate
+    		replication:pouchdb:to:error
+    		replication:pouchdb:to:complete
+    		
+    		replication:pouchdb:from:cancel
+    		replication:pouchdb:from:uptodate
+    		replication:pouchdb:from:error
+    		replication:pouchdb:from:complete
+     */
+
+    TopBarView.prototype.hashTo = '.fa-long-arrow-up';
+
+    TopBarView.prototype.hashFrom = '.fa-long-arrow-down';
+
+    TopBarView.prototype.events = {
+      'click button.sync-pouchdb': function() {
+        return App.vent.trigger('todolistapp:startReplication');
+      }
+    };
+
+    TopBarView.prototype.normalizeTo = function() {
+      return this.$(this.hashTo).removeClass('text-success text-danger text-primary text-warning text-muted faa-flash animated');
+    };
+
+    TopBarView.prototype.normalizeFrom = function() {
+      return this.$(this.hashFrom).removeClass('text-success text-danger text-primary text-warning text-muted faa-flash animated');
+    };
+
+    TopBarView.prototype.mapDBEventToClass = function(event, cssclass) {
+      var eventHandler;
+      eventHandler = function() {
+        console.debug(event + ' --- ' + cssclass);
+        return this.normalizeTo().addClass(cssclass);
+      };
+      return App.vent.on(event, eventHandler, this);
+    };
+
+    TopBarView.prototype.mapDBEventFromClass = function(event, cssclass) {
+      var eventHandler;
+      eventHandler = function() {
+        console.debug(event + ' --- ' + cssclass);
+        return this.normalizeFrom().addClass(cssclass);
+      };
+      return App.vent.on(event, eventHandler, this);
+    };
+
+    TopBarView.prototype.initialize = function() {
+      this.mapDBEventToClass('replication:pouchdb:to:cancel', 'text-warning');
+      this.mapDBEventToClass('replication:pouchdb:to:change', 'text-primary faa-flash animated');
+      this.mapDBEventToClass('replication:pouchdb:to:error', 'text-danger');
+      this.mapDBEventToClass('replication:pouchdb:to:complete', 'text-success');
+      this.mapDBEventFromClass('replication:pouchdb:from:cancel', 'text-warning');
+      this.mapDBEventFromClass('replication:pouchdb:from:change', 'text-primary faa-flash animated');
+      this.mapDBEventFromClass('replication:pouchdb:from:error', 'text-danger');
+      return this.mapDBEventFromClass('replication:pouchdb:from:complete', 'text-success');
+    };
 
     return TopBarView;
 

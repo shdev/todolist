@@ -5,24 +5,24 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 	###
 
 	class TodoListAppView extends Marionette.LayoutView
-		className : "container"
+		className : "container-fluid"
 		template : _.template """
 		<div id="topbar"></div>
-		<div id="todolistapp-lists">
+		<div id="todolistapp-lists" class="col-md-4">
 			<div id="todolistapp-list-input"></div>
 			<hr />
 			<div id="todolistapp-lists-view"></div>
 		</div>
-		<hr />
-		<hr />
-		<div id="todolistapp-entries">
+		<hr class="hidden-md hidden-lg" />
+		<hr class="hidden-md hidden-lg" />
+		<div id="todolistapp-entries" class="col-md-4">
 			<div id="todolistapp-entry-input"></div>
 			<hr />
 			<div id="todolistapp-entries-view"></div>
 		</div>
-		<hr />
-		<hr />
-		<div id="todolistapp-configuration"></div>
+		<hr  class="hidden-md hidden-lg" />
+		<hr  class="hidden-md hidden-lg" />
+		<div id="todolistapp-configuration" class="col-md-4"></div>
 		"""
 		regions : 
 			topBar : "#topbar"
@@ -65,6 +65,8 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 	pouchdbRepTo = undefined
 	pouchdbRepFrom = undefined
 	
+	window.pouchdbRepTo = pouchdbRepTo
+	
 	timeOutRepTo = undefined
 	timeOutRepFrom = undefined
 	
@@ -72,23 +74,19 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 		console.debug 'doReplicationTo'
 		currentPouchDB = App.request("TodoListApp:PouchDB");
 		currentConfiguration = App.request("TodoListApp:Configuration")
-		
 		if timeOutRepTo?
 			console.debug 'Clear To Timer'
 			clearTimeout(timeOutRepTo)
 			timeOutRepTo = undefined
-		
 		if pouchdbRepTo?
 			pouchdbRepTo.cancel()
 			App.vent.trigger 'replication:pouchdb:to:cancel'
-		
 		if not pouchdbRepTo? and currentConfiguration.get('replicateurl')?
 			pouchdbRepTo = currentPouchDB.replicate.to( currentConfiguration.get('replicateurl'), {live : currentConfiguration.get('continuousreplication')}) 
-
+			window.pouchdbRepTo = pouchdbRepTo
 			pouchdbRepTo.on 'uptodate', () ->
-				console.debug 'pouchdbRepTo:update'
-				App.vent.trigger 'replication:pouchdb:to:uptodate'
-		
+				console.debug 'pouchdbRepTo:complete'
+				App.vent.trigger 'replication:pouchdb:to:complete'
 			pouchdbRepTo.on 'error', () ->
 				console.debug 'pouchdbRepTo:error'
 				pouchdbRepTo.cancel()
@@ -96,14 +94,14 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 				App.vent.trigger 'replication:pouchdb:to:error'
 				if currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
 					timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000)
-		
+			pouchdbRepTo.on 'change', ()->
+				console.debug 'pouchdbRepTo:change'
+				App.vent.trigger 'replication:pouchdb:to:change'
 			pouchdbRepTo.on 'complete', () ->
 				console.debug 'pouchdbRepTo:complete'
 				App.vent.trigger 'replication:pouchdb:to:complete'
-				
 				if not currentConfiguration.get('continuousreplication') and currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
 					timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000)
-				
 				# TODO move it to listcollection module
 				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
 		
@@ -127,7 +125,8 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 		
 			pouchdbRepFrom.on 'uptodate', ()->
 				console.debug 'pouchdbRepFrom:update'
-				App.vent.trigger 'replication:pouchdb:from:uptodate'
+				# App.vent.trigger 'replication:pouchdb:from:uptodate'
+				App.vent.trigger 'replication:pouchdb:from:complete'
 
 			pouchdbRepFrom.on 'error', ()->
 				console.debug 'pouchdbRepFrom:error'
@@ -136,7 +135,11 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 				App.vent.trigger 'replication:pouchdb:from:error'
 				if currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
 					timeOutRepFrom = setTimeout(doReplicationFrom, currentConfiguration.get('replicationinterval') * 1000)
-						
+			
+			pouchdbRepFrom.on 'change', ()->
+				console.debug 'pouchdbRepFrom:change'
+				App.vent.trigger 'replication:pouchdb:from:change'
+			
 			pouchdbRepFrom.on 'complete', () ->
 				console.debug 'pouchdbRepFrom:complete'
 				App.vent.trigger 'replication:pouchdb:from:complete'

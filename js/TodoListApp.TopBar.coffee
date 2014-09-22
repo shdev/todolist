@@ -4,45 +4,15 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 	class TopBarView extends Marionette.LayoutView
 		template : _.template """
 		<nav class="navbar navbar-default" role="navigation">
-		   <div class="navbar-header">
-		      <a class="navbar-brand" href="#">TutorialsPoint</a>
-		   </div>
-		   <div>
-		      <p class="navbar-text">Signed in as Thomas</p>
-		   </div>
+			<div class="container">
+				<button type="button" class="btn btn-default sync-pouchdb navbar-btn">
+					<i class="fa fa-long-arrow-down text-muted"></i>
+					<i class="fa fa-long-arrow-up text-muted"></i>
+				</button> 
+				<p class="navbar-text last-sync"></p>
+			</div><!-- /.container-fluid -->
 		</nav>
-		
-			<nav class="navbar navbar-default" role="navigation">
-				<div class="container">
-					<!-- Brand and toggle get grouped for better mobile display -->
-					<div class="navbar-header">
-						<a class="navbar-brand" href="#"></a>
-						<p class="navbar-text">
-							<button type="button" class="btn btn-default sync-pouchdb">
-								<i class="fa fa-long-arrow-down text-muted"></i>
-								<i class="fa fa-long-arrow-up text-muted"></i>
-									
-							</button> Signed in as <a href="#" class="navbar-link">
-														Mark Otto
-													</a>
-						</p>
-
-					</div>
-				</div><!-- /.container-fluid -->
-			</nav>
-		"""
-		###
-		replication:pouchdb:to:cancel
-		replication:pouchdb:to:uptodate
-		replication:pouchdb:to:error
-		replication:pouchdb:to:complete
-		
-		replication:pouchdb:from:cancel
-		replication:pouchdb:from:uptodate
-		replication:pouchdb:from:error
-		replication:pouchdb:from:complete
-		###
-		
+		"""		
 		hashTo : '.fa-long-arrow-up'
 		hashFrom : '.fa-long-arrow-down'
 		
@@ -58,11 +28,13 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 			eventHandler = () ->
 				console.debug event + ' --- ' + cssclass
 				@normalizeTo().addClass(cssclass)
+				@$('.last-sync').text(JSON.stringify(new Date()))
 			App.vent.on event, eventHandler, @ 
 		mapDBEventFromClass : (event, cssclass) ->
 			eventHandler = () -> 
 				console.debug event + ' --- ' + cssclass
 				@normalizeFrom().addClass(cssclass)
+				@$('.last-sync').text(JSON.stringify(new Date()))
 			App.vent.on event, eventHandler, @
 		initialize : () ->
 			@mapDBEventToClass 'replication:pouchdb:to:cancel', 'text-warning'

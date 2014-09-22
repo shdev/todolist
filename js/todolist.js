@@ -65,11 +65,15 @@ App.module('GeneralBehavior', function(GeneralBehavior, App, Backbone, Marionett
 
     AddSimpleItem.prototype.events = {
       "click @ui.addItemButton": "addItem",
-      "change @ui.itemName": "inputChanged"
+      "keydown @ui.itemName": "checkButtonState"
     };
 
-    AddSimpleItem.prototype.inputChanged = function(e) {
-      this.view.ui.itemName.val();
+    AddSimpleItem.prototype.checkButtonState = function() {
+      if (this.view.ui.itemName.val().trim().length === 0) {
+        this.view.ui.addItemButton.prop('disabled', true);
+      } else {
+        this.view.ui.addItemButton.prop('disabled', false);
+      }
       return true;
     };
 
@@ -88,8 +92,14 @@ App.module('GeneralBehavior', function(GeneralBehavior, App, Backbone, Marionett
         if (collection != null) {
           collection.add(model);
         }
+        this.view.ui.itemName.val(null);
+        this.checkButtonState();
       }
       return false;
+    };
+
+    AddSimpleItem.prototype.onRender = function() {
+      return this.checkButtonState();
     };
 
     return AddSimpleItem;
@@ -195,6 +205,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
       pouchdbRepTo.cancel();
       App.vent.trigger('replication:pouchdb:to:cancel');
     }
+    pouchdbRepTo = void 0;
     if ((pouchdbRepTo == null) && (currentConfiguration.get('replicateurl') != null)) {
       pouchdbRepTo = currentPouchDB.replicate.to(currentConfiguration.get('replicateurl'), {
         live: currentConfiguration.get('continuousreplication')
@@ -242,6 +253,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
       pouchdbRepFrom.cancel();
       App.vent.trigger('replication:pouchdb:from:cancel');
     }
+    pouchdbRepFrom = void 0;
     if ((pouchdbRepFrom == null) && (currentConfiguration.get('replicateurl') != null)) {
       pouchdbRepFrom = currentPouchDB.replicate.from(currentConfiguration.get('replicateurl'), {
         live: currentConfiguration.get('continuousreplication')
@@ -1030,46 +1042,43 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
       }
     };
 
+    ConfigurationView.prototype.saveEntries = function() {
+      this.model.save({
+        username: this.$('input.username').val().trim()
+      });
+      this.model.save({
+        replicateurl: this.$('input.replicateurl').val().trim()
+      });
+      this.model.save({
+        replicationinterval: parseInt(this.$('input.replicationinterval').val().trim())
+      });
+      this.model.save({
+        continuousreplication: this.$('input.continuousreplication').prop('checked')
+      });
+      this.model.save({
+        deleteCheckedEntries: parseInt(this.$('input.delete-checked-entries').val().trim())
+      });
+      return this.model.save({
+        deleteUnusedEntries: parseInt(this.$('input.delete-unused-entries').val().trim())
+      });
+    };
+
     ConfigurationView.prototype.events = {
-      'change input.username': function() {
-        return this.model.save({
-          username: this.$('input.username').val().trim()
-        });
+      'submit': function() {
+        console.debug('submit form');
+        this.saveEntries();
+        return false;
       },
-      'change input.replicateurl': function() {
-        return this.model.save({
-          replicateurl: this.$('input.replicateurl').val().trim()
-        });
-      },
-      'change input.replicationinterval': function() {
-        return this.model.save({
-          replicationinterval: parseInt(this.$('input.replicationinterval').val().trim())
-        });
-      },
-      'change input.continuousreplication': function() {
-        return this.model.save({
-          continuousreplication: this.$('input.continuousreplication').prop('checked')
-        });
-      },
-      'change input.delete-checked-entries': function() {
-        return this.model.save({
-          deleteCheckedEntries: parseInt(this.$('input.delete-checked-entries').val().trim())
-        });
-      },
-      'change input.delete-unused-entries': function() {
-        return this.model.save({
-          deleteUnusedEntries: parseInt(this.$('input.delete-unused-entries').val().trim())
-        });
+      'reset': function() {
+        console.debug('reset form');
+        this.setValues();
+        return false;
       }
     };
 
     ConfigurationView.prototype.modelEvents = {
       'change': function() {
         return this.setValues();
-      },
-      'submit form': function() {
-        console.debug('submit');
-        return false;
       },
       'invalid': function() {
         var field, _i, _len, _ref, _results;
@@ -1148,20 +1157,7 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       return TopBarView.__super__.constructor.apply(this, arguments);
     }
 
-    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default\" role=\"navigation\">\n   <div class=\"navbar-header\">\n      <a class=\"navbar-brand\" href=\"#\">TutorialsPoint</a>\n   </div>\n   <div>\n      <p class=\"navbar-text\">Signed in as Thomas</p>\n   </div>\n</nav>\n\n	<nav class=\"navbar navbar-default\" role=\"navigation\">\n		<div class=\"container\">\n			<!-- Brand and toggle get grouped for better mobile display -->\n			<div class=\"navbar-header\">\n				<a class=\"navbar-brand\" href=\"#\"></a>\n				<p class=\"navbar-text\">\n					<button type=\"button\" class=\"btn btn-default sync-pouchdb\">\n						<i class=\"fa fa-long-arrow-down text-muted\"></i>\n						<i class=\"fa fa-long-arrow-up text-muted\"></i>\n							\n					</button> Signed in as <a href=\"#\" class=\"navbar-link\">\n												Mark Otto\n											</a>\n				</p>\n\n			</div>\n		</div><!-- /.container-fluid -->\n	</nav>");
-
-
-    /*
-    		replication:pouchdb:to:cancel
-    		replication:pouchdb:to:uptodate
-    		replication:pouchdb:to:error
-    		replication:pouchdb:to:complete
-    		
-    		replication:pouchdb:from:cancel
-    		replication:pouchdb:from:uptodate
-    		replication:pouchdb:from:error
-    		replication:pouchdb:from:complete
-     */
+    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default\" role=\"navigation\">\n	<div class=\"container\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button> \n		<p class=\"navbar-text last-sync\"></p>\n	</div><!-- /.container-fluid -->\n</nav>");
 
     TopBarView.prototype.hashTo = '.fa-long-arrow-up';
 
@@ -1185,7 +1181,8 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       var eventHandler;
       eventHandler = function() {
         console.debug(event + ' --- ' + cssclass);
-        return this.normalizeTo().addClass(cssclass);
+        this.normalizeTo().addClass(cssclass);
+        return this.$('.last-sync').text(JSON.stringify(new Date()));
       };
       return App.vent.on(event, eventHandler, this);
     };
@@ -1194,7 +1191,8 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       var eventHandler;
       eventHandler = function() {
         console.debug(event + ' --- ' + cssclass);
-        return this.normalizeFrom().addClass(cssclass);
+        this.normalizeFrom().addClass(cssclass);
+        return this.$('.last-sync').text(JSON.stringify(new Date()));
       };
       return App.vent.on(event, eventHandler, this);
     };

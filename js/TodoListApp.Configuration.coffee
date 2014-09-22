@@ -67,27 +67,25 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 				for field in @model.validationError
 					console.debug 'invalid Field'
 					console.debug field
-				
-		events : 
-			'change input.username' : () ->
+		saveEntries : () -> 
 				@model.save({username : @$('input.username').val().trim()})
-			'change input.replicateurl' : () ->
 				@model.save({replicateurl: @$('input.replicateurl').val().trim()})
-			'change input.replicationinterval' : () ->
 				@model.save({replicationinterval: parseInt(@$('input.replicationinterval').val().trim())})
-			'change input.continuousreplication' : () ->
 				@model.save({continuousreplication: @$('input.continuousreplication').prop('checked')})
-			'change input.delete-checked-entries' : () ->
 				@model.save({deleteCheckedEntries: parseInt(@$('input.delete-checked-entries').val().trim())})
-			'change input.delete-unused-entries' : () ->
 				@model.save({deleteUnusedEntries: parseInt(@$('input.delete-unused-entries').val().trim())})
-			
+		events :
+			'submit' : () ->
+				console.debug 'submit form'
+				@saveEntries()
+				false
+			'reset' : () ->
+				console.debug 'reset form'
+				@setValues()
+				false
 		modelEvents : 
 			'change' : () ->
 				@setValues()
-			'submit form' : () ->
-				console.debug 'submit'
-				false
 			'invalid' : () ->
 				console.debug 'invalid'
 				console.debug @model.validationError

@@ -81,6 +81,9 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 		if pouchdbRepTo?
 			pouchdbRepTo.cancel()
 			App.vent.trigger 'replication:pouchdb:to:cancel'
+		
+		pouchdbRepTo = undefined
+			
 		if not pouchdbRepTo? and currentConfiguration.get('replicateurl')?
 			pouchdbRepTo = currentPouchDB.replicate.to( currentConfiguration.get('replicateurl'), {live : currentConfiguration.get('continuousreplication')}) 
 			window.pouchdbRepTo = pouchdbRepTo
@@ -104,9 +107,7 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 					timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000)
 				# TODO move it to listcollection module
 				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
-		
 
-				
 	doReplicationFrom = () ->
 		console.debug 'doReplicationFrom'
 		currentPouchDB = App.request("TodoListApp:PouchDB");
@@ -119,6 +120,8 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 		if pouchdbRepFrom?
 			pouchdbRepFrom.cancel()
 			App.vent.trigger 'replication:pouchdb:from:cancel'
+		
+		pouchdbRepFrom = undefined
 		
 		if not pouchdbRepFrom? and currentConfiguration.get('replicateurl')?
 			pouchdbRepFrom = currentPouchDB.replicate.from(currentConfiguration.get('replicateurl'), {live : currentConfiguration.get('continuousreplication')}) 

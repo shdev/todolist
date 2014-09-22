@@ -17,11 +17,14 @@ App.module 'GeneralBehavior', (GeneralBehavior, App, Backbone, Marionette, $, _)
 	class AddSimpleItem extends Marionette.Behavior
 		events : 
 			"click @ui.addItemButton" : "addItem"
-			"change @ui.itemName" : "inputChanged"
+			"keydown @ui.itemName" : "checkButtonState"
 			
-		inputChanged : (e) ->
-			@view.ui.itemName.val()
-			return true
+		checkButtonState : () ->
+			if @view.ui.itemName.val().trim().length == 0 
+				@view.ui.addItemButton.prop('disabled', true)
+			else 
+				@view.ui.addItemButton.prop('disabled', false)
+			true
 			
 		addItem : (e) ->
 			console.debug 'addItem'
@@ -34,7 +37,11 @@ App.module 'GeneralBehavior', (GeneralBehavior, App, Backbone, Marionette, $, _)
 				model.save()
 				console.debug model.toJSON()
 				collection.add model if collection?
+				@view.ui.itemName.val(null)
+				@checkButtonState()
 			return false
+		onRender : () ->
+			@checkButtonState()
 
 	Marionette.Behaviors.behaviorsLookup().AddSimpleItem = AddSimpleItem
 	

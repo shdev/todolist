@@ -35,6 +35,7 @@ Marionette.Behaviors.behaviorsLookup = function() {
 };
 
 init = function() {
+  moment.lang('de');
   return App.start();
 };
 
@@ -212,8 +213,11 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
       });
       window.pouchdbRepTo = pouchdbRepTo;
       pouchdbRepTo.on('uptodate', function() {
-        console.debug('pouchdbRepTo:complete');
-        return App.vent.trigger('replication:pouchdb:to:complete');
+        console.debug('pouchdbRepTo:uptodate');
+        App.vent.trigger('replication:pouchdb:to:uptodate');
+        if (App.TodoListApp.listCollection != null) {
+          return App.TodoListApp.listCollection.fetch();
+        }
       });
       pouchdbRepTo.on('error', function() {
         console.debug('pouchdbRepTo:error');
@@ -260,7 +264,10 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
       });
       pouchdbRepFrom.on('uptodate', function() {
         console.debug('pouchdbRepFrom:update');
-        return App.vent.trigger('replication:pouchdb:from:complete');
+        App.vent.trigger('replication:pouchdb:from:uptodate');
+        if (App.TodoListApp.listCollection != null) {
+          return App.TodoListApp.listCollection.fetch();
+        }
       });
       pouchdbRepFrom.on('error', function() {
         console.debug('pouchdbRepFrom:error');
@@ -1157,7 +1164,7 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       return TopBarView.__super__.constructor.apply(this, arguments);
     }
 
-    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default\" role=\"navigation\">\n	<div class=\"container\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button> \n		<p class=\"navbar-text last-sync\"></p>\n	</div><!-- /.container-fluid -->\n</nav>");
+    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default\" role=\"navigation\">\n	<div class=\"container\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button> \n	</div><!-- /.container-fluid -->\n</nav>");
 
     TopBarView.prototype.hashTo = '.fa-long-arrow-up';
 
@@ -1182,7 +1189,7 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       eventHandler = function() {
         console.debug(event + ' --- ' + cssclass);
         this.normalizeTo().addClass(cssclass);
-        return this.$('.last-sync').text(JSON.stringify(new Date()));
+        return this.$('.sync-pouchdb').attr('title', moment().format('llll'));
       };
       return App.vent.on(event, eventHandler, this);
     };
@@ -1192,7 +1199,7 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       eventHandler = function() {
         console.debug(event + ' --- ' + cssclass);
         this.normalizeFrom().addClass(cssclass);
-        return this.$('.last-sync').text(JSON.stringify(new Date()));
+        return this.$('.sync-pouchdb').attr('title', moment().format('llll'));
       };
       return App.vent.on(event, eventHandler, this);
     };
@@ -1201,11 +1208,13 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       this.mapDBEventToClass('replication:pouchdb:to:cancel', 'text-warning');
       this.mapDBEventToClass('replication:pouchdb:to:change', 'text-primary faa-flash animated');
       this.mapDBEventToClass('replication:pouchdb:to:error', 'text-danger');
-      this.mapDBEventToClass('replication:pouchdb:to:complete', 'text-success');
+      this.mapDBEventToClass('replication:pouchdb:to:complete', 'text-warning');
+      this.mapDBEventToClass('replication:pouchdb:to:uptodate', 'text-success');
       this.mapDBEventFromClass('replication:pouchdb:from:cancel', 'text-warning');
       this.mapDBEventFromClass('replication:pouchdb:from:change', 'text-primary faa-flash animated');
       this.mapDBEventFromClass('replication:pouchdb:from:error', 'text-danger');
-      return this.mapDBEventFromClass('replication:pouchdb:from:complete', 'text-success');
+      this.mapDBEventFromClass('replication:pouchdb:from:complete', 'text-warning');
+      return this.mapDBEventFromClass('replication:pouchdb:from:uptodate', 'text-success');
     };
 
     return TopBarView;

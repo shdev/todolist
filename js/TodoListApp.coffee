@@ -88,8 +88,10 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			pouchdbRepTo = currentPouchDB.replicate.to( currentConfiguration.get('replicateurl'), {live : currentConfiguration.get('continuousreplication')}) 
 			window.pouchdbRepTo = pouchdbRepTo
 			pouchdbRepTo.on 'uptodate', () ->
-				console.debug 'pouchdbRepTo:complete'
-				App.vent.trigger 'replication:pouchdb:to:complete'
+				console.debug 'pouchdbRepTo:uptodate'
+				App.vent.trigger 'replication:pouchdb:to:uptodate'
+				# TODO move it to listcollection module
+				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
 			pouchdbRepTo.on 'error', () ->
 				console.debug 'pouchdbRepTo:error'
 				pouchdbRepTo.cancel()
@@ -129,7 +131,9 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			pouchdbRepFrom.on 'uptodate', ()->
 				console.debug 'pouchdbRepFrom:update'
 				# App.vent.trigger 'replication:pouchdb:from:uptodate'
-				App.vent.trigger 'replication:pouchdb:from:complete'
+				App.vent.trigger 'replication:pouchdb:from:uptodate'
+				# TODO move it to listcollection module
+				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
 
 			pouchdbRepFrom.on 'error', ()->
 				console.debug 'pouchdbRepFrom:error'

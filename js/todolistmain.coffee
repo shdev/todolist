@@ -30,6 +30,7 @@ Marionette.Behaviors.behaviorsLookup = ->
 
 
 init = ( ) -> 
+	moment.lang('de')
 	App.start()
 	
 $(init)

@@ -48,6 +48,6 @@ App.module 'GeneralBehavior', (GeneralBehavior, App, Backbone, Marionette, $, _)
 	class Tooltip extends Marionette.Behavior
 		onRender : ->
 			@view.$('*[data-toggle="tooltip"]').tooltip()
-			return true
+			true
 	
 	Marionette.Behaviors.behaviorsLookup().Tooltip = Tooltip

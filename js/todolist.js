@@ -655,30 +655,30 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 });
 
 App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Marionette, $, _) {
-  var EntryCollectionFactory, EntryCollectionView, EntryItemView, EntryModelFactory, NoEntrieView;
-  NoEntrieView = (function(_super) {
-    __extends(NoEntrieView, _super);
+  var EntryCollectionFactory, EntryCollectionView, EntryItemView, EntryModelFactory, NoEntryView;
+  NoEntryView = (function(_super) {
+    __extends(NoEntryView, _super);
 
-    function NoEntrieView() {
-      return NoEntrieView.__super__.constructor.apply(this, arguments);
+    function NoEntryView() {
+      return NoEntryView.__super__.constructor.apply(this, arguments);
     }
 
-    NoEntrieView.prototype.tagName = "li";
+    NoEntryView.prototype.tagName = "li";
 
-    NoEntrieView.prototype.className = "list-group-item list-group-item-warning";
+    NoEntryView.prototype.className = "list-group-item list-group-item-warning";
 
-    NoEntrieView.prototype.template = _.template("Es gibt keine Einträge!");
+    NoEntryView.prototype.template = _.template("Es gibt keine Einträge!");
 
 
     /*
     		TODO watch out for the collection loads data
      */
 
-    NoEntrieView.prototype.onRender = function() {
-      return console.debug('Render NoEntrieView');
+    NoEntryView.prototype.onRender = function() {
+      return console.debug('Render NoEntryView');
     };
 
-    return NoEntrieView;
+    return NoEntryView;
 
   })(Marionette.ItemView);
   EntryItemView = (function(_super) {
@@ -692,7 +692,7 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
     EntryItemView.prototype.className = "list-group-item todolist-entry";
 
-    EntryItemView.prototype.template = _.template("<span class=\"fa-stack checkbox\">\n  <i class=\"fa fa-fw fa-square-o fa-stack-2x\"></i>\n  <i class=\"fa fa-fw fa-check fa-stack-1x checktoggle\"></i>\n</span>\n<span class=\"content\"><%= name %></span>\n<span class=\"delete badge\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Lösche Adresse\"><i class=\"fa fa-trash-o fa-fw\"></i></span>");
+    EntryItemView.prototype.template = _.template("<div class=\"checkbox\">\n	<div class=\"center\">\n		<i class=\"fa fa-fw fa-check\"></i>\n	</div>\n</div>\n<span class=\"content\"><%= name %></span>\n<div class=\"delete bg-success\"><div class=\"center\">\n		<i class=\"fa fa-fw fa-trash-o\"></i>\n</div></div>\n<div class=\"no bg-danger\"><div class=\"center\">\n		<i class=\"fa fa-fw fa-ban\"></i>\n</div></div>");
 
     EntryItemView.prototype.behaviors = {
       Tooltip: {}
@@ -709,12 +709,16 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
     EntryItemView.prototype.events = {
       'click .delete': function() {
-        this.model.destroy();
+        if (this.$el.hasClass('delete-mode')) {
+          this.model.destroy();
+        } else {
+          this.$el.addClass('delete-mode');
+        }
         return false;
       },
-      'click': function() {
-        this.$el.siblings().removeClass('list-group-item-success');
-        return this.$el.addClass('list-group-item-success');
+      'click .no': function() {
+        this.$el.removeClass('delete-mode');
+        return false;
       },
       'click .checkbox': function() {
         this.model.toggleCheck();
@@ -777,7 +781,7 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
     EntryCollectionView.prototype.childView = EntryItemView;
 
-    EntryCollectionView.prototype.emptyView = NoEntrieView;
+    EntryCollectionView.prototype.emptyView = NoEntryView;
 
     return EntryCollectionView;
 
@@ -956,7 +960,7 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
 
     TodoConfigurationModel.prototype.defaults = {
       continuousreplication: false,
-      username: "Rodosch",
+      username: "Brandt",
       replicateurl: null,
       replicationinterval: 5 * 60,
       deleteCheckedEntries: 5 * 24 * 60 * 60,

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Todolist</title>
+	<META HTTP-EQUIV="content-type" CONTENT="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0 , user-scalable = no">
+		<!-- Bootstrap -->
+		<link href="../css/bootstrap.min.css" rel="stylesheet">
+		<link href="../css/bootstrap-editable.css" rel="stylesheet">
+		<link href="../css/font-awesome.min.css" rel="stylesheet">
+		<link href="../css/font-awesome-animation.min.css" rel="stylesheet">
+		<link href="../css/todo.css" rel="stylesheet">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-touch-fullscreen" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	</head>
+<body style=""><div class="container-fluid"><div id="topbar"><div><nav class="navbar navbar-default" role="navigation">
+	<div class="container">
+		<button type="button" class="btn btn-default sync-pouchdb navbar-btn" title="Di., 23. Sept. 2014 21:22 Uhr">
+			<i class="fa fa-long-arrow-down text-success"></i>
+			<i class="fa fa-long-arrow-up text-success"></i>
+		</button> 
+	</div><!-- /.container-fluid -->
+</nav></div></div>
+<div id="todolistapp-lists" class="col-md-4">
+	<div id="todolistapp-list-input"><div class="form-group"><label class="control-label" for="listname">Liste anlegen</label>
+<form>
+<div class="input-group">
+	<input type="text" class="form-control" id="listname" placeholder="Liste">
+	<span class="input-group-btn">
+		<button class="btn btn-success add-item" type="submit" disabled=""><i class="fa fa-plus"></i></button>
+	</span>
+</div>
+</form></div></div>
+	<hr>
+	<div id="todolistapp-lists-view"><ul class="list-group"><li class="list-group-item list-group-item-success"><span class="content editable editable-click">dvsdvs</span>
+<span class="badge delete" data-toggle="tooltip" data-placement="top" title="" data-original-title="Lösche Adresse"><i class="fa fa-trash-o fa-fw"></i></span></li></ul></div>
+</div>
+<hr class="hidden-md hidden-lg">
+<hr class="hidden-md hidden-lg">
+<div id="todolistapp-entries" class="col-md-4">
+	<div id="todolistapp-entry-input"><div class="form-group"><label for="entryname">Eintrag eintragen</label>
+<form>
+	<div class="input-group">
+		<input type="text" class="form-control" id="entryname" placeholder="Eintrag">
+		<span class="input-group-btn">
+			<button class="btn btn-success add-item" type="submit" disabled=""><i class="fa fa-plus"></i></button>
+		</span>
+	</div>
+</form></div></div>
+	<hr>
+	<div id="todolistapp-entries-view">
+		<ul class="list-group todolist-entries-list">
+			<li class="list-group-item todolist-entry list-group-item-success">
+				<span class="fa-stack checkbox">
+					<i class="fa fa-fw fa-square-o fa-stack-2x"></i>
+					<i class="fa fa-fw fa-check fa-stack-1x checktoggle"></i>
+				</span>
+				<span class="content editable editable-click">ldskvnlsdv</span>
+				<span class="delete badge" data-toggle="tooltip" data-placement="top" title="" data-original-title="Lösche Adresse">
+					<i class="fa fa-trash-o fa-fw"></i>
+				</span>
+			</li>
+			<li class="list-group-item todolist-entry">
+				<div class="checkbox">
+					<div class="center">
+						<i class="fa fa-fw fa-check"></i>
+					</div>
+				</div>
+				<span class="content editable editable-click">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet</span>
+
+		<div class="delete bg-success"><div class="center">
+				<i class="fa fa-fw fa-trash-o"></i>
+		</div></div>
+		<div class="no bg-danger"><div class="center">
+				<i class="fa fa-fw fa-ban"></i>
+		</div></div>
+			</li>
+			<li class="list-group-item todolist-entry ischecked">
+				<div class="checkbox">
+					<div class="center">
+						<i class="fa fa-fw fa-check"></i>
+					</div>
+				</div>
+				<span class="content editable editable-click">Lorem ipsum dolor sit amet, </span>
+				<span class="delete badge" data-toggle="tooltip" data-placement="top" title="" data-original-title="Lösche Adresse">
+					<i class="fa fa-trash-o fa-fw"></i>
+				</span>
+			</li>
+		</ul>
+	</div>
+</div>
+<hr class="hidden-md hidden-lg">
+<hr class="hidden-md hidden-lg">
+<div id="todolistapp-configuration" class="col-md-4"><form><div class="username form-group">
+	<label class="control-label" for="username">Benutzername</label>
+	<input type="text" class="form-control username" placeholder="Mein Name ist??" required="">
+</div>
+<hr>
+<div class="replicateurl form-group">
+	<label class="control-label" for="replicateurl">Adresse zum Replizieren</label>
+	<input type="url" class="form-control replicateurl" placeholder="http://" required="">
+</div>
+<div class="continuousreplication form-group">
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" class="continuousreplication"><strong>Durchgängige Replikation</strong>
+		</label>
+	</div>
+</div>
+<div class="form-group replicationinterval">
+	<label class="control-label" for="replicationinterval">Replikations- / Wiederversuchsinterval</label>
+	<div class="input-group">
+		<input class="form-control replicationinterval" required="" type="number" min="0" step="3" placeholder="0">
+		<div class="input-group-btn">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="button-caption">sek</span> <span class="caret"></span></button>
+			<ul class="dropdown-menu dropdown-menu-right" role="menu">
+				<li><a href="#" class="sek">sek</a></li>
+				<li><a href="#" class="min">min</a></li>
+				<li><a href="#" class="h">h</a></li>
+			</ul>
+		</div><!-- /btn-group -->
+	</div>
+</div>
+<hr>
+<div class="form-group delete-checked-entries">
+	<label class="control-label" for="delete-checked-entries">Löschen von abgearbeiteten Einträgen nach</label>
+	<div class="input-group">
+		<input type="number" class="form-control delete-checked-entries" min="0" step="3" placeholder="0">
+		<div class="input-group-btn">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="button-caption">sek</span> <span class="caret"></span></button>
+			<ul class="dropdown-menu dropdown-menu-right" role="menu">
+				<li><a href="#" class="sek">sek</a></li>
+				<li><a href="#" class="min">min</a></li>
+				<li><a href="#" class="h">h</a></li>
+			</ul>
+		</div><!-- /btn-group -->
+	</div><!-- /input-group -->
+</div><!-- /form-group -->
+<div class="form-group delete-unused-entries">
+	<label class="control-label" for="delete-unused-entries">Löschen von ungenutzen Einträgen nach</label>
+	<div class="input-group">
+		<input type="number" class="form-control delete-unused-entries" min="0" step="3" placeholder="0">
+		<div class="input-group-btn">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="button-caption">sek</span> <span class="caret"></span></button>
+			<ul class="dropdown-menu dropdown-menu-right" role="menu">
+				<li><a href="#" class="sek">sek</a></li>
+				<li><a href="#" class="min">min</a></li>
+				<li><a href="#" class="h">h</a></li>
+			</ul>
+		</div><!-- /btn-group -->
+	</div><!-- /input-group -->
+</div><!-- /form-group -->
+
+<hr>
+<div class="row">
+	<div class="col-xs-6">
+		<button type="reset" class="btn-block btn btn-warning ">Zurücksetzen</button>
+	</div>
+	<div class="col-xs-6">
+		<button type="submit" class="btn-block btn btn-primary ">Speichern</button>
+	</div>
+</div></form></div></div></body></html>

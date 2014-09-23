@@ -1,6 +1,6 @@
 App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $, _) ->
 
-	class NoEntrieView extends Marionette.ItemView
+	class NoEntryView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item list-group-item-warning"
 		template : _.template """
@@ -13,18 +13,24 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		# behaviors :
 		# 	Tooltip : {}
 		onRender : ->
-			console.debug 'Render NoEntrieView'
+			console.debug 'Render NoEntryView'
 
 	class EntryItemView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item todolist-entry"
 		template : _.template """
-		<span class="fa-stack checkbox">
-		  <i class="fa fa-fw fa-square-o fa-stack-2x"></i>
-		  <i class="fa fa-fw fa-check fa-stack-1x checktoggle"></i>
-		</span>
+		<div class="checkbox">
+			<div class="center">
+				<i class="fa fa-fw fa-check"></i>
+			</div>
+		</div>
 		<span class="content"><%= name %></span>
-		<span class="delete badge" data-toggle="tooltip" data-placement="top" title="Lösche Adresse"><i class="fa fa-trash-o fa-fw"></i></span>
+		<div class="delete bg-success"><div class="center">
+				<i class="fa fa-fw fa-trash-o"></i>
+		</div></div>
+		<div class="no bg-danger"><div class="center">
+				<i class="fa fa-fw fa-ban"></i>
+		</div></div>
 		"""
 		behaviors :
 			Tooltip : {}
@@ -36,11 +42,14 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			"change:name" : 'reRenderName'
 		events :
 			'click .delete' : () ->
-				@model.destroy()
+				if @$el.hasClass('delete-mode') 
+					@model.destroy()
+				else
+					@$el.addClass 'delete-mode'
 				false
-			'click' : () ->
-				@$el.siblings().removeClass 'list-group-item-success'
-				@$el.addClass 'list-group-item-success'
+			'click .no' : () ->
+				@$el.removeClass 'delete-mode'
+				false
 			'click .checkbox' : () ->
 				@model.toggleCheck() 
 				@model.save()
@@ -80,7 +89,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		tagName : "ul"
 		className : "list-group todolist-entries-list"
 		childView : EntryItemView
-		emptyView : NoEntrieView
+		emptyView : NoEntryView
 		
 	EntryModelFactory = (todolistid) -> 
 		currentConfiguration = App.request("TodoListApp:Configuration")

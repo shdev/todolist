@@ -3,7 +3,7 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 	class TodoConfigurationModel extends Backbone.Model
 		defaults : 
 			continuousreplication : false # 
-			username : "Rodosch"
+			username : "Brandt"
 			replicateurl : null
 			replicationinterval : 5 * 60
 			deleteCheckedEntries : 5 * 24 *  60 * 60 

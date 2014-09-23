@@ -23,6 +23,13 @@ button {
 	}
 }
 
+body {
+	&>.container-fluid {
+		padding-left:0px;
+		padding-right:0px;
+	}
+}
+
 .progressing.badge {
 	background-color : #428bca;
 }
@@ -39,9 +46,93 @@ input[type="number"] {
 	text-align : right;
 }
 
+
+@mixin todolistapp-entries-view-butttons {
+	margin: 0px;
+	padding:0px;
+	position:absolute;
+	top:0px;
+	bottom:0px;
+	width:30px;
+	height:100%;
+	border:solid;
+	border-width:0px;
+	border-color:rgb(221, 221, 221);
+	text-align:center;
+	overflow:hidden;
+	@include transition;
+	.center {
+		position:absolute;
+		height:0px;
+		top:50%;
+		left:0px;
+		width:100%;
+		i {
+			position:relative;
+			top:-10px;
+		}
+	}	
+}
+
 #todolistapp-entries-view {
 	.todolist-entry {
+		
+		padding-left : 35px;
+		padding-right : 35px;
+		position:relative;
+		overflow:hidden;
+		
+		@include transition;
+
+		
+		div.checkbox {
+			@include todolistapp-entries-view-butttons;
+			left:0px;
+			border-right-width:1px;
+		}
+		
+		div.delete {
+			@include todolistapp-entries-view-butttons;
+			right:0px;
+			border-left-width:1px;
+		}
+		
+		div.no {
+			@include todolistapp-entries-view-butttons;
+			right:-30px;
+			border-left-width:1px;
+		}
+		
+		&.delete-mode {
+			padding-left : 5px;
+			padding-right : 65px;
+			
+			
+			div.checkbox {
+				left:-30px;
+			}
+		
+			div.delete {
+				right:30px;
+			}
+		
+			div.no {
+				right:0px;
+			}		
+		}
+		
 		&.ischecked {
+			
+			&:after {
+				content : "";
+				position:absolute;
+
+				top:0px;
+				bottom:0px;
+				right:0px;
+				left:30px;
+			}
+			
 			&>* {
 				opacity : 0.3;
 			}

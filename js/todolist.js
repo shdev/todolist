@@ -140,7 +140,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
 
     TodoListAppView.prototype.className = "container-fluid";
 
-    TodoListAppView.prototype.template = _.template("<div id=\"topbar\"></div>\n<div id=\"todolistapp-lists\" class=\"col-md-4\">\n	<div id=\"todolistapp-list-input\"></div>\n	<hr />\n	<div id=\"todolistapp-lists-view\"></div>\n</div>\n<hr class=\"hidden-md hidden-lg\" />\n<hr class=\"hidden-md hidden-lg\" />\n<div id=\"todolistapp-entries\" class=\"col-md-4\">\n	<div id=\"todolistapp-entry-input\"></div>\n	<hr />\n	<div id=\"todolistapp-entries-view\"></div>\n</div>\n<hr  class=\"hidden-md hidden-lg\" />\n<hr  class=\"hidden-md hidden-lg\" />\n<div id=\"todolistapp-configuration\" class=\"col-md-4\"></div>");
+    TodoListAppView.prototype.template = _.template("<div class=\"row\">\n	<div id=\"topbar\"></div>\n	<div id=\"todolistapp-lists\" class=\"col-md-4\">\n		<div id=\"todolistapp-list-input\"></div>\n		<hr />\n		<div id=\"todolistapp-lists-view\"></div>\n	</div>\n	<hr class=\"hidden-md hidden-lg\" />\n	<hr class=\"hidden-md hidden-lg\" />\n	<div id=\"todolistapp-entries\" class=\"col-md-4\">\n		<div id=\"todolistapp-entry-input\"></div>\n		<hr />\n		<div id=\"todolistapp-entries-view\"></div>\n	</div>\n	<hr  class=\"hidden-md hidden-lg\" />\n	<hr  class=\"hidden-md hidden-lg\" />\n	<div id=\"todolistapp-configuration\" class=\"col-md-4\"></div>\n</div>");
 
     TodoListAppView.prototype.regions = {
       topBar: "#topbar",
@@ -466,7 +466,7 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 
     ListItemView.prototype.cid = 'ListItemView';
 
-    ListItemView.prototype.template = _.template("<span class=\"content\"><%= name %></span>\n<span class=\"badge delete\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Lösche Adresse\"><i class=\"fa fa-trash-o fa-fw\" ></i></span>");
+    ListItemView.prototype.template = _.template("<span class=\"content\"><%= name %></span>\n<div class=\"delete\"><div class=\"center\">\n		<i class=\"fa fa-fw fa-trash-o\"></i>\n</div></div>\n<div class=\"no\"><div class=\"center\">\n		<i class=\"fa fa-fw fa-ban\"></i>\n</div></div>");
 
     ListItemView.prototype.behaviors = {
       Tooltip: {}
@@ -478,7 +478,15 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 
     ListItemView.prototype.events = {
       'click .delete': function() {
-        this.model.destroy();
+        if (this.$el.hasClass('delete-mode')) {
+          this.model.destroy();
+        } else {
+          this.$el.addClass('delete-mode');
+        }
+        return false;
+      },
+      'click .no': function() {
+        this.$el.removeClass('delete-mode');
         return false;
       },
       'click': function() {
@@ -692,7 +700,7 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
     EntryItemView.prototype.className = "list-group-item todolist-entry";
 
-    EntryItemView.prototype.template = _.template("<div class=\"checkbox\">\n	<div class=\"center\">\n		<i class=\"fa fa-fw fa-check\"></i>\n	</div>\n</div>\n<span class=\"content\"><%= name %></span>\n<div class=\"delete bg-success\"><div class=\"center\">\n		<i class=\"fa fa-fw fa-trash-o\"></i>\n</div></div>\n<div class=\"no bg-danger\"><div class=\"center\">\n		<i class=\"fa fa-fw fa-ban\"></i>\n</div></div>");
+    EntryItemView.prototype.template = _.template("<div class=\"checkbox\">\n	<div class=\"center\">\n		<i class=\"fa fa-fw fa-check\"></i>\n	</div>\n</div>\n<span class=\"content\"><%= name %></span>\n<div class=\"delete\"><div class=\"center\">\n		<i class=\"fa fa-fw fa-trash-o\"></i>\n</div></div>\n<div class=\"no\"><div class=\"center\">\n		<i class=\"fa fa-fw fa-ban\"></i>\n</div></div>");
 
     EntryItemView.prototype.behaviors = {
       Tooltip: {}

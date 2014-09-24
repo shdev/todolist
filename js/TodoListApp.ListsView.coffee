@@ -21,7 +21,12 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		cid : 'ListItemView'
 		template : _.template """
 		<span class="content"><%= name %></span>
-		<span class="badge delete" data-toggle="tooltip" data-placement="top" title="Lösche Adresse"><i class="fa fa-trash-o fa-fw" ></i></span>
+		<div class="delete"><div class="center">
+				<i class="fa fa-fw fa-trash-o"></i>
+		</div></div>
+		<div class="no"><div class="center">
+				<i class="fa fa-fw fa-ban"></i>
+		</div></div>
 		"""
 		behaviors :
 			Tooltip : {}
@@ -29,8 +34,14 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 			@model.correspondingView = @
 		events :
 			'click .delete' : () ->
-				@model.destroy()
-				return false
+				if @$el.hasClass('delete-mode') 
+					@model.destroy()
+				else
+					@$el.addClass 'delete-mode'
+				false
+			'click .no' : () ->
+				@$el.removeClass 'delete-mode'
+				false
 			'click' : () ->
 				if not @$el.hasClass('list-group-item-success')
 					@$el.siblings().removeClass 'list-group-item-success'

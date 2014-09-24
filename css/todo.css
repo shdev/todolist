@@ -18,10 +18,6 @@ button {
   .delete.badge:hover {
     background-color: #d9534f; }
 
-body > .container-fluid {
-  padding-left: 0px;
-  padding-right: 0px; }
-
 .progressing.badge {
   background-color: #428bca; }
 
@@ -34,16 +30,123 @@ body > .container-fluid {
 input[type="number"] {
   text-align: right; }
 
+#todolistapp-lists-view .list-group-item {
+  padding-right: 35px;
+  position: relative;
+  overflow: hidden;
+  -webkit-transition: all 0.2s ease-in-out 0s;
+  -moz-transition: all 0.2s ease-in-out 0s;
+  -ms-transition: all 0.2s ease-in-out 0s;
+  -o-transition: all 0.2s ease-in-out 0s;
+  transition: all 0.2s ease-in-out 0s; }
+  #todolistapp-lists-view .list-group-item div.checkbox {
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    width: 30px;
+    height: 100%;
+    border: solid;
+    border-width: 0px;
+    border-color: #dddddd;
+    text-align: center;
+    overflow: hidden;
+    -webkit-transition: all 0.2s ease-in-out 0s;
+    -moz-transition: all 0.2s ease-in-out 0s;
+    -ms-transition: all 0.2s ease-in-out 0s;
+    -o-transition: all 0.2s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
+    left: 0px;
+    border-right-width: 1px; }
+    #todolistapp-lists-view .list-group-item div.checkbox .center {
+      position: absolute;
+      height: 0px;
+      top: 50%;
+      left: 0px;
+      width: 100%; }
+      #todolistapp-lists-view .list-group-item div.checkbox .center i {
+        position: relative;
+        top: -10px; }
+  #todolistapp-lists-view .list-group-item div.delete {
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    width: 30px;
+    height: 100%;
+    border: solid;
+    border-width: 0px;
+    border-color: #dddddd;
+    text-align: center;
+    overflow: hidden;
+    -webkit-transition: all 0.2s ease-in-out 0s;
+    -moz-transition: all 0.2s ease-in-out 0s;
+    -ms-transition: all 0.2s ease-in-out 0s;
+    -o-transition: all 0.2s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
+    right: 0px;
+    border-left-width: 1px; }
+    #todolistapp-lists-view .list-group-item div.delete .center {
+      position: absolute;
+      height: 0px;
+      top: 50%;
+      left: 0px;
+      width: 100%; }
+      #todolistapp-lists-view .list-group-item div.delete .center i {
+        position: relative;
+        top: -10px; }
+  #todolistapp-lists-view .list-group-item div.no {
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    width: 30px;
+    height: 100%;
+    border: solid;
+    border-width: 0px;
+    border-color: #dddddd;
+    text-align: center;
+    overflow: hidden;
+    -webkit-transition: all 0.2s ease-in-out 0s;
+    -moz-transition: all 0.2s ease-in-out 0s;
+    -ms-transition: all 0.2s ease-in-out 0s;
+    -o-transition: all 0.2s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
+    right: -30px;
+    border-left-width: 1px; }
+    #todolistapp-lists-view .list-group-item div.no .center {
+      position: absolute;
+      height: 0px;
+      top: 50%;
+      left: 0px;
+      width: 100%; }
+      #todolistapp-lists-view .list-group-item div.no .center i {
+        position: relative;
+        top: -10px; }
+  #todolistapp-lists-view .list-group-item.delete-mode {
+    padding-right: 65px; }
+    #todolistapp-lists-view .list-group-item.delete-mode div.checkbox {
+      left: -30px; }
+    #todolistapp-lists-view .list-group-item.delete-mode div.delete {
+      right: 30px;
+      background-color: #f2dede; }
+    #todolistapp-lists-view .list-group-item.delete-mode div.no {
+      right: 0px;
+      background-color: #dff0d8; }
+
 #todolistapp-entries-view .todolist-entry {
   padding-left: 35px;
   padding-right: 35px;
   position: relative;
   overflow: hidden;
-  -webkit-transition: all 0.5s ease-in-out 0s;
-  -moz-transition: all 0.5s ease-in-out 0s;
-  -ms-transition: all 0.5s ease-in-out 0s;
-  -o-transition: all 0.5s ease-in-out 0s;
-  transition: all 0.5s ease-in-out 0s; }
+  -webkit-transition: all 0.2s ease-in-out 0s;
+  -moz-transition: all 0.2s ease-in-out 0s;
+  -ms-transition: all 0.2s ease-in-out 0s;
+  -o-transition: all 0.2s ease-in-out 0s;
+  transition: all 0.2s ease-in-out 0s; }
   #todolistapp-entries-view .todolist-entry div.checkbox {
     margin: 0px;
     padding: 0px;
@@ -57,11 +160,11 @@ input[type="number"] {
     border-color: #dddddd;
     text-align: center;
     overflow: hidden;
-    -webkit-transition: all 0.5s ease-in-out 0s;
-    -moz-transition: all 0.5s ease-in-out 0s;
-    -ms-transition: all 0.5s ease-in-out 0s;
-    -o-transition: all 0.5s ease-in-out 0s;
-    transition: all 0.5s ease-in-out 0s;
+    -webkit-transition: all 0.2s ease-in-out 0s;
+    -moz-transition: all 0.2s ease-in-out 0s;
+    -ms-transition: all 0.2s ease-in-out 0s;
+    -o-transition: all 0.2s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
     left: 0px;
     border-right-width: 1px; }
     #todolistapp-entries-view .todolist-entry div.checkbox .center {
@@ -86,11 +189,11 @@ input[type="number"] {
     border-color: #dddddd;
     text-align: center;
     overflow: hidden;
-    -webkit-transition: all 0.5s ease-in-out 0s;
-    -moz-transition: all 0.5s ease-in-out 0s;
-    -ms-transition: all 0.5s ease-in-out 0s;
-    -o-transition: all 0.5s ease-in-out 0s;
-    transition: all 0.5s ease-in-out 0s;
+    -webkit-transition: all 0.2s ease-in-out 0s;
+    -moz-transition: all 0.2s ease-in-out 0s;
+    -ms-transition: all 0.2s ease-in-out 0s;
+    -o-transition: all 0.2s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
     right: 0px;
     border-left-width: 1px; }
     #todolistapp-entries-view .todolist-entry div.delete .center {
@@ -115,11 +218,11 @@ input[type="number"] {
     border-color: #dddddd;
     text-align: center;
     overflow: hidden;
-    -webkit-transition: all 0.5s ease-in-out 0s;
-    -moz-transition: all 0.5s ease-in-out 0s;
-    -ms-transition: all 0.5s ease-in-out 0s;
-    -o-transition: all 0.5s ease-in-out 0s;
-    transition: all 0.5s ease-in-out 0s;
+    -webkit-transition: all 0.2s ease-in-out 0s;
+    -moz-transition: all 0.2s ease-in-out 0s;
+    -ms-transition: all 0.2s ease-in-out 0s;
+    -o-transition: all 0.2s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
     right: -30px;
     border-left-width: 1px; }
     #todolistapp-entries-view .todolist-entry div.no .center {
@@ -137,9 +240,11 @@ input[type="number"] {
     #todolistapp-entries-view .todolist-entry.delete-mode div.checkbox {
       left: -30px; }
     #todolistapp-entries-view .todolist-entry.delete-mode div.delete {
-      right: 30px; }
+      right: 30px;
+      background-color: #f2dede; }
     #todolistapp-entries-view .todolist-entry.delete-mode div.no {
-      right: 0px; }
+      right: 0px;
+      background-color: #dff0d8; }
   #todolistapp-entries-view .todolist-entry.ischecked:after {
     content: "";
     position: absolute;

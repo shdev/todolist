@@ -25,8 +25,8 @@ button {
 
 body {
 	&>.container-fluid {
-		padding-left:0px;
-		padding-right:0px;
+//		padding-left:0px;
+//		padding-right:0px;
 	}
 }
 
@@ -60,7 +60,7 @@ input[type="number"] {
 	border-color:rgb(221, 221, 221);
 	text-align:center;
 	overflow:hidden;
-	@include transition;
+	@include transition(all, 0.2s);
 	.center {
 		position:absolute;
 		height:0px;
@@ -74,6 +74,57 @@ input[type="number"] {
 	}	
 }
 
+#todolistapp-lists-view {
+	.list-group-item {
+		
+		padding-right : 35px;
+		position:relative;
+		overflow:hidden;
+		
+		@include transition(all, 0.2s);
+
+		
+		div.checkbox {
+			@include todolistapp-entries-view-butttons;
+			left:0px;
+			border-right-width:1px;
+		}
+		
+		div.delete {
+			@include todolistapp-entries-view-butttons;
+			right:0px;
+			border-left-width:1px;
+		}
+		
+		div.no {
+			@include todolistapp-entries-view-butttons;
+			right:-30px;
+			border-left-width:1px;
+		}
+		
+		&.delete-mode {
+			padding-right : 65px;
+			
+			
+			div.checkbox {
+				left:-30px;
+			}
+		
+			div.delete {
+				right:30px;
+				background-color: rgb(242, 222, 222);
+			}
+		
+			div.no {
+				right:0px;
+				background-color: rgb(223, 240, 216);
+			}		
+		}
+	}
+}
+
+
+
 #todolistapp-entries-view {
 	.todolist-entry {
 		
@@ -82,7 +133,7 @@ input[type="number"] {
 		position:relative;
 		overflow:hidden;
 		
-		@include transition;
+		@include transition(all, 0.2s);
 
 		
 		div.checkbox {
@@ -114,10 +165,12 @@ input[type="number"] {
 		
 			div.delete {
 				right:30px;
+				background-color: rgb(242, 222, 222);
 			}
 		
 			div.no {
 				right:0px;
+				background-color: rgb(223, 240, 216);
 			}		
 		}
 		

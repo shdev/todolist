@@ -7,22 +7,24 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 	class TodoListAppView extends Marionette.LayoutView
 		className : "container-fluid"
 		template : _.template """
-		<div id="topbar"></div>
-		<div id="todolistapp-lists" class="col-md-4">
-			<div id="todolistapp-list-input"></div>
-			<hr />
-			<div id="todolistapp-lists-view"></div>
+		<div class="row">
+			<div id="topbar"></div>
+			<div id="todolistapp-lists" class="col-md-4">
+				<div id="todolistapp-list-input"></div>
+				<hr />
+				<div id="todolistapp-lists-view"></div>
+			</div>
+			<hr class="hidden-md hidden-lg" />
+			<hr class="hidden-md hidden-lg" />
+			<div id="todolistapp-entries" class="col-md-4">
+				<div id="todolistapp-entry-input"></div>
+				<hr />
+				<div id="todolistapp-entries-view"></div>
+			</div>
+			<hr  class="hidden-md hidden-lg" />
+			<hr  class="hidden-md hidden-lg" />
+			<div id="todolistapp-configuration" class="col-md-4"></div>
 		</div>
-		<hr class="hidden-md hidden-lg" />
-		<hr class="hidden-md hidden-lg" />
-		<div id="todolistapp-entries" class="col-md-4">
-			<div id="todolistapp-entry-input"></div>
-			<hr />
-			<div id="todolistapp-entries-view"></div>
-		</div>
-		<hr  class="hidden-md hidden-lg" />
-		<hr  class="hidden-md hidden-lg" />
-		<div id="todolistapp-configuration" class="col-md-4"></div>
 		"""
 		regions : 
 			topBar : "#topbar"

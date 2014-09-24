@@ -25,10 +25,10 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			</div>
 		</div>
 		<span class="content"><%= name %></span>
-		<div class="delete bg-success"><div class="center">
+		<div class="delete"><div class="center">
 				<i class="fa fa-fw fa-trash-o"></i>
 		</div></div>
-		<div class="no bg-danger"><div class="center">
+		<div class="no"><div class="center">
 				<i class="fa fa-fw fa-ban"></i>
 		</div></div>
 		"""

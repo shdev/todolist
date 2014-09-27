@@ -169,6 +169,15 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		
 	EntriesView.addInitializer ->
 		EntriesView.run()
+		
+	refetchData = () ->
+		console.debug 'refetchData'
+		App.TodoListApp.entryCollection.fetch() if App.TodoListApp.entryCollection?
+		
+	App.vent.on 'replication:pouchdb:to:complete', refetchData
+	App.vent.on 'replication:pouchdb:to:uptodate', refetchData
+	App.vent.on 'replication:pouchdb:from:uptodate', refetchData
+	App.vent.on 'replication:pouchdb:from:complete', refetchData
 	
 	EntriesView.on "start", ->
 		console.debug "EntriesView.onStart"

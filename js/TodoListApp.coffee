@@ -92,8 +92,6 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			pouchdbRepTo.on 'uptodate', () ->
 				console.debug 'pouchdbRepTo:uptodate'
 				App.vent.trigger 'replication:pouchdb:to:uptodate'
-				# TODO move it to listcollection module
-				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
 			pouchdbRepTo.on 'error', () ->
 				console.debug 'pouchdbRepTo:error'
 				pouchdbRepTo.cancel()
@@ -109,8 +107,6 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 				App.vent.trigger 'replication:pouchdb:to:complete'
 				if not currentConfiguration.get('continuousreplication') and currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
 					timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000)
-				# TODO move it to listcollection module
-				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
 
 	doReplicationFrom = () ->
 		console.debug 'doReplicationFrom'
@@ -134,8 +130,6 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 				console.debug 'pouchdbRepFrom:update'
 				# App.vent.trigger 'replication:pouchdb:from:uptodate'
 				App.vent.trigger 'replication:pouchdb:from:uptodate'
-				# TODO move it to listcollection module
-				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
 
 			pouchdbRepFrom.on 'error', ()->
 				console.debug 'pouchdbRepFrom:error'
@@ -152,10 +146,8 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			pouchdbRepFrom.on 'complete', () ->
 				console.debug 'pouchdbRepFrom:complete'
 				App.vent.trigger 'replication:pouchdb:from:complete'
-				# TODO move it to listcollection module
 				if not currentConfiguration.get('continuousreplication') and currentConfiguration.get('replicationinterval')? and currentConfiguration.get('replicationinterval') > 0
 					timeOutRepFrom = setTimeout(doReplicationFrom, currentConfiguration.get('replicationinterval') * 1000)
-				App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
 		
 		
 	

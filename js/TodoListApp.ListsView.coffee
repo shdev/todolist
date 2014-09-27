@@ -135,10 +135,10 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	refetchData = () ->
 		listCollection.fetch() if listCollection?
 		
-	App.on 'replication:pouchdb:to:complete', refetchData
-	App.on 'replication:pouchdb:to:uptodate', refetchData
-	App.on 'replication:pouchdb:from:uptodate', refetchData
-	App.on 'replication:pouchdb:from:complete', refetchData
+	App.vent.on 'replication:pouchdb:to:complete', refetchData
+	App.vent.on 'replication:pouchdb:to:uptodate', refetchData
+	App.vent.on 'replication:pouchdb:from:uptodate', refetchData
+	App.vent.on 'replication:pouchdb:from:complete', refetchData
 	
 	App.mainRegion.on 'before:show', (view) -> 
 		console.debug "App.mainregion.on 'before:show'"

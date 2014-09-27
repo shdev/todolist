@@ -214,10 +214,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
       window.pouchdbRepTo = pouchdbRepTo;
       pouchdbRepTo.on('uptodate', function() {
         console.debug('pouchdbRepTo:uptodate');
-        App.vent.trigger('replication:pouchdb:to:uptodate');
-        if (App.TodoListApp.listCollection != null) {
-          return App.TodoListApp.listCollection.fetch();
-        }
+        return App.vent.trigger('replication:pouchdb:to:uptodate');
       });
       pouchdbRepTo.on('error', function() {
         console.debug('pouchdbRepTo:error');
@@ -236,10 +233,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
         console.debug('pouchdbRepTo:complete');
         App.vent.trigger('replication:pouchdb:to:complete');
         if (!currentConfiguration.get('continuousreplication') && (currentConfiguration.get('replicationinterval') != null) && currentConfiguration.get('replicationinterval') > 0) {
-          timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000);
-        }
-        if (App.TodoListApp.listCollection != null) {
-          return App.TodoListApp.listCollection.fetch();
+          return timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000);
         }
       });
     }
@@ -264,10 +258,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
       });
       pouchdbRepFrom.on('uptodate', function() {
         console.debug('pouchdbRepFrom:update');
-        App.vent.trigger('replication:pouchdb:from:uptodate');
-        if (App.TodoListApp.listCollection != null) {
-          return App.TodoListApp.listCollection.fetch();
-        }
+        return App.vent.trigger('replication:pouchdb:from:uptodate');
       });
       pouchdbRepFrom.on('error', function() {
         console.debug('pouchdbRepFrom:error');
@@ -286,10 +277,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
         console.debug('pouchdbRepFrom:complete');
         App.vent.trigger('replication:pouchdb:from:complete');
         if (!currentConfiguration.get('continuousreplication') && (currentConfiguration.get('replicationinterval') != null) && currentConfiguration.get('replicationinterval') > 0) {
-          timeOutRepFrom = setTimeout(doReplicationFrom, currentConfiguration.get('replicationinterval') * 1000);
-        }
-        if (App.TodoListApp.listCollection != null) {
-          return App.TodoListApp.listCollection.fetch();
+          return timeOutRepFrom = setTimeout(doReplicationFrom, currentConfiguration.get('replicationinterval') * 1000);
         }
       });
     }
@@ -644,10 +632,10 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
       return listCollection.fetch();
     }
   };
-  App.on('replication:pouchdb:to:complete', refetchData);
-  App.on('replication:pouchdb:to:uptodate', refetchData);
-  App.on('replication:pouchdb:from:uptodate', refetchData);
-  App.on('replication:pouchdb:from:complete', refetchData);
+  App.vent.on('replication:pouchdb:to:complete', refetchData);
+  App.vent.on('replication:pouchdb:to:uptodate', refetchData);
+  App.vent.on('replication:pouchdb:from:uptodate', refetchData);
+  App.vent.on('replication:pouchdb:from:complete', refetchData);
   App.mainRegion.on('before:show', function(view) {
     console.debug("App.mainregion.on 'before:show'");
     console.debug(view);
@@ -672,7 +660,7 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 });
 
 App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Marionette, $, _) {
-  var EntryCollectionFactory, EntryCollectionView, EntryItemView, EntryModelFactory, NoEntryView;
+  var EntryCollectionFactory, EntryCollectionView, EntryItemView, EntryModelFactory, NoEntryView, refetchData;
   NoEntryView = (function(_super) {
     __extends(NoEntryView, _super);
 
@@ -927,6 +915,16 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
   EntriesView.addInitializer(function() {
     return EntriesView.run();
   });
+  refetchData = function() {
+    console.debug('refetchData');
+    if (App.TodoListApp.entryCollection != null) {
+      return App.TodoListApp.entryCollection.fetch();
+    }
+  };
+  App.vent.on('replication:pouchdb:to:complete', refetchData);
+  App.vent.on('replication:pouchdb:to:uptodate', refetchData);
+  App.vent.on('replication:pouchdb:from:uptodate', refetchData);
+  App.vent.on('replication:pouchdb:from:complete', refetchData);
   EntriesView.on("start", function() {
     console.debug("EntriesView.onStart");
     return true;

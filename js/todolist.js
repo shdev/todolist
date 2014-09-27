@@ -427,7 +427,7 @@ App.module('TodoListApp.ListInput', function(ListInput, App, Backbone, Marionett
 });
 
 App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionette, $, _) {
-  var ListCollection, ListCollectionView, ListItemView, ListModel, NoEntrieView, listCollection, pouchdbOptions;
+  var ListCollection, ListCollectionView, ListItemView, ListModel, NoEntrieView, listCollection, pouchdbOptions, refetchData;
   NoEntrieView = (function(_super) {
     __extends(NoEntrieView, _super);
 
@@ -550,9 +550,13 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 
     ListModel.prototype.idAttribute = '_id';
 
-    ListModel.prototype.defaults = {
-      type: 'todolist',
-      created: JSON.parse(JSON.stringify(new Date()))
+    ListModel.prototype.defaults = function() {
+      return {
+        "app-name": 'de.sh-dev.couchtodolist',
+        username: App.request("TodoListApp:Configuration").get('username'),
+        type: 'todolist',
+        created: JSON.parse(JSON.stringify(new Date()))
+      };
     };
 
     ListModel.prototype.sync = BackbonePouch.sync({
@@ -634,11 +638,16 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
     console.debug(todolistmodel.id);
     return todolistmodel.correspondingView.clicked();
   });
-
-  /*
-  	TODO request Handling
-   */
   listCollection = void 0;
+  refetchData = function() {
+    if (listCollection != null) {
+      return listCollection.fetch();
+    }
+  };
+  App.on('replication:pouchdb:to:complete', refetchData);
+  App.on('replication:pouchdb:to:uptodate', refetchData);
+  App.on('replication:pouchdb:from:uptodate', refetchData);
+  App.on('replication:pouchdb:from:complete', refetchData);
   App.mainRegion.on('before:show', function(view) {
     console.debug("App.mainregion.on 'before:show'");
     console.debug(view);
@@ -795,12 +804,7 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
   })(Marionette.CollectionView);
   EntryModelFactory = function(todolistid) {
-    var EntryModel, currentAuthor, currentConfiguration;
-    currentConfiguration = App.request("TodoListApp:Configuration");
-    currentAuthor = void 0;
-    if (currentConfiguration != null) {
-      currentAuthor = currentConfiguration.get('username');
-    }
+    var EntryModel;
     EntryModel = (function(_super) {
       __extends(EntryModel, _super);
 
@@ -810,12 +814,15 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
       EntryModel.prototype.idAttribute = '_id';
 
-      EntryModel.prototype.defaults = {
-        type: 'todoentry',
-        created: JSON.parse(JSON.stringify(new Date())),
-        "todolist-id": todolistid,
-        checked: null,
-        username: currentAuthor
+      EntryModel.prototype.defaults = function() {
+        return {
+          "app-name": 'de.sh-dev.couchtodolist',
+          username: App.request("TodoListApp:Configuration").get('username'),
+          type: 'todoentry',
+          created: JSON.parse(JSON.stringify(new Date())),
+          "todolist-id": todolistid,
+          checked: null
+        };
       };
 
       EntryModel.prototype.sync = BackbonePouch.sync({
@@ -1176,7 +1183,7 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       return TopBarView.__super__.constructor.apply(this, arguments);
     }
 
-    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default\" role=\"navigation\">\n	<div class=\"container\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button> \n	</div><!-- /.container-fluid -->\n</nav>");
+    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default\" role=\"navigation\">\n	<div class=\"container-fluid\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-exclamation text-warning snyc-needed hidden\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button> \n	</div>\n</nav>");
 
     TopBarView.prototype.hashTo = '.fa-long-arrow-up';
 

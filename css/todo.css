@@ -176,6 +176,8 @@ input[type="number"] {
       #todolistapp-entries-view .todolist-entry div.checkbox .center i {
         position: relative;
         top: -10px; }
+    #todolistapp-entries-view .todolist-entry div.checkbox i {
+      opacity: 0; }
   #todolistapp-entries-view .todolist-entry div.delete {
     margin: 0px;
     padding: 0px;
@@ -252,6 +254,8 @@ input[type="number"] {
     bottom: 0px;
     right: 0px;
     left: 30px; }
+  #todolistapp-entries-view .todolist-entry.ischecked div.checkbox i {
+    opacity: 1; }
   #todolistapp-entries-view .todolist-entry.ischecked > * {
     opacity: 0.3; }
   #todolistapp-entries-view .todolist-entry.ischecked .content {

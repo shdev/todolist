@@ -140,6 +140,10 @@ input[type="number"] {
 			@include todolistapp-entries-view-butttons;
 			left:0px;
 			border-right-width:1px;
+			
+			i {
+				opacity:0;
+			}
 		}
 		
 		div.delete {
@@ -184,6 +188,12 @@ input[type="number"] {
 				bottom:0px;
 				right:0px;
 				left:30px;
+			}
+			
+			div.checkbox {
+				i {
+					opacity:1;
+				}
 			}
 			
 			&>* {

@@ -75,7 +75,9 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 
 	class ListModel extends Backbone.Model
 		idAttribute : '_id'
-		defaults : 
+		defaults : () ->
+			"app-name" : 'de.sh-dev.couchtodolist'
+			username : App.request("TodoListApp:Configuration").get('username')
 			type : 'todolist'
 			created : JSON.parse(JSON.stringify(new Date()))
 		sync: BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql')
@@ -127,12 +129,16 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		console.debug 'todolist:changelist ListsView'
 		console.debug todolistmodel.id
 		todolistmodel.correspondingView.clicked()
-	
-	###
-	TODO request Handling
-	###
-	
+
 	listCollection = undefined
+	
+	refetchData = () ->
+		listCollection.fetch() if listCollection?
+		
+	App.on 'replication:pouchdb:to:complete', refetchData
+	App.on 'replication:pouchdb:to:uptodate', refetchData
+	App.on 'replication:pouchdb:from:uptodate', refetchData
+	App.on 'replication:pouchdb:from:complete', refetchData
 	
 	App.mainRegion.on 'before:show', (view) -> 
 		console.debug "App.mainregion.on 'before:show'"

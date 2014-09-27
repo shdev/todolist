@@ -4,17 +4,17 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 	class TopBarView extends Marionette.LayoutView
 		template : _.template """
 		<nav class="navbar navbar-default" role="navigation">
-			<div class="container">
+			<div class="container-fluid">
 				<button type="button" class="btn btn-default sync-pouchdb navbar-btn" title="unsynced">
 					<i class="fa fa-long-arrow-down text-muted"></i>
+					<i class="fa fa-exclamation text-warning snyc-needed hidden"></i>
 					<i class="fa fa-long-arrow-up text-muted"></i>
 				</button> 
-			</div><!-- /.container-fluid -->
+			</div>
 		</nav>
 		"""		
 		hashTo : '.fa-long-arrow-up'
 		hashFrom : '.fa-long-arrow-down'
-		
 		events : 
 			'click button.sync-pouchdb' : () ->
 				App.vent.trigger 'todolistapp:startReplication'

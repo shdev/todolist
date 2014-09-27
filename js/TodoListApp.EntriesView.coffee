@@ -92,22 +92,15 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		emptyView : NoEntryView
 		
 	EntryModelFactory = (todolistid) -> 
-		currentConfiguration = App.request("TodoListApp:Configuration")
-		
-		currentAuthor = undefined
-		
-		if currentConfiguration?
-			currentAuthor = currentConfiguration.get('username')
-		
-	
 		class EntryModel extends Backbone.Model
 			idAttribute : '_id'
-			defaults : 
+			defaults : () ->
+				"app-name" : 'de.sh-dev.couchtodolist'
+				username : App.request("TodoListApp:Configuration").get('username')
 				type : 'todoentry'
 				created : JSON.parse(JSON.stringify(new Date()))
 				"todolist-id" : todolistid
 				checked : null
-				username : currentAuthor 
 			sync : BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql')
 			check : () ->
 				if not @get('checked')?

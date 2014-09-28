@@ -41,16 +41,16 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 
 	pouchDB = undefined
 
-	App.reqres.setHandler "TodoListApp:PouchDB", () ->
+	App.reqres.setHandler "todolistapp:PouchDB", () ->
 		pouchDB = new PouchDB('svh_todo') if not pouch?
 		pouchDB
 
 	App.vent.on 'todolist:configurationloaded', (config) ->
-		App.request("TodoListApp:PouchDB");
+		App.request("todolistapp:PouchDB");
 		App.vent.trigger 'todolistapp:startReplication'
 		App.vent.trigger 'todolistapp:initViews'
 		
-		currentConfiguration = App.request("TodoListApp:Configuration")
+		currentConfiguration = App.request("todolistapp:Configuration")
 		
 		currentConfiguration.on 'change', () ->
 			App.vent.trigger 'todolistapp:startReplication'
@@ -70,8 +70,8 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 	timeOutRepFrom = undefined
 	
 	doReplicationTo = () ->
-		currentPouchDB = App.request("TodoListApp:PouchDB");
-		currentConfiguration = App.request("TodoListApp:Configuration")
+		currentPouchDB = App.request("todolistapp:PouchDB");
+		currentConfiguration = App.request("todolistapp:Configuration")
 		if timeOutRepTo?
 			clearTimeout(timeOutRepTo)
 			timeOutRepTo = undefined
@@ -100,8 +100,8 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 					timeOutRepTo = setTimeout(doReplicationTo, currentConfiguration.get('replicationinterval') * 1000)
 
 	doReplicationFrom = () ->
-		currentPouchDB = App.request("TodoListApp:PouchDB");
-		currentConfiguration = App.request("TodoListApp:Configuration")
+		currentPouchDB = App.request("todolistapp:PouchDB");
+		currentConfiguration = App.request("todolistapp:Configuration")
 		
 		if timeOutRepFrom?
 			clearTimeout(timeOutRepFrom)

@@ -151,7 +151,7 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
   }
   App.TodoListApp.classes.TodoListAppView;
   pouchDB = void 0;
-  App.reqres.setHandler("TodoListApp:PouchDB", function() {
+  App.reqres.setHandler("todolistapp:PouchDB", function() {
     if (typeof pouch === "undefined" || pouch === null) {
       pouchDB = new PouchDB('svh_todo');
     }
@@ -159,10 +159,10 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
   });
   App.vent.on('todolist:configurationloaded', function(config) {
     var currentConfiguration;
-    App.request("TodoListApp:PouchDB");
+    App.request("todolistapp:PouchDB");
     App.vent.trigger('todolistapp:startReplication');
     App.vent.trigger('todolistapp:initViews');
-    currentConfiguration = App.request("TodoListApp:Configuration");
+    currentConfiguration = App.request("todolistapp:Configuration");
     return currentConfiguration.on('change', function() {
       return App.vent.trigger('todolistapp:startReplication');
     });
@@ -179,8 +179,8 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
   timeOutRepFrom = void 0;
   doReplicationTo = function() {
     var currentConfiguration, currentPouchDB;
-    currentPouchDB = App.request("TodoListApp:PouchDB");
-    currentConfiguration = App.request("TodoListApp:Configuration");
+    currentPouchDB = App.request("todolistapp:PouchDB");
+    currentConfiguration = App.request("todolistapp:Configuration");
     if (timeOutRepTo != null) {
       clearTimeout(timeOutRepTo);
       timeOutRepTo = void 0;
@@ -219,8 +219,8 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
   };
   doReplicationFrom = function() {
     var currentConfiguration, currentPouchDB;
-    currentPouchDB = App.request("TodoListApp:PouchDB");
-    currentConfiguration = App.request("TodoListApp:Configuration");
+    currentPouchDB = App.request("todolistapp:PouchDB");
+    currentConfiguration = App.request("todolistapp:Configuration");
     if (timeOutRepFrom != null) {
       clearTimeout(timeOutRepFrom);
       timeOutRepFrom = void 0;
@@ -495,7 +495,7 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
     ListModel.prototype.defaults = function() {
       return {
         "app-name": 'de.sh-dev.couchtodolist',
-        username: App.request("TodoListApp:Configuration").get('username'),
+        username: App.request("todolistapp:Configuration").get('username'),
         type: 'todolist',
         created: JSON.parse(JSON.stringify(new Date()))
       };
@@ -744,7 +744,7 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
       EntryModel.prototype.defaults = function() {
         return {
           "app-name": 'de.sh-dev.couchtodolist',
-          username: App.request("TodoListApp:Configuration").get('username'),
+          username: App.request("todolistapp:Configuration").get('username'),
           type: 'todoentry',
           created: JSON.parse(JSON.stringify(new Date())),
           "todolist-id": todolistid,
@@ -1032,7 +1032,7 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
   };
   Configuration.run = function() {
     Configuration.todoConfiguration = new TodoConfigurationCollection();
-    App.reqres.setHandler("TodoListApp:Configuration", function() {
+    App.reqres.setHandler("todolistapp:Configuration", function() {
       if (Configuration.todoConfiguration.length === 0) {
         Configuration.todoConfiguration.add(new TodoConfigurationModel());
         Configuration.todoConfiguration.at(0).save(null, {
@@ -1072,7 +1072,7 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       return TopBarView.__super__.constructor.apply(this, arguments);
     }
 
-    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n	<div class=\"container-fluid\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-exclamation text-warning snyc-needed hidden\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button> \n		<button type=\"button\" class=\"btn btn-default settings navbar-btn pull-right\" title=\"Settings\">\n			<i class=\"fa fa-cogs fa-fw\"></i>\n		</button>\n	</div>\n</nav>");
+    TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n	<div class=\"container-fluid\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn pull-left\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-exclamation text-warning snyc-needed hidden\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default settings navbar-btn pull-right\" title=\"Settings\">\n			<i class=\"fa fa-cogs fa-fw\"></i>\n		</button>\n		<p class=\"navbar-text list-name\">Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto </p>\n	</div>\n</nav>");
 
     TopBarView.prototype.hashTo = '.fa-long-arrow-up';
 
@@ -1126,7 +1126,7 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
     return TopBarView;
 
   })(Marionette.LayoutView);
-  App.reqres.setHandler("TodoListApp:class:TopBarView", function() {
+  App.reqres.setHandler("todolistapp:class:TopBarView", function() {
     return TopBarView;
   });
   return App.mainRegion.on('before:show', function(view) {

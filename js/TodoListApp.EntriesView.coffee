@@ -89,7 +89,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			idAttribute : '_id'
 			defaults : () ->
 				"app-name" : 'de.sh-dev.couchtodolist'
-				username : App.request("TodoListApp:Configuration").get('username')
+				username : App.request("todolistapp:Configuration").get('username')
 				type : 'todoentry'
 				created : JSON.parse(JSON.stringify(new Date()))
 				"todolist-id" : todolistid

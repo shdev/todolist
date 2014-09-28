@@ -149,7 +149,7 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 
 	Configuration.run = ->
 		Configuration.todoConfiguration = new TodoConfigurationCollection()
-		App.reqres.setHandler "TodoListApp:Configuration", () ->
+		App.reqres.setHandler "todolistapp:Configuration", () ->
 			if Configuration.todoConfiguration.length == 0
 				Configuration.todoConfiguration.add(new TodoConfigurationModel())
 				Configuration.todoConfiguration.at(0).save(null, {wait: true})

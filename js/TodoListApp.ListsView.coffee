@@ -76,7 +76,7 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		idAttribute : '_id'
 		defaults : () ->
 			"app-name" : 'de.sh-dev.couchtodolist'
-			username : App.request("TodoListApp:Configuration").get('username')
+			username : App.request("todolistapp:Configuration").get('username')
 			type : 'todolist'
 			created : JSON.parse(JSON.stringify(new Date()))
 		sync: BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql')

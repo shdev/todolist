@@ -21,6 +21,21 @@ button {
 body > .container-fluid {
   margin-top: 50px; }
 
+nav.navbar > .container-fluid {
+  position: relative; }
+  nav.navbar > .container-fluid .list-name {
+    text-overflow: ellipsis;
+    height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-left: 50px;
+    margin-right: 50px;
+    display: block;
+    float: none;
+    text-align: center;
+    font-size: 12px;
+    line-height: 20px; }
+
 .progressing.badge {
   background-color: #428bca; }
 

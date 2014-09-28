@@ -1,18 +1,17 @@
 App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
-
-	
 	class TopBarView extends Marionette.LayoutView
 		template : _.template """
 		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 			<div class="container-fluid">
-				<button type="button" class="btn btn-default sync-pouchdb navbar-btn" title="unsynced">
+				<button type="button" class="btn btn-default sync-pouchdb navbar-btn pull-left" title="unsynced">
 					<i class="fa fa-long-arrow-down text-muted"></i>
 					<i class="fa fa-exclamation text-warning snyc-needed hidden"></i>
 					<i class="fa fa-long-arrow-up text-muted"></i>
-				</button> 
+				</button>
 				<button type="button" class="btn btn-default settings navbar-btn pull-right" title="Settings">
 					<i class="fa fa-cogs fa-fw"></i>
 				</button>
+				<p class="navbar-text list-name">Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto </p>
 			</div>
 		</nav>
 		"""		
@@ -47,9 +46,8 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 			@mapDBEventFromClass 'replication:pouchdb:from:error', 'text-danger'
 			@mapDBEventFromClass 'replication:pouchdb:from:complete', 'text-warning'
 			@mapDBEventFromClass 'replication:pouchdb:from:uptodate', 'text-success'
-			
 	
-	App.reqres.setHandler "TodoListApp:class:TopBarView", () ->
+	App.reqres.setHandler "todolistapp:class:TopBarView", () ->
 		TopBarView
 	
 	App.mainRegion.on 'before:show', (view) -> 

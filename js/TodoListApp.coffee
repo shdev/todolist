@@ -1,9 +1,7 @@
 App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
-
 	###
 	TODO requestHandling for the classes
 	###
-
 	class TodoListAppView extends Marionette.LayoutView
 		className : "container-fluid"
 		template : _.template """

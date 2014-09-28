@@ -3,16 +3,26 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 	class NoEntryView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item list-group-item-warning"
-		template : _.template """
-		Es gibt keine Einträge!
-		"""
-		
+		getTemplate: () -> 
+			if !!App.request("todolistapp:Configuration").get('fetchingEntryData')
+				_.template """
+					<i class="fa fa-circle-o-notch fa-spin"></i> Es werden gerade Daten geladen!
+				"""
+			else
+				_.template """
+					Es gibt keine Einträge!
+				"""
 		###
 		TODO watch out for the collection loads data
 		###
 		# behaviors :
 		# 	Tooltip : {}
 		# onRender : ->
+		entryFetchStatusChanged : () ->
+			@render()
+		initialize : () ->
+			currentConfiguration = App.request("todolistapp:Configuration")
+			currentConfiguration.on 'change:fetchingEntryData', @entryFetchStatusChanged, @
 
 	class EntryItemView extends Marionette.ItemView
 		tagName : "li"
@@ -77,7 +87,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			@renderCheckStatus()
 			@renderCheckStatus()
 			return true
-
+			
 	class EntryCollectionView extends Marionette.CollectionView
 		tagName : "ul"
 		className : "list-group todolist-entries-list"
@@ -107,13 +117,11 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 				else
 					@check()
 		return EntryModel
-	
-	EntryCollectionFactory = (todolistid) ->
 		
+	EntryCollectionFactory = (todolistid) ->
 		mapfunc =  (doc) ->
 			if doc.type? and doc["todolist-id"]?
 				emit doc["todolist-id"], doc.pos if doc.type == 'todoentry'
-		
 		pouchdbOptions = 
 			db : PouchDB('svh_todo', adapter : 'websql')
 			fetch : 'query'
@@ -135,9 +143,13 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			comparator : 'created'
 			parse : (result) ->
 				return _.pluck(result.rows, 'doc')
+			initialize : () -> 	
+				@on 'request' , () -> 
+					App.request("todolistapp:Configuration").set('fetchingEntryData', true)
+				@on 'sync' , () -> 
+					App.request("todolistapp:Configuration").set('fetchingEntryData', false)
 		
 		return EntryCollection
-		
 		
 	App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 	App.TodoListApp.classes.EntryItemView = EntryItemView
@@ -150,7 +162,6 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 	EntriesView.run = ( )->
 		App.TodoListApp.entryCollection = undefined
 
-		
 	EntriesView.addInitializer ->
 		EntriesView.run()
 		
@@ -164,10 +175,8 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 	App.vent.on 'todolistapp:startReplication', refetchData
 	
 	# EntriesView.on "start", ->
-	# 	return true
-		
+	# 	return true		
 	# EntriesView.on 'all', (a)->
-
 
 	App.vent.on 'todolist:deleted-list' , (a) ->
 		if App.TodoListApp.entryCollection?
@@ -178,20 +187,13 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 
 	App.vent.on 'todolist:changelist', (todolistmodel) ->
 		todolistid = todolistmodel.id
-		
 		App.TodoListApp.EntryInput.run() if !App.TodoListApp.mainView.entryInput.hasView()
-		
 		App.TodoListApp.classes.EntryModel = App.TodoListApp.classes.EntryModelFactory(todolistid)
 		App.TodoListApp.classes.EntryCollection = App.TodoListApp.classes.EntryCollectionFactory(todolistid)
-			
 		EntriesView.mainView = new EntryCollectionView({ collection : new App.TodoListApp.classes.EntryCollection(todolistid) })
 #		Why should I do this??
 		EntriesView.mainView.collection.reset()
-
 		App.TodoListApp.mainView.entriesView.show(EntriesView.mainView)
-
 		App.TodoListApp.entryCollection = EntriesView.mainView.collection
-
 		EntriesView.mainView.collection.fetch()
-
 		return undefined

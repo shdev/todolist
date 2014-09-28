@@ -8,6 +8,8 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			replicationinterval : 5 * 60
 			deleteCheckedEntries : 5 * 24 *  60 * 60 
 			deleteUnusedEntries : 24 *  60 * 60
+			fetchingListData : false
+			fetchingEntryData : false
 		validate : (attributes, options) ->
 			returnValue = []			
 			if not attributes.username? or not _.isString(attributes.username) or attributes.username.trim().length == 0

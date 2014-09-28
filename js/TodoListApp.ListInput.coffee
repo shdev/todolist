@@ -1,5 +1,4 @@
 App.module 'TodoListApp.ListInput', (ListInput, App, Backbone, Marionette, $, _) ->
-
 	class ListInputView extends Marionette.LayoutView
 		className : "form-group"
 		ui : 
@@ -22,7 +21,6 @@ App.module 'TodoListApp.ListInput', (ListInput, App, Backbone, Marionette, $, _)
 			</div>
 			</form>
 		"""
-	
 	App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 	App.TodoListApp.classes.ListInputView = ListInputView
 	

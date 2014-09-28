@@ -34,6 +34,16 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 				@normalizeFrom().addClass(cssclass)
 				@$('.sync-pouchdb').attr('title', moment().format('llll'))
 			App.vent.on event, eventHandler, @
+		listChanged : (todolistmodel) ->
+				@$('.list-name').text todolistmodel.get('name')
+		listDeleted : (a) ->
+			if App.TodoListApp.entryCollection?
+				if a == App.TodoListApp.entryCollection["todolist-id"]
+					@$('.list-name').text '<nix ausgewählt>'
+			else
+				@$('.list-name').text '<nix ausgewählt>'
+		onRender : () ->
+			@$('.list-name').text '<nix ausgewählt>'
 		initialize : () ->
 			@mapDBEventToClass 'replication:pouchdb:to:cancel', 'text-warning'
 			@mapDBEventToClass 'replication:pouchdb:to:change', 'text-primary faa-flash animated'
@@ -46,6 +56,9 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 			@mapDBEventFromClass 'replication:pouchdb:from:error', 'text-danger'
 			@mapDBEventFromClass 'replication:pouchdb:from:complete', 'text-warning'
 			@mapDBEventFromClass 'replication:pouchdb:from:uptodate', 'text-success'
+			
+			App.vent.on 'todolist:changelist', @listChanged, @
+			App.vent.on 'todolist:deleted-list' , @listDeleted, @
 	
 	App.reqres.setHandler "todolistapp:class:TopBarView", () ->
 		TopBarView

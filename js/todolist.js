@@ -386,12 +386,28 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 
     NoEntrieView.prototype.className = "list-group-item list-group-item-warning";
 
-    NoEntrieView.prototype.template = _.template("Es gibt keine Einträge!");
+    NoEntrieView.prototype.getTemplate = function() {
+      if (!!App.request("todolistapp:Configuration").get('fetchingListData')) {
+        return _.template("<i class=\"fa fa-circle-o-notch fa-spin\"></i> Es werden gerade Daten geladen!");
+      } else {
+        return _.template("Es gibt keine Einträge!");
+      }
+    };
 
 
     /*
     		TODO watch out for the collection loads data
      */
+
+    NoEntrieView.prototype.listFetchStatusChanged = function() {
+      return this.render();
+    };
+
+    NoEntrieView.prototype.initialize = function() {
+      var currentConfiguration;
+      currentConfiguration = App.request("todolistapp:Configuration");
+      return currentConfiguration.on('change:fetchingListData', this.listFetchStatusChanged, this);
+    };
 
     return NoEntrieView;
 
@@ -554,10 +570,16 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
     };
 
     ListCollection.prototype.initialize = function() {
-      return this.on('remove', function(a) {
+      this.on('remove', function(a) {
         if ((a != null) && (a.id != null)) {
           return App.vent.trigger('todolist:deleted-list', a.id);
         }
+      });
+      this.on('request', function() {
+        return App.request("todolistapp:Configuration").set('fetchingListData', true);
+      });
+      return this.on('sync', function() {
+        return App.request("todolistapp:Configuration").set('fetchingListData', false);
       });
     };
 
@@ -621,12 +643,28 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
     NoEntryView.prototype.className = "list-group-item list-group-item-warning";
 
-    NoEntryView.prototype.template = _.template("Es gibt keine Einträge!");
+    NoEntryView.prototype.getTemplate = function() {
+      if (!!App.request("todolistapp:Configuration").get('fetchingEntryData')) {
+        return _.template("<i class=\"fa fa-circle-o-notch fa-spin\"></i> Es werden gerade Daten geladen!");
+      } else {
+        return _.template("Es gibt keine Einträge!");
+      }
+    };
 
 
     /*
     		TODO watch out for the collection loads data
      */
+
+    NoEntryView.prototype.entryFetchStatusChanged = function() {
+      return this.render();
+    };
+
+    NoEntryView.prototype.initialize = function() {
+      var currentConfiguration;
+      currentConfiguration = App.request("todolistapp:Configuration");
+      return currentConfiguration.on('change:fetchingEntryData', this.entryFetchStatusChanged, this);
+    };
 
     return NoEntryView;
 
@@ -826,6 +864,15 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
         return _.pluck(result.rows, 'doc');
       };
 
+      EntryCollection.prototype.initialize = function() {
+        this.on('request', function() {
+          return App.request("todolistapp:Configuration").set('fetchingEntryData', true);
+        });
+        return this.on('sync', function() {
+          return App.request("todolistapp:Configuration").set('fetchingEntryData', false);
+        });
+      };
+
       return EntryCollection;
 
     })(Backbone.Collection);
@@ -899,7 +946,9 @@ App.module('TodoListApp.Configuration', function(Configuration, App, Backbone, M
       replicateurl: null,
       replicationinterval: 5 * 60,
       deleteCheckedEntries: 5 * 24 * 60 * 60,
-      deleteUnusedEntries: 24 * 60 * 60
+      deleteUnusedEntries: 24 * 60 * 60,
+      fetchingListData: false,
+      fetchingEntryData: false
     };
 
     TodoConfigurationModel.prototype.validate = function(attributes, options) {
@@ -1110,6 +1159,24 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       return App.vent.on(event, eventHandler, this);
     };
 
+    TopBarView.prototype.listChanged = function(todolistmodel) {
+      return this.$('.list-name').text(todolistmodel.get('name'));
+    };
+
+    TopBarView.prototype.listDeleted = function(a) {
+      if (App.TodoListApp.entryCollection != null) {
+        if (a === App.TodoListApp.entryCollection["todolist-id"]) {
+          return this.$('.list-name').text('<nix ausgewählt>');
+        }
+      } else {
+        return this.$('.list-name').text('<nix ausgewählt>');
+      }
+    };
+
+    TopBarView.prototype.onRender = function() {
+      return this.$('.list-name').text('<nix ausgewählt>');
+    };
+
     TopBarView.prototype.initialize = function() {
       this.mapDBEventToClass('replication:pouchdb:to:cancel', 'text-warning');
       this.mapDBEventToClass('replication:pouchdb:to:change', 'text-primary faa-flash animated');
@@ -1120,7 +1187,9 @@ App.module('TodoListApp.TopBar', function(TopBar, App, Backbone, Marionette, $, 
       this.mapDBEventFromClass('replication:pouchdb:from:change', 'text-primary faa-flash animated');
       this.mapDBEventFromClass('replication:pouchdb:from:error', 'text-danger');
       this.mapDBEventFromClass('replication:pouchdb:from:complete', 'text-warning');
-      return this.mapDBEventFromClass('replication:pouchdb:from:uptodate', 'text-success');
+      this.mapDBEventFromClass('replication:pouchdb:from:uptodate', 'text-success');
+      App.vent.on('todolist:changelist', this.listChanged, this);
+      return App.vent.on('todolist:deleted-list', this.listDeleted, this);
     };
 
     return TopBarView;

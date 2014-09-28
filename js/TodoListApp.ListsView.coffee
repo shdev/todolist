@@ -3,17 +3,25 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	class NoEntrieView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item list-group-item-warning"
-		template : _.template """
-		Es gibt keine Einträge!
-		"""
-		
+		getTemplate: () -> 
+			if !!App.request("todolistapp:Configuration").get('fetchingListData')
+				_.template """
+					<i class="fa fa-circle-o-notch fa-spin"></i> Es werden gerade Daten geladen!
+				"""
+			else
+				_.template """
+					Es gibt keine Einträge!
+				"""
 		###
 		TODO watch out for the collection loads data
 		###
 		# behaviors :
 		# 	Tooltip : {}
-		# onRender : ->
-		# 	console.debug 'Render NoEntrieView'
+		listFetchStatusChanged : () ->
+			@render()
+		initialize : () ->
+			currentConfiguration = App.request("todolistapp:Configuration")
+			currentConfiguration.on 'change:fetchingListData', @listFetchStatusChanged, @
 
 	class ListItemView extends Marionette.ItemView
 		tagName : "li"
@@ -108,6 +116,10 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		initialize : () -> 
 			@on 'remove' , (a) -> 
 				App.vent.trigger 'todolist:deleted-list', a.id if a? and a.id?
+			@on 'request' , () -> 
+				App.request("todolistapp:Configuration").set('fetchingListData', true)
+			@on 'sync' , () -> 
+				App.request("todolistapp:Configuration").set('fetchingListData', false)
 		
 	App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 	App.TodoListApp.classes.ListItemView = ListItemView

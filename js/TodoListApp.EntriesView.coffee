@@ -12,8 +12,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		###
 		# behaviors :
 		# 	Tooltip : {}
-		onRender : ->
-			console.debug 'Render NoEntryView'
+		# onRender : ->
 
 	class EntryItemView extends Marionette.ItemView
 		tagName : "li"
@@ -59,17 +58,11 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		reRenderName : ->
 			@$('.content').text @model.get('name')
 		renderCheckStatus : ->
-			console.debug 'CheckStatus'
-			console.debug @model.get('checked')
 			if @model.get('checked')?
-				console.debug 'checked'
 				@$el.addClass 'ischecked'
 			else
-				console.debug 'unchecked'
 				@$el.removeClass 'ischecked'
 		onRender : ->
-			console.debug 'Render Entry: ' + @model.get('name') 
-			console.debug @model
 			thisModel = @model
 			@$(".content").editable
 				type	: 'text'
@@ -116,8 +109,6 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		return EntryModel
 	
 	EntryCollectionFactory = (todolistid) ->
-		console.debug 'EntryCollectionFactory:' + todolistid
-		console.debug(typeof(todolistid))
 		
 		mapfunc =  (doc) ->
 			if doc.type? and doc["todolist-id"]?
@@ -137,16 +128,12 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 				# 	filter : (doc) ->
 				# 		return doc._deleted || doc.type == 'todoentry'
 						
-		console.debug pouchdbOptions
-
 		class EntryCollection extends Backbone.Collection
 			model : EntryModelFactory(todolistid)
 			sync : BackbonePouch.sync pouchdbOptions
 			"todolist-id" : todolistid
 			comparator : 'created'
 			parse : (result) ->
-				console.debug 'parse'
-				console.debug result
 				return _.pluck(result.rows, 'doc')
 		
 		return EntryCollection
@@ -161,9 +148,6 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 	App.TodoListApp.classes.EntryCollection = undefined
 
 	EntriesView.run = ( )->
-		console.debug "EntriesView.run"
-		console.debug App
-		console.debug App.TodolistApp
 		App.TodoListApp.entryCollection = undefined
 
 		
@@ -171,20 +155,19 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		EntriesView.run()
 		
 	refetchData = () ->
-		console.debug 'refetchData'
 		App.TodoListApp.entryCollection.fetch() if App.TodoListApp.entryCollection?
 		
 	App.vent.on 'replication:pouchdb:to:complete', refetchData
 	App.vent.on 'replication:pouchdb:to:uptodate', refetchData
 	App.vent.on 'replication:pouchdb:from:uptodate', refetchData
 	App.vent.on 'replication:pouchdb:from:complete', refetchData
+	App.vent.on 'todolistapp:startReplication', refetchData
 	
-	EntriesView.on "start", ->
-		console.debug "EntriesView.onStart"
-		return true
+	# EntriesView.on "start", ->
+	# 	return true
 		
-	EntriesView.on 'all', (a)->
-		console.log 'EntriesView events ' + a
+	# EntriesView.on 'all', (a)->
+
 
 	App.vent.on 'todolist:deleted-list' , (a) ->
 		if App.TodoListApp.entryCollection?
@@ -194,8 +177,6 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 				App.TodoListApp.entryCollection = null
 
 	App.vent.on 'todolist:changelist', (todolistmodel) ->
-		console.debug 'todolist:changelist EntriesView'
-		console.debug todolistmodel.id
 		todolistid = todolistmodel.id
 		
 		App.TodoListApp.EntryInput.run() if !App.TodoListApp.mainView.entryInput.hasView()
@@ -213,4 +194,4 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 
 		EntriesView.mainView.collection.fetch()
 
-		return undefined		
+		return undefined

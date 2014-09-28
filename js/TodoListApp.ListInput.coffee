@@ -27,21 +27,18 @@ App.module 'TodoListApp.ListInput', (ListInput, App, Backbone, Marionette, $, _)
 	App.TodoListApp.classes.ListInputView = ListInputView
 	
 	ListInput.run = ->
-			console.debug 'TodoListApp.ListInput.run'
 			@mainView = new ListInputView()
 			App.TodoListApp.mainView.listInput.show(@mainView);
 
 	App.mainRegion.on 'before:show', (view) -> 
-		console.debug "App.mainregion.on 'before:show'"
-		console.debug view
 		###
 		TODO check with instanceof
 		###
 		ListInput.mainView = new ListInputView()
 		view.listInput.show(ListInput.mainView)
 
-	ListInput.on 'all', (a)->
-		console.log 'ListInput events' + a
+	# ListInput.on 'all', (a)->
+	# 	console.log 'ListInput events' + a
 
 	ListInput.addInitializer ->
 		# ListInput.run()

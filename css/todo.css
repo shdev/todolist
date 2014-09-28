@@ -18,6 +18,9 @@ button {
   .delete.badge:hover {
     background-color: #d9534f; }
 
+body > .container-fluid {
+  margin-top: 50px; }
+
 .progressing.badge {
   background-color: #428bca; }
 

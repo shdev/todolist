@@ -30,12 +30,11 @@ App.module 'TodoListApp.EntryInput', (EntryInput, App, Backbone, Marionette, $, 
 	App.TodoListApp.classes.EntryInputView = EntryInputView
 
 	EntryInput.run = ->
-			console.debug 'TodoListApp.EntryInput.run'
 			EntryInput.mainView = new App.TodoListApp.classes.EntryInputView()
 			App.TodoListApp.mainView.entryInput.show(EntryInput.mainView);
 	
-	EntryInput.on 'all', (a)->
-		console.log 'EntryInput events' + a
+	# EntryInput.on 'all', (a)->
+	# 	console.log 'EntryInput events' + a
 	
 	EntryInput.addInitializer () -> 
 #		EntryInput.run

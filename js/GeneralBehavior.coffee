@@ -1,7 +1,7 @@
 App.module 'GeneralBehavior', (GeneralBehavior, App, Backbone, Marionette, $, _) ->
 	
-	GeneralBehavior.on 'all', (a)->
-		console.log 'GeneralBehavior events' + a
+	# GeneralBehavior.on 'all', (a)->
+	#
 	
 	###
 		The following ui elements are required:
@@ -27,15 +27,12 @@ App.module 'GeneralBehavior', (GeneralBehavior, App, Backbone, Marionette, $, _)
 			true
 			
 		addItem : (e) ->
-			console.debug 'addItem'
 			collection = _.result(@view, 'managedCollection')
 			modelClass = _.result(@view, 'modelClass')
 			if modelClass?
 				model = new modelClass
 					name : @view.ui.itemName.val()
-				console.debug 'save new item'
 				model.save()
-				console.debug model.toJSON()
 				collection.add model if collection?
 				@view.ui.itemName.val(null)
 				@checkButtonState()

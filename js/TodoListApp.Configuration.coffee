@@ -9,17 +9,10 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			deleteCheckedEntries : 5 * 24 *  60 * 60 
 			deleteUnusedEntries : 24 *  60 * 60
 		validate : (attributes, options) ->
-			console.debug 'validate'
-			console.debug attributes
-			console.debug options
-			
-			returnValue = []
-			
+			returnValue = []			
 			if not attributes.username? or not _.isString(attributes.username) or attributes.username.trim().length == 0
 				returnValue.push  'username'
-				
 			urlRegEx = /^(https?:\/\/)(?:\S+(?::\S*)?@)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i
-			
 			if not attributes.replicateurl? or not _.isString(attributes.replicateurl) or attributes.replicateurl.trim().length = 0
 				
 			else 
@@ -44,29 +37,15 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 	class ConfigurationView extends Marionette.LayoutView
 		tagName : "form"
 		setValues : () ->
-			console.debug 'ConfigurationView.setValues'
-			console.debug @model.toJSON()
-			
-			console.debug @$('input.username')
 			@$('input.username').val(@model.get('username'))
-			console.debug @$('input.replicateurl')
 			@$('input.replicateurl').val(@model.get('replicateurl'))
-			console.debug @$('input.continuousreplication')
 			@$('input.continuousreplication').prop('checked', @model.get('continuousreplication'))
-			console.debug @$('input.replicationinterval')
 			@$('input.replicationinterval').val(@model.get('replicationinterval'))
-
-			console.debug @$('input.delete-checked-entries')
 			@$('input.delete-checked-entries').val(@model.get('deleteCheckedEntries'))
-			console.debug @$('input.delete-unused-entries')
 			@$('input.delete-unused-entries').val(@model.get('deleteUnusedEntries'))
 
 			if (@model.isValid())
 				@$('.form-group').removeClass('has-error')
-			else
-				for field in @model.validationError
-					console.debug 'invalid Field'
-					console.debug field
 		saveEntries : () -> 
 				@model.save({username : @$('input.username').val().trim()})
 				@model.save({replicateurl: @$('input.replicateurl').val().trim()})
@@ -76,22 +55,16 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 				@model.save({deleteUnusedEntries: parseInt(@$('input.delete-unused-entries').val().trim())})
 		events :
 			'submit' : () ->
-				console.debug 'submit form'
 				@saveEntries()
 				false
 			'reset' : () ->
-				console.debug 'reset form'
 				@setValues()
 				false
 		modelEvents : 
 			'change' : () ->
 				@setValues()
 			'invalid' : () ->
-				console.debug 'invalid'
-				console.debug @model.validationError
-				
 				for field in @model.validationError
-					console.debug 'invalid Field'
 					@$('.form-group.' + field).addClass('has-error')
 					
 		template : _.template """
@@ -171,11 +144,10 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 		App.vent.trigger 'todolist:configurationloaded', Configuration.todoConfiguration
 			
 	configurationErrorOnLoad = ->
-			App.vent.trigger 'todolist:configurationerroronload'
+		App.vent.trigger 'todolist:configurationerroronload'
 
 
 	Configuration.run = ->
-		console.debug 'TodoListApp.Configuration.run'
 		Configuration.todoConfiguration = new TodoConfigurationCollection()
 		App.reqres.setHandler "TodoListApp:Configuration", () ->
 			if Configuration.todoConfiguration.length == 0
@@ -183,17 +155,11 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 				Configuration.todoConfiguration.at(0).save(null, {wait: true})
 				Configuration.todoConfiguration.at(0).on 'change', ->
 					Configuration.todoConfiguration.at(0).save()
-			
-			console.debug Configuration.todoConfiguration
-			console.debug Configuration.todoConfiguration.at(0)
-			
 			Configuration.todoConfiguration.at(0)
 
 		Configuration.todoConfiguration.fetch({wait: true}).done(configurationLoaded).fail(configurationErrorOnLoad) 
 		
 	App.mainRegion.on 'before:show', (view) -> 
-		console.debug "App.mainregion.on 'before:show'"
-		console.debug view
 		###
 		TODO check with instanceof
 		###

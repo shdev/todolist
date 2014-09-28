@@ -3,13 +3,16 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 	
 	class TopBarView extends Marionette.LayoutView
 		template : _.template """
-		<nav class="navbar navbar-default" role="navigation">
+		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 			<div class="container-fluid">
 				<button type="button" class="btn btn-default sync-pouchdb navbar-btn" title="unsynced">
 					<i class="fa fa-long-arrow-down text-muted"></i>
 					<i class="fa fa-exclamation text-warning snyc-needed hidden"></i>
 					<i class="fa fa-long-arrow-up text-muted"></i>
 				</button> 
+				<button type="button" class="btn btn-default settings navbar-btn pull-right" title="Settings">
+					<i class="fa fa-cogs fa-fw"></i>
+				</button>
 			</div>
 		</nav>
 		"""		
@@ -24,13 +27,11 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 			@$(@hashFrom).removeClass('text-success text-danger text-primary text-warning text-muted faa-flash animated')
 		mapDBEventToClass : (event, cssclass) ->
 			eventHandler = () ->
-				console.debug event + ' --- ' + cssclass
 				@normalizeTo().addClass(cssclass)
 				@$('.sync-pouchdb').attr('title', moment().format('llll'))
 			App.vent.on event, eventHandler, @ 
 		mapDBEventFromClass : (event, cssclass) ->
 			eventHandler = () -> 
-				console.debug event + ' --- ' + cssclass
 				@normalizeFrom().addClass(cssclass)
 				@$('.sync-pouchdb').attr('title', moment().format('llll'))
 			App.vent.on event, eventHandler, @
@@ -52,8 +53,6 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 		TopBarView
 	
 	App.mainRegion.on 'before:show', (view) -> 
-		console.debug "App.mainregion.on 'before:show'"
-		console.debug view
 		###
 		TODO check with instanceof
 		###

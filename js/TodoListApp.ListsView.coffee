@@ -12,8 +12,8 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		###
 		# behaviors :
 		# 	Tooltip : {}
-		onRender : ->
-			console.debug 'Render NoEntrieView'
+		# onRender : ->
+		# 	console.debug 'Render NoEntrieView'
 
 	class ListItemView extends Marionette.ItemView
 		tagName : "li"
@@ -43,17 +43,16 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 				@$el.removeClass 'delete-mode'
 				false
 			'click' : () ->
-				if not @$el.hasClass('list-group-item-success')
-					@$el.siblings().removeClass 'list-group-item-success'
+				if not @$el.hasClass('list-group-item-info')
+					@$el.siblings().removeClass 'list-group-item-info'
 					App.vent.trigger 'todolist:changelist', @model
 		
 		clicked : () ->
-			@$el.addClass 'list-group-item-success'
+			@$el.addClass 'list-group-item-info'
 		
 		# onBeforeRender :  ->
 		# 	console.debug @model.get('eMail')
 		onRender : ->
-			console.debug 'Render List: ' + @model.get('name') 
 			thisModel = @model
 			@$(".content").editable
 				type	: 'text'
@@ -105,9 +104,10 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		sync : BackbonePouch.sync pouchdbOptions
 		comparator : 'created'
 		parse : (result) ->
-			console.debug 'parse lists'
-			console.debug result
 			return _.pluck(result.rows, 'doc')
+		initialize : () -> 
+			@on 'remove' , (a) -> 
+				App.vent.trigger 'todolist:deleted-list', a.id if a? and a.id?
 		
 	App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 	App.TodoListApp.classes.ListItemView = ListItemView
@@ -116,7 +116,6 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	App.TodoListApp.classes.ListModel = ListModel
 
 	ListsView.run = ->
-		console.debug 'TodoListApp.ListsView'
 		@mainView = new ListCollectionView({ collection : new ListCollection() })
 		App.TodoListApp.mainView.listsView.show(@mainView)
 		App.TodoListApp.listCollection = @mainView.collection
@@ -126,23 +125,20 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		# @run()
 		
 	App.vent.on 'todolist:changelist', (todolistmodel) ->
-		console.debug 'todolist:changelist ListsView'
-		console.debug todolistmodel.id
 		todolistmodel.correspondingView.clicked()
 
 	listCollection = undefined
 	
 	refetchData = () ->
-		listCollection.fetch() if listCollection?
+		App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
 		
 	App.vent.on 'replication:pouchdb:to:complete', refetchData
 	App.vent.on 'replication:pouchdb:to:uptodate', refetchData
 	App.vent.on 'replication:pouchdb:from:uptodate', refetchData
 	App.vent.on 'replication:pouchdb:from:complete', refetchData
+	App.vent.on 'todolistapp:startReplication', refetchData
 	
 	App.mainRegion.on 'before:show', (view) -> 
-		console.debug "App.mainregion.on 'before:show'"
-		console.debug view
 		###
 		TODO check with instanceof
 		###
@@ -152,9 +148,8 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		ListsView.mainView.collection.fetch()
 		
 	
-	ListsView.on "start", ->
-		console.debug "ListView.onStart"
-		return true
+	# ListsView.on "start", ->
+	# 	return true
 		
-	ListsView.on 'all', (a)->
-		console.log 'ListsView events' + a
+	# ListsView.on 'all', (a)->
+	# 	console.log 'ListsView events' + a

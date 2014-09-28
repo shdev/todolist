@@ -16,8 +16,8 @@ class TodoListApplication extends Marionette.Application
 App =  new TodoListApplication();
 
 
-App.on 'all', (a,b,c,d,e)->
-		console.log 'App events' + a
+# App.on 'all', (a,b,c,d,e)->
+# 		console.log 'App events' + a
 
 App.addRegions(
 	mainRegion : 'body'

@@ -3,26 +3,28 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 	class NoEntryView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item list-group-item-warning"
-		getTemplate: () -> 
-			if !!App.request("todolistapp:Configuration").get('fetchingEntryData')
-				_.template """
-					<i class="fa fa-circle-o-notch fa-spin"></i> Es werden gerade Daten geladen!
-				"""
-			else
-				_.template """
-					Es gibt keine Einträge!
-				"""
+		# getTemplate: () ->
+		# 	if !!@model.get('fetchingEntryData')
+		template : _.template """
+			<i class="fa fa-circle-o-notch fa-spin"></i> Es werden gerade Daten geladen!
+		"""
+			# else
+			# 	_.template """
+			# 		Es gibt keine Einträge!
+			# 	"""
+		# modelEvents :
+		# 	'change:fetchingEntryData' : 'entryFetchStatusChanged'
+			
 		###
 		TODO watch out for the collection loads data
 		###
 		# behaviors :
 		# 	Tooltip : {}
 		# onRender : ->
-		entryFetchStatusChanged : () ->
-			@render()
-		initialize : () ->
-			currentConfiguration = App.request("todolistapp:Configuration")
-			currentConfiguration.on 'change:fetchingEntryData', @entryFetchStatusChanged, @
+		# entryFetchStatusChanged : () ->
+		# 	@render()
+		# initialize : () ->
+		# 	@model = App.request("todolistapp:Configuration")
 
 	class EntryItemView extends Marionette.ItemView
 		tagName : "li"
@@ -95,6 +97,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		emptyView : NoEntryView
 		
 	EntryModelFactory = (todolistid) -> 
+		pouchdb = App.request("todolistapp:PouchDB")
 		class EntryModel extends Backbone.Model
 			idAttribute : '_id'
 			defaults : () ->
@@ -104,7 +107,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 				created : JSON.parse(JSON.stringify(new Date()))
 				"todolist-id" : todolistid
 				checked : null
-			sync : BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql')
+			sync : BackbonePouch.sync db:pouchdb
 			check : () ->
 				if not @get('checked')?
 					@.set('checked', JSON.parse(JSON.stringify(new Date())))
@@ -119,11 +122,12 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		return EntryModel
 		
 	EntryCollectionFactory = (todolistid) ->
+		pouchdb = App.request("todolistapp:PouchDB")
 		mapfunc =  (doc) ->
 			if doc.type? and doc["todolist-id"]?
-				emit doc["todolist-id"], doc.pos if doc.type == 'todoentry'
+				emit [doc["todolist-id"], doc.pos], doc if doc.type == 'todoentry'
 		pouchdbOptions = 
-			db : PouchDB('svh_todo', adapter : 'websql')
+			db : pouchdb
 			fetch : 'query'
 			options :
 				query :

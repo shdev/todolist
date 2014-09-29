@@ -45,12 +45,17 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 
 	App.vent.on 'todolist:configurationloaded', (config) ->
 		App.request("todolistapp:PouchDB");
+		
 		App.vent.trigger 'todolistapp:startReplication'
 		App.vent.trigger 'todolistapp:initViews'
 		
 		currentConfiguration = App.request("todolistapp:Configuration")
 		
-		currentConfiguration.on 'change', () ->
+		currentConfiguration.on 'change:continuousreplication', () ->
+			App.vent.trigger 'todolistapp:startReplication'
+		currentConfiguration.on 'change:replicateurl', () ->
+			App.vent.trigger 'todolistapp:startReplication'
+		currentConfiguration.on 'change:replicationinterval', () ->
 			App.vent.trigger 'todolistapp:startReplication'
 		
 		
@@ -142,12 +147,7 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 	TodoListApp.run = -> 	
 			window.TodoListApp
 			App.vent.trigger('app:initialized', App)
-	
-	App.vent.on 'replication:svh_todo:uptodate', () -> 
-		App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
-		App.TodoListApp.entryCollection.fetch() if App.TodoListApp.entryCollection?
-			
-	
+		
 	# TodoListApp.on 'all', (a)->
 	# console.log 'TodoListApp events' + a
 

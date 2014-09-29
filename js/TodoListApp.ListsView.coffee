@@ -3,25 +3,26 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	class NoEntrieView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item list-group-item-warning"
-		getTemplate: () -> 
-			if !!App.request("todolistapp:Configuration").get('fetchingListData')
-				_.template """
-					<i class="fa fa-circle-o-notch fa-spin"></i> Es werden gerade Daten geladen!
-				"""
-			else
-				_.template """
-					Es gibt keine Einträge!
-				"""
+		# getTemplate: () ->
+		# 	if !!@model.get('fetchingListData')
+		template : _.template """
+			<i class="fa fa-circle-o-notch fa-spin"></i> Es werden gerade Daten geladen!
+		"""
+			# else
+			# 	_.template """
+			# 		Es gibt keine Einträge!
+			# 	"""
+		# modelEvents :
+		# 	'change:fetchingEntryData' : 'listFetchStatusChanged'
 		###
 		TODO watch out for the collection loads data
 		###
 		# behaviors :
 		# 	Tooltip : {}
-		listFetchStatusChanged : () ->
-			@render()
-		initialize : () ->
-			currentConfiguration = App.request("todolistapp:Configuration")
-			currentConfiguration.on 'change:fetchingListData', @listFetchStatusChanged, @
+		# listFetchStatusChanged : () ->
+		# 	@render()
+		# initialize : () ->
+		# 	@model = App.request("todolistapp:Configuration")
 
 	class ListItemView extends Marionette.ItemView
 		tagName : "li"
@@ -80,6 +81,8 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		childView : ListItemView
 		emptyView : NoEntrieView
 
+	pouchdb = App.request("todolistapp:PouchDB")
+
 	class ListModel extends Backbone.Model
 		idAttribute : '_id'
 		defaults : () ->
@@ -87,13 +90,14 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 			username : App.request("todolistapp:Configuration").get('username')
 			type : 'todolist'
 			created : JSON.parse(JSON.stringify(new Date()))
-		sync: BackbonePouch.sync db : PouchDB('svh_todo', adapter : 'websql')
+		sync: BackbonePouch.sync db : pouchdb
 		initialize : () -> 
 			@on 'destroy' , (a) -> 
 				App.vent.trigger 'todolist:deleted-list', a.id if a? and a.id?
 
+
 	pouchdbOptions = 
-		db : PouchDB('svh_todo', adapter : 'websql')
+		db : pouchdb
 		fetch : 'query'
 		options :
 			query :

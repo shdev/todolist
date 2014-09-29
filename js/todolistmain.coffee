@@ -6,6 +6,9 @@ App =  new TodoListApplication();
 
 # App.on 'all', (a,b,c,d,e)->
 # 		console.log 'App events' + a
+#
+# App.vent.on 'all', (a,b,c,d,e)->
+# 		console.log 'App vents ' + a
 
 App.addRegions(
 	mainRegion : 'body'

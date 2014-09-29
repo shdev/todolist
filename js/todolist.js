@@ -163,7 +163,13 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
     App.vent.trigger('todolistapp:startReplication');
     App.vent.trigger('todolistapp:initViews');
     currentConfiguration = App.request("todolistapp:Configuration");
-    return currentConfiguration.on('change', function() {
+    currentConfiguration.on('change:continuousreplication', function() {
+      return App.vent.trigger('todolistapp:startReplication');
+    });
+    currentConfiguration.on('change:replicateurl', function() {
+      return App.vent.trigger('todolistapp:startReplication');
+    });
+    return currentConfiguration.on('change:replicationinterval', function() {
       return App.vent.trigger('todolistapp:startReplication');
     });
   });
@@ -264,14 +270,6 @@ App.module('TodoListApp', function(TodoListApp, App, Backbone, Marionette, $, _)
     window.TodoListApp;
     return App.vent.trigger('app:initialized', App);
   };
-  App.vent.on('replication:svh_todo:uptodate', function() {
-    if (App.TodoListApp.listCollection != null) {
-      App.TodoListApp.listCollection.fetch();
-    }
-    if (App.TodoListApp.entryCollection != null) {
-      return App.TodoListApp.entryCollection.fetch();
-    }
-  });
   return App.addInitializer(function() {
     return TodoListApp.run();
   });
@@ -374,7 +372,7 @@ App.module('TodoListApp.ListInput', function(ListInput, App, Backbone, Marionett
 });
 
 App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionette, $, _) {
-  var ListCollection, ListCollectionView, ListItemView, ListModel, NoEntrieView, listCollection, pouchdbOptions, refetchData;
+  var ListCollection, ListCollectionView, ListItemView, ListModel, NoEntrieView, listCollection, pouchdb, pouchdbOptions, refetchData;
   NoEntrieView = (function(_super) {
     __extends(NoEntrieView, _super);
 
@@ -386,28 +384,12 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 
     NoEntrieView.prototype.className = "list-group-item list-group-item-warning";
 
-    NoEntrieView.prototype.getTemplate = function() {
-      if (!!App.request("todolistapp:Configuration").get('fetchingListData')) {
-        return _.template("<i class=\"fa fa-circle-o-notch fa-spin\"></i> Es werden gerade Daten geladen!");
-      } else {
-        return _.template("Es gibt keine Einträge!");
-      }
-    };
+    NoEntrieView.prototype.template = _.template("<i class=\"fa fa-circle-o-notch fa-spin\"></i> Es werden gerade Daten geladen!");
 
 
     /*
     		TODO watch out for the collection loads data
      */
-
-    NoEntrieView.prototype.listFetchStatusChanged = function() {
-      return this.render();
-    };
-
-    NoEntrieView.prototype.initialize = function() {
-      var currentConfiguration;
-      currentConfiguration = App.request("todolistapp:Configuration");
-      return currentConfiguration.on('change:fetchingListData', this.listFetchStatusChanged, this);
-    };
 
     return NoEntrieView;
 
@@ -499,6 +481,7 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
     return ListCollectionView;
 
   })(Marionette.CollectionView);
+  pouchdb = App.request("todolistapp:PouchDB");
   ListModel = (function(_super) {
     __extends(ListModel, _super);
 
@@ -518,9 +501,7 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
     };
 
     ListModel.prototype.sync = BackbonePouch.sync({
-      db: PouchDB('svh_todo', {
-        adapter: 'websql'
-      })
+      db: pouchdb
     });
 
     ListModel.prototype.initialize = function() {
@@ -535,9 +516,7 @@ App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionett
 
   })(Backbone.Model);
   pouchdbOptions = {
-    db: PouchDB('svh_todo', {
-      adapter: 'websql'
-    }),
+    db: pouchdb,
     fetch: 'query',
     options: {
       query: {
@@ -643,28 +622,12 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
     NoEntryView.prototype.className = "list-group-item list-group-item-warning";
 
-    NoEntryView.prototype.getTemplate = function() {
-      if (!!App.request("todolistapp:Configuration").get('fetchingEntryData')) {
-        return _.template("<i class=\"fa fa-circle-o-notch fa-spin\"></i> Es werden gerade Daten geladen!");
-      } else {
-        return _.template("Es gibt keine Einträge!");
-      }
-    };
+    NoEntryView.prototype.template = _.template("<i class=\"fa fa-circle-o-notch fa-spin\"></i> Es werden gerade Daten geladen!");
 
 
     /*
     		TODO watch out for the collection loads data
      */
-
-    NoEntryView.prototype.entryFetchStatusChanged = function() {
-      return this.render();
-    };
-
-    NoEntryView.prototype.initialize = function() {
-      var currentConfiguration;
-      currentConfiguration = App.request("todolistapp:Configuration");
-      return currentConfiguration.on('change:fetchingEntryData', this.entryFetchStatusChanged, this);
-    };
 
     return NoEntryView;
 
@@ -769,7 +732,8 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
 
   })(Marionette.CollectionView);
   EntryModelFactory = function(todolistid) {
-    var EntryModel;
+    var EntryModel, pouchdb;
+    pouchdb = App.request("todolistapp:PouchDB");
     EntryModel = (function(_super) {
       __extends(EntryModel, _super);
 
@@ -791,9 +755,7 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
       };
 
       EntryModel.prototype.sync = BackbonePouch.sync({
-        db: PouchDB('svh_todo', {
-          adapter: 'websql'
-        })
+        db: pouchdb
       });
 
       EntryModel.prototype.check = function() {
@@ -822,18 +784,17 @@ App.module('TodoListApp.EntriesView', function(EntriesView, App, Backbone, Mario
     return EntryModel;
   };
   EntryCollectionFactory = function(todolistid) {
-    var EntryCollection, mapfunc, pouchdbOptions;
+    var EntryCollection, mapfunc, pouchdb, pouchdbOptions;
+    pouchdb = App.request("todolistapp:PouchDB");
     mapfunc = function(doc) {
       if ((doc.type != null) && (doc["todolist-id"] != null)) {
         if (doc.type === 'todoentry') {
-          return emit(doc["todolist-id"], doc.pos);
+          return emit([doc["todolist-id"], doc.pos], doc);
         }
       }
     };
     pouchdbOptions = {
-      db: PouchDB('svh_todo', {
-        adapter: 'websql'
-      }),
+      db: pouchdb,
       fetch: 'query',
       options: {
         query: {

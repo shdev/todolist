@@ -13,13 +13,13 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 				<div id="todolistapp-lists-view"></div>
 			</div>
 			<hr class="hidden-md hidden-lg" />
-			<div id="todolistapp-entries" class="col-md-4">
+			<div id="todolistapp-entries" class="col-md-8">
 				<div id="todolistapp-entry-input"></div>
 				<hr />
 				<div id="todolistapp-entries-view"></div>
 			</div>
 			<hr  class="hidden-md hidden-lg" />
-			<div id="todolistapp-configuration" class="col-md-4"></div>
+			<div id="todolistapp-configuration" class="col-md-4 hidden"></div>
 		</div>
 		"""
 		regions : 
@@ -31,6 +31,11 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			entryInput : "#todolistapp-entry-input"
 			entriesView : "#todolistapp-entries-view"
 			configurationView : "#todolistapp-configuration"
+			
+		initialize : () ->
+			@listenTo App.vent, 'todolist:configuration:hideview' , () ->
+				@$("#todolistapp-configuration").toggleClass 'hidden'
+				@$("#todolistapp-entries").toggleClass 'col-md-4 col-md-8'
 
 	App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 	App.TodoListApp.classes.TodoListAppView

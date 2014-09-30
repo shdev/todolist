@@ -132,7 +132,7 @@
 
       TodoListAppView.prototype.className = "container-fluid";
 
-      TodoListAppView.prototype.template = _.template("<div class=\"row\">\n	<div id=\"topbar\"></div>\n	<div id=\"todolistapp-lists\" class=\"col-md-4\">\n		<div id=\"todolistapp-list-input\"></div>\n		<hr />\n		<div id=\"todolistapp-lists-view\"></div>\n	</div>\n	<hr class=\"hidden-md hidden-lg\" />\n	<div id=\"todolistapp-entries\" class=\"col-md-4\">\n		<div id=\"todolistapp-entry-input\"></div>\n		<hr />\n		<div id=\"todolistapp-entries-view\"></div>\n	</div>\n	<hr  class=\"hidden-md hidden-lg\" />\n	<div id=\"todolistapp-configuration\" class=\"col-md-4\"></div>\n</div>");
+      TodoListAppView.prototype.template = _.template("<div class=\"row\">\n	<div id=\"topbar\"></div>\n	<div id=\"todolistapp-lists\" class=\"col-md-4\">\n		<div id=\"todolistapp-list-input\"></div>\n		<hr />\n		<div id=\"todolistapp-lists-view\"></div>\n	</div>\n	<hr class=\"hidden-md hidden-lg\" />\n	<div id=\"todolistapp-entries\" class=\"col-md-8\">\n		<div id=\"todolistapp-entry-input\"></div>\n		<hr />\n		<div id=\"todolistapp-entries-view\"></div>\n	</div>\n	<hr  class=\"hidden-md hidden-lg\" />\n	<div id=\"todolistapp-configuration\" class=\"col-md-4 hidden\"></div>\n</div>");
 
       TodoListAppView.prototype.regions = {
         topBar: "#topbar",
@@ -143,6 +143,13 @@
         entryInput: "#todolistapp-entry-input",
         entriesView: "#todolistapp-entries-view",
         configurationView: "#todolistapp-configuration"
+      };
+
+      TodoListAppView.prototype.initialize = function() {
+        return this.listenTo(App.vent, 'todolist:configuration:hideview', function() {
+          this.$("#todolistapp-configuration").toggleClass('hidden');
+          return this.$("#todolistapp-entries").toggleClass('col-md-4 col-md-8');
+        });
       };
 
       return TodoListAppView;
@@ -1003,8 +1010,6 @@
 
       ConfigurationView.prototype.tagName = "form";
 
-      ConfigurationView.prototype.className = "hidden";
-
       ConfigurationView.prototype.setValues = function() {
         this.$('input.username').val(this.model.get('username'));
         this.$('input.replicateurl').val(this.model.get('replicateurl'));
@@ -1069,12 +1074,6 @@
 
       ConfigurationView.prototype.onRender = function() {
         return this.setValues();
-      };
-
-      ConfigurationView.prototype.initialize = function() {
-        return this.listenTo(App.vent, 'todolist:configuration:hideview', function() {
-          return this.$el.toggleClass('hidden');
-        });
       };
 
       return ConfigurationView;

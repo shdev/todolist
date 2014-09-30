@@ -38,7 +38,6 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 
 	class ConfigurationView extends Marionette.LayoutView
 		tagName : "form"
-		className : "hidden"
 		setValues : () ->
 			@$('input.username').val(@model.get('username'))
 			@$('input.replicateurl').val(@model.get('replicateurl'))
@@ -143,11 +142,6 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 		"""
 		onRender : () ->
 			@setValues()
-			
-		initialize : () ->
-			@listenTo App.vent, 'todolist:configuration:hideview' , () ->
-				@$el.toggleClass 'hidden'
-			
 			
 	configurationLoaded = ->
 		App.vent.trigger 'todolist:configurationloaded', Configuration.todoConfiguration

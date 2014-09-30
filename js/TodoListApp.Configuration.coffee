@@ -38,6 +38,7 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 
 	class ConfigurationView extends Marionette.LayoutView
 		tagName : "form"
+		className : "hidden"
 		setValues : () ->
 			@$('input.username').val(@model.get('username'))
 			@$('input.replicateurl').val(@model.get('replicateurl'))
@@ -100,8 +101,8 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 					</div><!-- /btn-group -->
 				</div>
 			</div>
-			<hr />
-			<div class="form-group delete-checked-entries has-error">
+			<hr class=" hidden" />
+			<div class="form-group delete-checked-entries has-error hidden">
 				<label class="control-label" for="delete-checked-entries">Löschen von abgearbeiteten Einträgen nach</label>
 				<div class="input-group">
 					<input type="number" class="form-control delete-checked-entries" min="0" step="3" placeholder="0" />
@@ -115,7 +116,7 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 					</div><!-- /btn-group -->
 				</div><!-- /input-group -->
 			</div><!-- /form-group -->
-			<div class="form-group delete-unused-entries has-error">
+			<div class="form-group delete-unused-entries has-error hidden">
 				<label class="control-label" for="delete-unused-entries">Löschen von ungenutzen Einträgen nach</label>
 				<div class="input-group">
 					<input type="number" class="form-control delete-unused-entries" min="0" step="3" placeholder="0" />
@@ -142,6 +143,12 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 		"""
 		onRender : () ->
 			@setValues()
+			
+		initialize : () ->
+			@listenTo App.vent, 'todolist:configuration:hideview' , () ->
+				@$el.toggleClass 'hidden'
+			
+			
 	configurationLoaded = ->
 		App.vent.trigger 'todolist:configurationloaded', Configuration.todoConfiguration
 			
@@ -154,12 +161,12 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 		App.reqres.setHandler "todolistapp:Configuration", () ->
 			if Configuration.todoConfiguration.length == 0
 				Configuration.todoConfiguration.add(new TodoConfigurationModel())
-				Configuration.todoConfiguration.at(0).save(null, {wait: true})
+				Configuration.todoConfiguration.at(0).save(null, wait: true)
 				Configuration.todoConfiguration.at(0).on 'change', ->
 					Configuration.todoConfiguration.at(0).save()
 			Configuration.todoConfiguration.at(0)
 
-		Configuration.todoConfiguration.fetch({wait: true}).done(configurationLoaded).fail(configurationErrorOnLoad) 
+		Configuration.todoConfiguration.fetch(wait: true).done(configurationLoaded).fail(configurationErrorOnLoad) 
 		
 	App.mainRegion.on 'before:show', (view) -> 
 		###

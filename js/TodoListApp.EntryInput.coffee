@@ -1,6 +1,5 @@
 App.module 'TodoListApp.EntryInput', (EntryInput, App, Backbone, Marionette, $, _) ->
 
-	
 	class EntryInputView extends Marionette.LayoutView
 		ui : 
 			"addItemButton" : "button.add-item"

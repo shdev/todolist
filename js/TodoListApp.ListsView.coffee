@@ -3,26 +3,24 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	class NoEntrieView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item list-group-item-warning"
-		# getTemplate: () ->
-		# 	if !!@model.get('fetchingListData')
-		template : _.template """
-			<i class="fa fa-circle-o-notch fa-spin"></i> Es werden gerade Daten geladen!
-		"""
-			# else
-			# 	_.template """
-			# 		Es gibt keine Einträge!
-			# 	"""
-		# modelEvents :
-		# 	'change:fetchingEntryData' : 'listFetchStatusChanged'
+		getTemplate: () ->
+			if !!@model.get('fetchingListData')
+				_.template """
+					<i class="fa fa-circle-o-notch fa-spin"></i> Es werden gerade Daten geladen!
+					"""
+			else
+				_.template """
+					Es gibt keine Einträge!
+				"""
+		modelEvents :
+			'change:fetchingListData' : 'listFetchStatusChanged'
 		###
 		TODO watch out for the collection loads data
 		###
 		# behaviors :
 		# 	Tooltip : {}
-		# listFetchStatusChanged : () ->
-		# 	@render()
-		# initialize : () ->
-		# 	@model = App.request("todolistapp:Configuration")
+		listFetchStatusChanged : () ->
+			@render()
 
 	class ListItemView extends Marionette.ItemView
 		tagName : "li"
@@ -55,7 +53,10 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 				if not @$el.hasClass('list-group-item-info')
 					@$el.siblings().removeClass 'list-group-item-info'
 					App.vent.trigger 'todolist:changelist', @model
-		
+		modelEvents :
+			'destroy' : (a) -> 
+				App.vent.trigger 'todolist:deleted-list', a.id if a? and a.id?
+				
 		clicked : () ->
 			@$el.addClass 'list-group-item-info'
 		
@@ -80,6 +81,13 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		className : "list-group"
 		childView : ListItemView
 		emptyView : NoEntrieView
+		collectionEvents :
+			'remove' : (a) -> 
+				App.vent.trigger 'todolist:deleted-list', a.id if a? and a.id?
+			'request' : () ->
+				App.request("todolistapp:Configuration").set('fetchingListData', true)
+			'sync' : () -> 
+				App.request("todolistapp:Configuration").set('fetchingListData', false)
 
 	pouchdb = App.request("todolistapp:PouchDB")
 
@@ -92,10 +100,8 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 			created : JSON.parse(JSON.stringify(new Date()))
 		sync: BackbonePouch.sync db : pouchdb
 		initialize : () -> 
-			@on 'destroy' , (a) -> 
-				App.vent.trigger 'todolist:deleted-list', a.id if a? and a.id?
 
-
+				
 	pouchdbOptions = 
 		db : pouchdb
 		fetch : 'query'
@@ -117,28 +123,13 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 		comparator : 'created'
 		parse : (result) ->
 			return _.pluck(result.rows, 'doc')
-		initialize : () -> 
-			@on 'remove' , (a) -> 
-				App.vent.trigger 'todolist:deleted-list', a.id if a? and a.id?
-			@on 'request' , () -> 
-				App.request("todolistapp:Configuration").set('fetchingListData', true)
-			@on 'sync' , () -> 
-				App.request("todolistapp:Configuration").set('fetchingListData', false)
+
 		
 	App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 	App.TodoListApp.classes.ListItemView = ListItemView
 	App.TodoListApp.classes.ListCollectionView = ListCollectionView
 	App.TodoListApp.classes.ListCollection = ListCollection
 	App.TodoListApp.classes.ListModel = ListModel
-
-	ListsView.run = ->
-		@mainView = new ListCollectionView({ collection : new ListCollection() })
-		App.TodoListApp.mainView.listsView.show(@mainView)
-		App.TodoListApp.listCollection = @mainView.collection
-		@mainView.collection.fetch()
-		
-	ListsView.addInitializer ->
-		# @run()
 		
 	App.vent.on 'todolist:changelist', (todolistmodel) ->
 		todolistmodel.correspondingView.clicked()
@@ -146,7 +137,7 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	listCollection = undefined
 	
 	refetchData = () ->
-		App.TodoListApp.listCollection.fetch() if App.TodoListApp.listCollection?
+		App.TodoListApp.listCollection.fetch() if (not App.request("todolistapp:Configuration").get('fetchingListData')) and App.TodoListApp.listCollection?
 		
 	App.vent.on 'replication:pouchdb:to:complete', refetchData
 	App.vent.on 'replication:pouchdb:to:uptodate', refetchData
@@ -155,17 +146,11 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	App.vent.on 'todolistapp:startReplication', refetchData
 	
 	App.mainRegion.on 'before:show', (view) -> 
-		###
-		TODO check with instanceof
-		###
-		ListsView.mainView = new ListCollectionView({ collection : new ListCollection() })
+		listCollectionViewOptions =
+			collection : new ListCollection()
+			emptyViewOptions : 
+				model : App.request("todolistapp:Configuration")
+		ListsView.mainView = new ListCollectionView(listCollectionViewOptions)
 		view.listsView.show(ListsView.mainView)
 		App.TodoListApp.listCollection = ListsView.mainView.collection
 		ListsView.mainView.collection.fetch()
-		
-	
-	# ListsView.on "start", ->
-	# 	return true
-		
-	# ListsView.on 'all', (a)->
-	# 	console.log 'ListsView events' + a

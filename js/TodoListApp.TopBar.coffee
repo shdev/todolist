@@ -8,7 +8,7 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 					<i class="fa fa-exclamation text-warning snyc-needed hidden"></i>
 					<i class="fa fa-long-arrow-up text-muted"></i>
 				</button>
-				<button type="button" class="btn btn-default settings navbar-btn pull-right" title="Settings">
+				<button type="button" class="btn btn-default show-settings navbar-btn pull-right" title="Settings">
 					<i class="fa fa-cogs fa-fw"></i>
 				</button>
 				<p class="navbar-text list-name">Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto </p>
@@ -20,6 +20,8 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 		events : 
 			'click button.sync-pouchdb' : () ->
 				App.vent.trigger 'todolistapp:startReplication'
+			'click button.show-settings' : () ->
+				App.vent.trigger 'todolist:configuration:hideview'
 		normalizeTo : () ->
 			@$(@hashTo).removeClass('text-success text-danger text-primary text-warning text-muted faa-flash animated')
 		normalizeFrom : () ->
@@ -28,12 +30,12 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 			eventHandler = () ->
 				@normalizeTo().addClass(cssclass)
 				@$('.sync-pouchdb').attr('title', moment().format('llll'))
-			App.vent.on event, eventHandler, @ 
+			@listenTo App.vent, event, eventHandler
 		mapDBEventFromClass : (event, cssclass) ->
 			eventHandler = () -> 
 				@normalizeFrom().addClass(cssclass)
 				@$('.sync-pouchdb').attr('title', moment().format('llll'))
-			App.vent.on event, eventHandler, @
+			@listenTo App.vent, event, eventHandler
 		listChanged : (todolistmodel) ->
 				@$('.list-name').text todolistmodel.get('name')
 		listDeleted : (a) ->
@@ -57,8 +59,8 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 			@mapDBEventFromClass 'replication:pouchdb:from:complete', 'text-warning'
 			@mapDBEventFromClass 'replication:pouchdb:from:uptodate', 'text-success'
 			
-			App.vent.on 'todolist:changelist', @listChanged, @
-			App.vent.on 'todolist:deleted-list' , @listDeleted, @
+			@listenTo App.vent, 'todolist:deleted-list', @listDeleted
+			@listenTo App.vent, 'todolist:changelist', @listChanged
 	
 	App.reqres.setHandler "todolistapp:class:TopBarView", () ->
 		TopBarView

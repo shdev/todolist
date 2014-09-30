@@ -13,13 +13,11 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 				<div id="todolistapp-lists-view"></div>
 			</div>
 			<hr class="hidden-md hidden-lg" />
-			<hr class="hidden-md hidden-lg" />
 			<div id="todolistapp-entries" class="col-md-4">
 				<div id="todolistapp-entry-input"></div>
 				<hr />
 				<div id="todolistapp-entries-view"></div>
 			</div>
-			<hr  class="hidden-md hidden-lg" />
 			<hr  class="hidden-md hidden-lg" />
 			<div id="todolistapp-configuration" class="col-md-4"></div>
 		</div>

@@ -62,6 +62,11 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			'reset' : () ->
 				@setValues()
 				false
+			'click .destroy-db' : () ->
+				App.request("todolistapp:PouchDB").destroy()
+				App.vent.trigger('todolistapp:pouchdb:destroyed')
+			'click .cleanup-db' : () ->
+				App.request("todolistapp:PouchDB").compact()
 		modelEvents : 
 			'change' : () ->
 				@setValues()
@@ -139,6 +144,17 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 					<button type="submit" class="btn-block btn btn-primary ">Speichern</button>
 				</div>
 			</div>
+			
+			<hr />
+			<div class="row">
+				<div class="col-xs-6">
+					<button class="btn-block btn btn-danger destroy-db">Datenbank löschen</button>
+				</div>
+				<div class="col-xs-6">
+					<button class="btn-block btn btn-primary cleanup-db">Aufräumen</button>
+				</div>
+			</div>
+			
 		"""
 		onRender : () ->
 			@setValues()

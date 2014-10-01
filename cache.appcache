@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# REV 8
+# REV 12
 
 CACHE:
 index.html
@@ -20,7 +20,8 @@ js/external/jquery-2.0.3.min.js
 js/external/languages.min.js
 js/external/moment-with-langs.min.js
 js/external/numeral.min.js
-js/external/pouchdb.min.js
+js/external/pouchdb.3.0.6.min.js
+js/external/pouchdb.3.0.7.pre.min.js
 js/external/underscore-min.js
 fonts/FontAwesome.otf
 fonts/fontawesome-webfont.eot

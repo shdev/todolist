@@ -144,6 +144,7 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	App.vent.on 'replication:pouchdb:from:uptodate', refetchData
 	App.vent.on 'replication:pouchdb:from:complete', refetchData
 	App.vent.on 'todolistapp:startReplication', refetchData
+	App.vent.on 'todolistapp:pouchdb:destroyed', refetchData
 	
 	App.mainRegion.on 'before:show', (view) -> 
 		listCollectionViewOptions =

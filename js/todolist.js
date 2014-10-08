@@ -491,6 +491,10 @@
         return true;
       };
 
+      ListItemView.prototype.onDestroy = function() {
+        return this.model.correspondingView = null;
+      };
+
       return ListItemView;
 
     })(Marionette.ItemView);
@@ -520,6 +524,22 @@
         },
         'sync': function() {
           return App.request("todolistapp:Configuration").set('fetchingListData', false);
+        }
+      };
+
+      ListCollectionView.prototype.resortView = function() {
+        var elem, oneModel, _i, _len, _ref, _results;
+        elem = this.$el;
+        if (0 < this.collection.length) {
+          _ref = this.collection.models;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            oneModel = _ref[_i];
+            _results.push((function(oneModel) {
+              return elem.append(oneModel.correspondingView.$el);
+            })(oneModel));
+          }
+          return _results;
         }
       };
 
@@ -581,7 +601,7 @@
 
       ListCollection.prototype.sync = BackbonePouch.sync(pouchdbOptions);
 
-      ListCollection.prototype.comparator = 'created';
+      ListCollection.prototype.comparator = 'name';
 
       ListCollection.prototype.parse = function(result) {
         return _.pluck(result.rows, 'doc');
@@ -659,11 +679,6 @@
 
       NoEntryView.prototype.entryFetchStatusChanged = function() {
         return this.render();
-      };
-
-      NoEntryView.prototype.initialize = function() {
-        console.debug('init Entry');
-        return console.debug(this.model);
       };
 
       return NoEntryView;
@@ -747,6 +762,10 @@
         return true;
       };
 
+      EntryItemView.prototype.onDestroy = function() {
+        return this.model.correspondingView = null;
+      };
+
       return EntryItemView;
 
     })(Marionette.ItemView);
@@ -767,11 +786,9 @@
 
       EntryCollectionView.prototype.collectionEvents = {
         'request': function() {
-          console.debug('EC request');
           return App.request("todolistapp:Configuration").set('fetchingEntryData', true);
         },
         'sync': function() {
-          console.debug('EC sync');
           return App.request("todolistapp:Configuration").set('fetchingEntryData', false);
         }
       };
@@ -870,8 +887,6 @@
         EntryCollection.prototype.comparator = 'created';
 
         EntryCollection.prototype.parse = function(result) {
-          console.debug('parse');
-          console.debug(result);
           return _.pluck(result.rows, 'doc');
         };
 
@@ -916,7 +931,6 @@
     });
     return App.vent.on('todolist:changelist', function(todolistmodel) {
       var entryCollectionViewOptions, todolistid;
-      console.debug("on 'todolist:changelist'");
       todolistid = todolistmodel.id;
       if (!App.TodoListApp.mainView.entryInput.hasView()) {
         App.TodoListApp.EntryInput.run();

@@ -23,9 +23,7 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		# onRender : ->
 		entryFetchStatusChanged : () ->
 			@render()
-		initialize : () ->
-			console.debug 'init Entry'
-			console.debug @model
+		# initialize : () ->
 
 	class EntryItemView extends Marionette.ItemView
 		tagName : "li"
@@ -90,6 +88,8 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			@renderCheckStatus()
 			@renderCheckStatus()
 			return true
+		onDestroy : () ->
+			@model.correspondingView = null
 			
 	class EntryCollectionView extends Marionette.CollectionView
 		tagName : "ul"
@@ -98,11 +98,10 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 		emptyView : NoEntryView
 		collectionEvents : 
 			'request' : ()->
-				console.debug 'EC request'
 				App.request("todolistapp:Configuration").set('fetchingEntryData', true)
 			'sync' : () ->
-				console.debug 'EC sync'
 				App.request("todolistapp:Configuration").set('fetchingEntryData', false)
+
 		
 	EntryModelFactory = (todolistid) -> 
 		pouchdb = App.request("todolistapp:PouchDB")
@@ -154,8 +153,6 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 			"todolist-id" : todolistid
 			comparator : 'created'
 			parse : (result) ->
-				console.debug 'parse'
-				console.debug result
 				return _.pluck(result.rows, 'doc')
 		
 		return EntryCollection
@@ -195,7 +192,6 @@ App.module 'TodoListApp.EntriesView', (EntriesView, App, Backbone, Marionette, $
 				App.TodoListApp.entryCollection = null
 
 	App.vent.on 'todolist:changelist', (todolistmodel) ->
-		console.debug "on 'todolist:changelist'"
 		todolistid = todolistmodel.id
 		App.TodoListApp.EntryInput.run() if !App.TodoListApp.mainView.entryInput.hasView()
 		App.TodoListApp.classes.EntryModel = App.TodoListApp.classes.EntryModelFactory(todolistid)

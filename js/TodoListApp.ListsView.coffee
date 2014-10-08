@@ -61,9 +61,11 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 			@$el.addClass 'list-group-item-info'
 		
 		# onBeforeRender :  ->
-		# 	console.debug @model.get('eMail')
+		#  	console.debug @model.get('name')
+		#
 		onRender : ->
 			thisModel = @model
+			
 			@$(".content").editable
 				type	: 'text'
 				name	: 'Name eingeben'
@@ -75,6 +77,8 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 					thisModel.set('name', newValue)
 					thisModel.save()
 			return true
+		onDestroy : () ->
+			@model.correspondingView = null
 
 	class ListCollectionView extends Marionette.CollectionView
 		tagName : "ul"
@@ -88,6 +92,12 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 				App.request("todolistapp:Configuration").set('fetchingListData', true)
 			'sync' : () -> 
 				App.request("todolistapp:Configuration").set('fetchingListData', false)
+		resortView : () ->
+			elem = @$el
+			if 0 < @collection.length
+				for oneModel in @collection.models
+					do (oneModel) ->
+						elem.append oneModel.correspondingView.$el
 
 	pouchdb = App.request("todolistapp:PouchDB")
 
@@ -120,7 +130,7 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 	class ListCollection extends Backbone.Collection
 		model : ListModel
 		sync : BackbonePouch.sync pouchdbOptions
-		comparator : 'created'
+		comparator : 'name'
 		parse : (result) ->
 			return _.pluck(result.rows, 'doc')
 

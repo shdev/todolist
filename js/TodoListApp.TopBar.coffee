@@ -3,15 +3,18 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 		template : _.template """
 		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 			<div class="container-fluid">
-				<button type="button" class="btn btn-default sync-pouchdb navbar-btn pull-left" title="unsynced">
+				<button type="button" class="btn btn-default sync-pouchdb navbar-btn pull-right" title="unsynced">
 					<i class="fa fa-long-arrow-down text-muted"></i>
-					<i class="fa fa-exclamation text-warning snyc-needed hidden"></i>
+					<i class="fa fa-exclamation text-warning snyc-needed"></i>
 					<i class="fa fa-long-arrow-up text-muted"></i>
 				</button>
 				<button type="button" class="btn btn-default show-settings navbar-btn pull-right" title="Settings">
 					<i class="fa fa-cogs fa-fw"></i>
 				</button>
-				<p class="navbar-text list-name">Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto </p>
+				<button type="button" class="btn btn-default show-lists navbar-btn pull-left active" title="Show Lists">
+					<i class="fa fa-bars fa-fw"></i>
+				</button>
+				<p class="navbar-text list-name"></p>
 			</div>
 		</nav>
 		"""		
@@ -22,6 +25,9 @@ App.module 'TodoListApp.TopBar', (TopBar, App, Backbone, Marionette, $, _) ->
 				App.vent.trigger 'todolistapp:startReplication'
 			'click button.show-settings' : () ->
 				App.vent.trigger 'todolist:configuration:hideview'
+			'click button.show-lists' : () ->
+				@$('button.show-lists').toggleClass('active')
+				App.vent.trigger 'todolist:lists:show'
 		normalizeTo : () ->
 			@$(@hashTo).removeClass('text-success text-danger text-primary text-warning text-muted faa-flash animated')
 		normalizeFrom : () ->

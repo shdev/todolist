@@ -21,21 +21,6 @@ button {
 body > .container-fluid {
   margin-top: 50px; }
 
-nav.navbar > .container-fluid {
-  position: relative; }
-  nav.navbar > .container-fluid .list-name {
-    text-overflow: ellipsis;
-    height: 20px;
-    white-space: nowrap;
-    overflow: hidden;
-    margin-left: 50px;
-    margin-right: 50px;
-    display: block;
-    float: none;
-    text-align: center;
-    font-size: 12px;
-    line-height: 20px; }
-
 .progressing.badge {
   background-color: #428bca; }
 
@@ -47,6 +32,50 @@ nav.navbar > .container-fluid {
 
 input[type="number"] {
   text-align: right; }
+
+hr {
+  margin-top: 15px;
+  margin-bottom: 15px; }
+
+.small-space {
+  margin-left: 10px;
+  margin-right: 10px; }
+
+.todolistapp-container nav.navbar > .container-fluid {
+  position: relative; }
+  .todolistapp-container nav.navbar > .container-fluid .list-name {
+    text-overflow: ellipsis;
+    height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-left: 50px;
+    margin-right: 111px;
+    display: block;
+    float: none;
+    text-align: center;
+    font-size: 12px;
+    line-height: 20px; }
+.todolistapp-container .sort-options, .todolistapp-container .entry-options {
+  -webkit-transition: all 0.5s ease-in-out 0s;
+  -moz-transition: all 0.5s ease-in-out 0s;
+  -ms-transition: all 0.5s ease-in-out 0s;
+  -o-transition: all 0.5s ease-in-out 0s;
+  transition: all 0.5s ease-in-out 0s;
+  margin-top: 15px;
+  text-align: center;
+  overflow: hidden;
+  max-height: 34px;
+  opacity: 1; }
+  .todolistapp-container .sort-options.folded, .todolistapp-container .entry-options.folded {
+    margin-top: 0px;
+    max-height: 0px;
+    opacity: 0; }
+
+#todolistapp-lists.hidden + hr {
+  display: none; }
+
+#topbar button.pull-right + button.pull-right {
+  margin-right: 10px; }
 
 #todolistapp-lists-view .list-group-item {
   padding-right: 35px;

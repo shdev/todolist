@@ -2,6 +2,11 @@
 
 $animationtime : 0.5s;
 
+$defmargin : 20px;
+$midmargin : 15px;
+
+$buttonhigh : 34px;
+
 html {
 
 }
@@ -28,26 +33,6 @@ body {
 //		padding-left:0px;
 //		padding-right:0px;
 		margin-top: 50px;
-	}
-}
-
-nav.navbar {
-	&>.container-fluid {
-		.list-name {
-			text-overflow: ellipsis;
-			height : 20px;
-			white-space: nowrap;
-			overflow: hidden;
-			margin-left:50px;
-			margin-right:50px;
-			display:block;
-//			width:100%;
-			float: none;
-			text-align:center;
-			font-size:12px;
-			line-height:20px;
-		}
-		position:relative;
 	}
 }
 
@@ -96,17 +81,71 @@ input[type="number"] {
 	}	
 }
 
+hr {
+	margin-top:$midmargin;
+	margin-bottom:$midmargin;
+}
+
+.small-space {
+	margin-left:$defmargin / 2;
+	margin-right:$defmargin / 2;
+}
+
+.todolistapp-container {
+	nav.navbar {
+		&>.container-fluid {
+			.list-name {
+				text-overflow: ellipsis;
+				height : 20px;
+				white-space: nowrap;
+				overflow: hidden;
+				margin-left:50px;
+				margin-right:44px + 51px + $defmargin / 2 + 6px;
+				display:block;
+	//			width:100%;
+				float: none;
+				text-align:center;
+				font-size:12px;
+				line-height:20px;
+			}
+			position:relative;
+		}
+	}
+	
+	.sort-options, .entry-options {
+		@include transition;
+		margin-top:$midmargin;
+		text-align : center;
+		overflow : hidden;
+		max-height : $buttonhigh;
+		opacity : 1;
+		
+		&.folded {
+			margin-top:0px;
+			max-height : 0px;
+			opacity : 0;
+		}
+	}
+}
+
+#todolistapp-lists.hidden + hr {
+	display:none;
+}
+
+#topbar {
+	button.pull-right + button.pull-right {
+		margin-right : $defmargin / 2;
+	}
+}
 
 #todolistapp-lists-view {
 	.list-group-item {
-		
 		padding-right : 35px;
 		position:relative;
 		overflow:hidden;
 		
 		@include transition(all, 0.2s);
 
-		
 		div.checkbox {
 			@include todolistapp-entries-view-butttons;
 			left:0px;
@@ -150,7 +189,6 @@ input[type="number"] {
 
 #todolistapp-entries-view {
 	.todolist-entry {
-		
 		padding-left : 35px;
 		padding-right : 35px;
 		position:relative;
@@ -158,7 +196,6 @@ input[type="number"] {
 		
 		@include transition(all, 0.2s);
 
-		
 		div.checkbox {
 			@include todolistapp-entries-view-butttons;
 			left:0px;

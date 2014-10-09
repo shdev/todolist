@@ -3,7 +3,7 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 	TODO requestHandling for the classes
 	###
 	class TodoListAppView extends Marionette.LayoutView
-		className : "container-fluid"
+		className : "container-fluid todolistapp-container"
 		template : _.template """
 		<div class="row">
 			<div id="topbar"></div>
@@ -36,6 +36,8 @@ App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 			@listenTo App.vent, 'todolist:configuration:hideview' , () ->
 				@$("#todolistapp-configuration").toggleClass 'hidden'
 				@$("#todolistapp-entries").toggleClass 'col-md-4 col-md-8'
+			@listenTo App.vent, 'todolist:lists:show' , () ->
+				@$("#todolistapp-lists").toggleClass 'hidden'
 
 	App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 	App.TodoListApp.classes.TodoListAppView

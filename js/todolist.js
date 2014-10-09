@@ -130,7 +130,7 @@
         return TodoListAppView.__super__.constructor.apply(this, arguments);
       }
 
-      TodoListAppView.prototype.className = "container-fluid";
+      TodoListAppView.prototype.className = "container-fluid todolistapp-container";
 
       TodoListAppView.prototype.template = _.template("<div class=\"row\">\n	<div id=\"topbar\"></div>\n	<div id=\"todolistapp-lists\" class=\"col-md-4\">\n		<div id=\"todolistapp-list-input\"></div>\n		<hr />\n		<div id=\"todolistapp-lists-view\"></div>\n	</div>\n	<hr class=\"hidden-md hidden-lg\" />\n	<div id=\"todolistapp-entries\" class=\"col-md-8\">\n		<div id=\"todolistapp-entry-input\"></div>\n		<hr />\n		<div id=\"todolistapp-entries-view\"></div>\n	</div>\n	<hr  class=\"hidden-md hidden-lg\" />\n	<div id=\"todolistapp-configuration\" class=\"col-md-4 hidden\"></div>\n</div>");
 
@@ -146,9 +146,12 @@
       };
 
       TodoListAppView.prototype.initialize = function() {
-        return this.listenTo(App.vent, 'todolist:configuration:hideview', function() {
+        this.listenTo(App.vent, 'todolist:configuration:hideview', function() {
           this.$("#todolistapp-configuration").toggleClass('hidden');
           return this.$("#todolistapp-entries").toggleClass('col-md-4 col-md-8');
+        });
+        return this.listenTo(App.vent, 'todolist:lists:show', function() {
+          return this.$("#todolistapp-lists").toggleClass('hidden');
         });
       };
 
@@ -312,7 +315,43 @@
 
       EntryInputView.prototype.className = "form-group";
 
-      EntryInputView.prototype.template = _.template("<label for=\"entryname\">Eintrag eintragen</label>\n<form>\n	<div class=\"input-group\">\n		<input type=\"text\" class=\"form-control\" id=\"entryname\" placeholder=\"Eintrag\">\n		<span class=\"input-group-btn\">\n			<button class=\"btn btn-success add-item\" type=\"submit\"><i class=\"fa fa-plus\"></i></button>\n		</span>\n	</div>\n</form>");
+      EntryInputView.prototype.template = _.template("<form>\n	<label for=\"entryname\">Eintrag eintragen</label>\n	<div class=\"input-group\">\n		<span class=\"input-group-btn\">\n			<button class=\"btn btn-default toggle-entry-options\" type=\"button\"><i class=\"fa fa-tasks\"></i></button>\n		</span>\n		<input type=\"text\" class=\"form-control\" id=\"entryname\" placeholder=\"Eintrag\">\n		<span class=\"input-group-btn\">\n			<button class=\"btn btn-success add-item\" type=\"submit\"><i class=\"fa fa-plus\"></i></button>\n		</span>\n	</div>\n</form>\n<div class=\"entry-options folded\">\n	<button class=\"btn btn-default list-sort list-sort-name-asc active\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-name-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default list-sort list-sort-date-asc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-date-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default list-sort list-hide-checked\" type=\"button\"><i class=\"fa fa-fw fa-sort-amount-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-checked-at-end\" type=\"button\"><i class=\"fa fa-fw fa-sort-amount-desc\"></i></button>\n</div>");
+
+      EntryInputView.prototype.events = {
+        'click .toggle-entry-options': function() {
+          return this.$('.entry-options').toggleClass('folded');
+        },
+        'click .list-sort-date-asc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-date-asc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:date:asc');
+        },
+        'click .list-sort-date-desc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-date-desc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:date:desc');
+        },
+        'click .list-sort-name-asc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-name-asc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:name:asc');
+        },
+        'click .list-sort-name-desc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-name-desc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:name:desc');
+        },
+        'click .list-sort-amount-asc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-amount-asc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:amount:asc');
+        },
+        'click .list-sort-amount-desc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-amount-desc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:amount:desc');
+        }
+      };
 
       return EntryInputView;
 
@@ -356,7 +395,43 @@
         return App.TodoListApp.classes.ListModel;
       };
 
-      ListInputView.prototype.template = _.template("<label class=\"control-label\" for=\"listname\">Liste anlegen</label>\n<form>\n<div class=\"input-group\">\n	<input type=\"text\" class=\"form-control\" id=\"listname\" placeholder=\"Liste\">\n	<span class=\"input-group-btn\">\n		<button class=\"btn btn-success add-item\" type=\"submit\"><i class=\"fa fa-plus\"></i></button>\n	</span>\n</div>\n</form>");
+      ListInputView.prototype.template = _.template("<form>\n<label class=\"control-label\" for=\"listname\">Liste anlegen</label>\n<div class=\"input-group\">\n	<span class=\"input-group-btn\">\n		<button class=\"btn btn-default toggle-list-options\" type=\"button\"><i class=\"fa fa-tasks\"></i></button>\n	</span>\n	<input type=\"text\" class=\"form-control\" id=\"listname\" placeholder=\"Liste\">\n	<span class=\"input-group-btn\">\n		<button class=\"btn btn-success add-item\" type=\"submit\"><i class=\"fa fa-plus\"></i></button>\n	</span>\n</div>\n</form>\n<div class=\"sort-options folded\">\n	<button class=\"btn btn-default list-sort list-sort-name-asc active\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-name-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default list-sort list-sort-date-asc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-date-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default list-sort list-sort-amount-asc hidden\" type=\"button\"><i class=\"fa fa-fw fa-sort-amount-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-amount-desc hidden\" type=\"button\"><i class=\"fa fa-fw fa-sort-amount-desc\"></i></button>\n</div>");
+
+      ListInputView.prototype.events = {
+        'click .toggle-list-options': function() {
+          return this.$('.sort-options').toggleClass('folded');
+        },
+        'click .list-sort-date-asc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-date-asc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:date:asc');
+        },
+        'click .list-sort-date-desc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-date-desc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:date:desc');
+        },
+        'click .list-sort-name-asc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-name-asc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:name:asc');
+        },
+        'click .list-sort-name-desc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-name-desc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:name:desc');
+        },
+        'click .list-sort-amount-asc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-amount-asc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:amount:asc');
+        },
+        'click .list-sort-amount-desc': function() {
+          this.$('button.list-sort').removeClass('active');
+          this.$('button.list-sort-amount-desc').addClass('active');
+          return App.vent.trigger('todolist:lists:sort:amount:desc');
+        }
+      };
 
       return ListInputView;
 
@@ -381,7 +456,23 @@
   });
 
   App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionette, $, _) {
-    var ListCollection, ListCollectionView, ListItemView, ListModel, NoEntrieView, listCollection, pouchdb, pouchdbOptions, refetchData;
+    var DescSort, ListCollection, ListCollectionView, ListItemView, ListModel, NoEntrieView, listCollection, pouchdb, pouchdbOptions, refetchData;
+    DescSort = function(attribute) {
+      return function(a, b) {
+        var aDate, bDate;
+        aDate = a.get(attribute);
+        bDate = b.get(attribute);
+        if (aDate === bDate) {
+          return 0;
+        } else {
+          if (aDate > bDate) {
+            return -1;
+          } else {
+            return 1;
+          }
+        }
+      };
+    };
     NoEntrieView = (function(_super) {
       __extends(NoEntrieView, _super);
 
@@ -541,6 +632,44 @@
           }
           return _results;
         }
+      };
+
+      ListCollectionView.prototype.sortCollectionDateAsc = function() {
+        this.collection.comparator = "created";
+        return this.collection.sort();
+      };
+
+      ListCollectionView.prototype.sortCollectionDateDesc = function() {
+        this.collection.comparator = DescSort('created');
+        return this.collection.sort();
+      };
+
+      ListCollectionView.prototype.sortCollectionNameAsc = function() {
+        this.collection.comparator = "name";
+        return this.collection.sort();
+      };
+
+      ListCollectionView.prototype.sortCollectionNameDesc = function() {
+        this.collection.comparator = DescSort('name');
+        return this.collection.sort();
+      };
+
+      ListCollectionView.prototype.sortCollectionAmountAsc = function() {
+        this.collection.comparator = "_id";
+        return this.collection.sort();
+      };
+
+      ListCollectionView.prototype.sortCollectionAmountDesc = function() {
+        return this.collection.comparator = DescSort('_id');
+      };
+
+      ListCollectionView.prototype.initialize = function() {
+        this.listenTo(App.vent, "todolist:lists:sort:date:asc", this.sortCollectionDateAsc);
+        this.listenTo(App.vent, "todolist:lists:sort:date:desc", this.sortCollectionDateDesc);
+        this.listenTo(App.vent, "todolist:lists:sort:name:asc", this.sortCollectionNameAsc);
+        this.listenTo(App.vent, "todolist:lists:sort:name:desc", this.sortCollectionNameDesc);
+        this.listenTo(App.vent, "todolist:lists:sort:amount:asc", this.sortCollectionAmountAsc);
+        return this.listenTo(App.vent, "todolist:lists:sort:amount:desc", this.sortCollectionAmountDesc);
       };
 
       return ListCollectionView;
@@ -1149,7 +1278,7 @@
         return TopBarView.__super__.constructor.apply(this, arguments);
       }
 
-      TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n	<div class=\"container-fluid\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn pull-left\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-exclamation text-warning snyc-needed hidden\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-settings navbar-btn pull-right\" title=\"Settings\">\n			<i class=\"fa fa-cogs fa-fw\"></i>\n		</button>\n		<p class=\"navbar-text list-name\">Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto Signed in as Mark Otto </p>\n	</div>\n</nav>");
+      TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n	<div class=\"container-fluid\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn pull-right\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-exclamation text-warning snyc-needed\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-settings navbar-btn pull-right\" title=\"Settings\">\n			<i class=\"fa fa-cogs fa-fw\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-lists navbar-btn pull-left active\" title=\"Show Lists\">\n			<i class=\"fa fa-bars fa-fw\"></i>\n		</button>\n		<p class=\"navbar-text list-name\"></p>\n	</div>\n</nav>");
 
       TopBarView.prototype.hashTo = '.fa-long-arrow-up';
 
@@ -1161,6 +1290,10 @@
         },
         'click button.show-settings': function() {
           return App.vent.trigger('todolist:configuration:hideview');
+        },
+        'click button.show-lists': function() {
+          this.$('button.show-lists').toggleClass('active');
+          return App.vent.trigger('todolist:lists:show');
         }
       };
 

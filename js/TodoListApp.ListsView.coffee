@@ -1,5 +1,17 @@
 App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _) ->
 
+	DescSort = (attribute) ->
+		(a, b) ->
+			aDate = a.get(attribute)
+			bDate = b.get(attribute)
+			if aDate == bDate 
+				0
+			else
+				if aDate > bDate
+					-1
+				else
+					1
+
 	class NoEntrieView extends Marionette.ItemView
 		tagName : "li"
 		className : "list-group-item list-group-item-warning"
@@ -98,6 +110,35 @@ App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _)
 				for oneModel in @collection.models
 					do (oneModel) ->
 						elem.append oneModel.correspondingView.$el
+		sortCollectionDateAsc : () ->
+			@collection.comparator = "created"
+			@collection.sort()
+		sortCollectionDateDesc : () ->
+			@collection.comparator = DescSort 'created'
+			@collection.sort()
+			
+		sortCollectionNameAsc : () ->
+			@collection.comparator = "name"
+			@collection.sort()
+		sortCollectionNameDesc : () ->
+			@collection.comparator = DescSort 'name'
+			@collection.sort()
+			
+		sortCollectionAmountAsc : () ->
+			@collection.comparator = "_id"
+			@collection.sort()
+		sortCollectionAmountDesc : () ->
+			@collection.comparator = DescSort '_id'
+			
+		initialize : () ->
+			@listenTo App.vent, "todolist:lists:sort:date:asc", @sortCollectionDateAsc
+			@listenTo App.vent, "todolist:lists:sort:date:desc", @sortCollectionDateDesc
+			
+			@listenTo App.vent, "todolist:lists:sort:name:asc", @sortCollectionNameAsc
+			@listenTo App.vent, "todolist:lists:sort:name:desc", @sortCollectionNameDesc
+			
+			@listenTo App.vent, "todolist:lists:sort:amount:asc", @sortCollectionAmountAsc
+			@listenTo App.vent, "todolist:lists:sort:amount:desc", @sortCollectionAmountDesc
 
 	pouchdb = App.request("todolistapp:PouchDB")
 

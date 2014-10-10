@@ -10,6 +10,11 @@ App.module 'TodoListApp.Configuration', (Configuration, App, Backbone, Marionett
 			deleteUnusedEntries : 24 *  60 * 60
 			fetchingListData : false
 			fetchingEntryData : false
+			
+		blacklistAtrributes : []
+		toJSON : (options) ->
+			_.omit(this.attributes, this.blacklist)
+			
 		validate : (attributes, options) ->
 			returnValue = []			
 			if not attributes.username? or not _.isString(attributes.username) or attributes.username.trim().length == 0

@@ -1,6 +1,6 @@
-@import "/Users/sebastian-holtz/include/sass/stylevars.scss";
+@import "compass/css3";
 
-$animationtime : 0.5s;
+$animationtime : 0.3s;
 
 $defmargin : 20px;
 $midmargin : 15px;
@@ -17,11 +17,12 @@ body {
 }
 
 button {
-		@include transition(all, $animationtime);
+	
 }
 
 .delete.badge {
-	@include transition;
+	@include transition-property(background-color);
+	@include transition-duration($animationtime);
 	
 	&:hover {
 		background-color : #d9534f;
@@ -67,7 +68,10 @@ input[type="number"] {
 	border-color:rgb(221, 221, 221);
 	text-align:center;
 	overflow:hidden;
-	@include transition(all, 0.2s);
+	
+	@include transition-property(all);
+	@include transition-duration($animationtime);
+	
 	.center {
 		position:absolute;
 		height:0px;
@@ -113,7 +117,8 @@ hr {
 	}
 	
 	.sort-options, .entry-options {
-		@include transition;
+		@include transition-property(all);
+		@include transition-duration($animationtime);
 		margin-top:$midmargin;
 		text-align : center;
 		overflow : hidden;
@@ -144,7 +149,8 @@ hr {
 		position:relative;
 		overflow:hidden;
 		
-		@include transition(all, 0.2s);
+		@include transition-property(all);
+		@include transition-duration($animationtime);
 
 		div.checkbox {
 			@include todolistapp-entries-view-butttons;
@@ -194,7 +200,8 @@ hr {
 		position:relative;
 		overflow:hidden;
 		
-		@include transition(all, 0.2s);
+		@include transition-property(all);
+		@include transition-duration($animationtime);
 
 		div.checkbox {
 			@include todolistapp-entries-view-butttons;
@@ -270,10 +277,12 @@ hr {
 			}
 		}
 		&>* {
-			@include transition;
+			@include transition-property(all);
+			@include transition-duration($animationtime);
 		}
 		.checktoggle {
-			@include transition;
+			@include transition-property(all);
+			@include transition-duration($animationtime);
 			opacity : 0;
 		}
 	}

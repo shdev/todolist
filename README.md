@@ -36,13 +36,13 @@ In addition to that I also wanted to start with CoffeeScript, because of the Pyt
 
 ## How to compile
 
-`coffee -b -j js/todolist.js -c coffee/todolistmain.coffee coffee/GeneralBehavior.coffee  coffee/TodoListApp.coffee coffee/TodoListApp.EntryInput.coffee coffee/TodoListApp.ListInput.coffee  coffee/TodoListApp.ListsView.coffee coffee/TodoListApp.EntriesView.coffee coffee/TodoListApp.Configuration.coffee coffee/TodoListApp.TopBar.coffee`
+`coffee -b -j js/todolist.js -c coffee/todolistmain.litcoffee coffee/GeneralBehavior.coffee  coffee/TodoListApp.coffee coffee/TodoListApp.EntryInput.coffee coffee/TodoListApp.ListInput.coffee  coffee/TodoListApp.ListsView.coffee coffee/TodoListApp.EntriesView.coffee coffee/TodoListApp.Configuration.coffee coffee/TodoListApp.TopBar.coffee`
 
 `compass compile`
 
 or enable compile on file change with the build in watch funtions
 
-`coffee -b -j js/todolist.js -cw coffee/todolistmain.coffee coffee/GeneralBehavior.coffee  coffee/TodoListApp.coffee coffee/TodoListApp.EntryInput.coffee coffee/TodoListApp.ListInput.coffee  coffee/TodoListApp.ListsView.coffee coffee/TodoListApp.EntriesView.coffee coffee/TodoListApp.Configuration.coffee coffee/TodoListApp.TopBar.coffee &` 
+`coffee -b -j js/todolist.js -cw coffee/todolistmain.litcoffee coffee/GeneralBehavior.coffee  coffee/TodoListApp.coffee coffee/TodoListApp.EntryInput.coffee coffee/TodoListApp.ListInput.coffee  coffee/TodoListApp.ListsView.coffee coffee/TodoListApp.EntriesView.coffee coffee/TodoListApp.Configuration.coffee coffee/TodoListApp.TopBar.coffee &` 
 
 `compass watch &`
 

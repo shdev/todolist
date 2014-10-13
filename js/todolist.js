@@ -17,17 +17,21 @@
 
   App = new TodoListApplication();
 
+  App.addRegions({
+    mainRegion: 'body'
+  });
+
+  if (window.Behaviors == null) {
+    window.Behaviors = {};
+  }
+
+  Marionette.Behaviors.behaviorsLookup = function() {
+    return window.Behaviors;
+  };
+
+  moment.lang('de');
+
   init = function() {
-    App.addRegions({
-      mainRegion: 'body'
-    });
-    moment.lang('de');
-    if (window.Behaviors == null) {
-      window.Behaviors = {};
-    }
-    Marionette.Behaviors.behaviorsLookup = function() {
-      return window.Behaviors;
-    };
     return App.start();
   };
 

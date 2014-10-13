@@ -8,26 +8,27 @@ and instantiate a app
 	
 	App =  new TodoListApplication();
 
-the init function, everything for the startup is here.
-
-	init = ( ) -> 
-
 We define on which elemente the app will live
 
-		App.addRegions(
-			mainRegion : 'body'
-		)
+	App.addRegions(
+		mainRegion : 'body'
+	)
+
+We use later on behaviors from Marionette.js, here we set the place for them
+		
+	window.Behaviors = {} if not window.Behaviors?
+	Marionette.Behaviors.behaviorsLookup = ->
+		return window.Behaviors
 
 Moment.js needs to know the formating
 
-		moment.lang('de')
-		
-We use later on behaviors from Marionette.js, here we set the place for them
-		
-		window.Behaviors = {} if not window.Behaviors?
-		Marionette.Behaviors.behaviorsLookup = ->
-			return window.Behaviors
-			
+	moment.lang('de')
+
+
+the init function, everything for the startup is here.
+
+	init = ( ) -> 
+					
 Tada, start the app
 
 		App.start()

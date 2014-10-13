@@ -170,6 +170,7 @@
     App.vent.on('todolist:configurationloaded', function(config) {
       var currentConfiguration;
       App.request("todolistapp:PouchDB");
+      App.vent.trigger('todolistapp:firstLoad');
       App.vent.trigger('todolistapp:startReplication');
       App.vent.trigger('todolistapp:initViews');
       currentConfiguration = App.request("todolistapp:Configuration");
@@ -275,6 +276,13 @@
     App.vent.on('todolistapp:startReplication', function() {
       doReplicationTo();
       return doReplicationFrom();
+    });
+    App.vent.on('todolistapp:replicateToOnSave', function() {
+      var currentConfiguration;
+      currentConfiguration = App.request("todolistapp:Configuration");
+      if (!currentConfiguration.get('continuousreplication')) {
+        return doReplicationTo();
+      }
     });
     TodoListApp.run = function() {
       window.TodoListApp;
@@ -393,11 +401,15 @@
         return App.TodoListApp.classes.ListModel;
       };
 
-      ListInputView.prototype.template = _.template("<form>\n<label class=\"control-label\" for=\"listname\">Liste anlegen</label>\n<div class=\"input-group\">\n	<span class=\"input-group-btn\">\n		<button class=\"btn btn-default toggle-list-options\" type=\"button\"><i class=\"fa fa-tasks\"></i></button>\n	</span>\n	<input type=\"text\" class=\"form-control\" id=\"listname\" placeholder=\"Liste\">\n	<span class=\"input-group-btn\">\n		<button class=\"btn btn-success add-item\" type=\"submit\"><i class=\"fa fa-plus\"></i></button>\n	</span>\n</div>\n</form>\n<div class=\"sort-options folded\">\n	<button class=\"btn btn-default list-sort list-sort-name-asc active\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-name-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default list-sort list-sort-date-asc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-date-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default list-sort list-sort-amount-asc hidden\" type=\"button\"><i class=\"fa fa-fw fa-sort-amount-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-amount-desc hidden\" type=\"button\"><i class=\"fa fa-fw fa-sort-amount-desc\"></i></button>\n</div>");
+      ListInputView.prototype.template = _.template("<form>\n<label class=\"control-label\" for=\"listname\">Liste anlegen</label>\n<div class=\"input-group\">\n	<span class=\"input-group-btn\">\n		<button class=\"btn btn-default toggle-list-options\" type=\"button\"><i class=\"fa fa-tasks\"></i></button>\n	</span>\n	<input type=\"text\" class=\"form-control\" id=\"listname\" placeholder=\"Liste\">\n	<span class=\"input-group-btn\">\n		<button class=\"btn btn-success add-item\" type=\"submit\"><i class=\"fa fa-plus\"></i></button>\n	</span>\n</div>\n</form>\n<div class=\"sort-options folded\">\n	<button class=\"btn btn-default list-sort list-sort-name-asc active\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-name-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default list-sort list-sort-date-asc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-date-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-desc\"></i></button>\n	<span class=\"small-space hidden\"></span>\n	<button class=\"btn btn-default list-sort list-sort-amount-asc hidden\" type=\"button\"><i class=\"fa fa-fw fa-sort-amount-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-amount-desc hidden\" type=\"button\"><i class=\"fa fa-fw fa-sort-amount-desc\"></i></button>\n		\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default toggle-style\" type=\"button\"><i class=\"fa fa-th-list\"></i></button>\n	\n</div>");
 
       ListInputView.prototype.events = {
         'click .toggle-list-options': function() {
           return this.$('.sort-options').toggleClass('folded');
+        },
+        'click .toggle-style': function() {
+          this.$('.toggle-style').toggleClass('active');
+          return App.vent.trigger('todolist:lists:toggle:style');
         },
         'click .list-sort-date-asc': function() {
           this.$('button.list-sort').removeClass('active');
@@ -577,6 +589,7 @@
             return thisModel.save();
           }
         });
+        this.$(".content").editable(null);
         return true;
       };
 
@@ -661,13 +674,18 @@
         return this.collection.comparator = DescSort('_id');
       };
 
+      ListCollectionView.prototype.toggleStyle = function() {
+        return this.$el.toggleClass('list-inline');
+      };
+
       ListCollectionView.prototype.initialize = function() {
         this.listenTo(App.vent, "todolist:lists:sort:date:asc", this.sortCollectionDateAsc);
         this.listenTo(App.vent, "todolist:lists:sort:date:desc", this.sortCollectionDateDesc);
         this.listenTo(App.vent, "todolist:lists:sort:name:asc", this.sortCollectionNameAsc);
         this.listenTo(App.vent, "todolist:lists:sort:name:desc", this.sortCollectionNameDesc);
         this.listenTo(App.vent, "todolist:lists:sort:amount:asc", this.sortCollectionAmountAsc);
-        return this.listenTo(App.vent, "todolist:lists:sort:amount:desc", this.sortCollectionAmountDesc);
+        this.listenTo(App.vent, "todolist:lists:sort:amount:desc", this.sortCollectionAmountDesc);
+        return this.listenTo(App.vent, "todolist:lists:toggle:style", this.toggleStyle);
       };
 
       return ListCollectionView;
@@ -759,6 +777,7 @@
     App.vent.on('replication:pouchdb:from:complete', refetchData);
     App.vent.on('todolistapp:startReplication', refetchData);
     App.vent.on('todolistapp:pouchdb:destroyed', refetchData);
+    App.vent.on('todolistapp:firstLoad', refetchData);
     return App.mainRegion.on('before:show', function(view) {
       var listCollectionViewOptions;
       listCollectionViewOptions = {
@@ -1281,7 +1300,7 @@
         return TopBarView.__super__.constructor.apply(this, arguments);
       }
 
-      TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n	<div class=\"container-fluid\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn pull-right\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-exclamation text-warning snyc-needed\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-settings navbar-btn pull-right\" title=\"Settings\">\n			<i class=\"fa fa-cogs fa-fw\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-lists navbar-btn pull-left active\" title=\"Show Lists\">\n			<i class=\"fa fa-bars fa-fw\"></i>\n		</button>\n		<p class=\"navbar-text list-name\"></p>\n	</div>\n</nav>");
+      TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n	<div class=\"container-fluid\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn pull-right\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-exclamation text-warning snyc-needed hidden\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-settings navbar-btn pull-right\" title=\"Settings\">\n			<i class=\"fa fa-cogs fa-fw\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-lists navbar-btn pull-left active\" title=\"Show Lists\">\n			<i class=\"fa fa-bars fa-fw\"></i>\n		</button>\n		<p class=\"navbar-text list-name\"></p>\n	</div>\n</nav>");
 
       TopBarView.prototype.hashTo = '.fa-long-arrow-up';
 

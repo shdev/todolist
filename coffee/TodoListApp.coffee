@@ -51,6 +51,8 @@
 		App.vent.on 'todolist:configurationloaded', (config) ->
 			App.request("todolistapp:PouchDB");
 		
+			App.vent.trigger 'todolistapp:firstLoad'
+		
 			App.vent.trigger 'todolistapp:startReplication'
 			App.vent.trigger 'todolistapp:initViews'
 		
@@ -148,6 +150,11 @@
 		App.vent.on 'todolistapp:startReplication', () -> 
 			doReplicationTo()
 			doReplicationFrom()
+			
+		App.vent.on 'todolistapp:replicateToOnSave', () -> 
+			currentConfiguration = App.request("todolistapp:Configuration")
+			if not currentConfiguration.get('continuousreplication')
+				doReplicationTo()
 
 		TodoListApp.run = -> 	
 				window.TodoListApp

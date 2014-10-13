@@ -88,6 +88,9 @@
 					success	: (response, newValue) ->
 						thisModel.set('name', newValue)
 						thisModel.save()
+						
+				@$(".content").editable null
+				
 				return true
 			onDestroy : () ->
 				@model.correspondingView = null
@@ -129,7 +132,9 @@
 				@collection.sort()
 			sortCollectionAmountDesc : () ->
 				@collection.comparator = DescSort '_id'
-			
+				
+			toggleStyle : () ->
+				@$el.toggleClass 'list-inline'
 			initialize : () ->
 				@listenTo App.vent, "todolist:lists:sort:date:asc", @sortCollectionDateAsc
 				@listenTo App.vent, "todolist:lists:sort:date:desc", @sortCollectionDateDesc
@@ -139,6 +144,8 @@
 			
 				@listenTo App.vent, "todolist:lists:sort:amount:asc", @sortCollectionAmountAsc
 				@listenTo App.vent, "todolist:lists:sort:amount:desc", @sortCollectionAmountDesc
+				
+				@listenTo App.vent, "todolist:lists:toggle:style", @toggleStyle
 
 		pouchdb = App.request("todolistapp:PouchDB")
 
@@ -196,6 +203,7 @@
 		App.vent.on 'replication:pouchdb:from:complete', refetchData
 		App.vent.on 'todolistapp:startReplication', refetchData
 		App.vent.on 'todolistapp:pouchdb:destroyed', refetchData
+		App.vent.on 'todolistapp:firstLoad', refetchData
 	
 		App.mainRegion.on 'before:show', (view) -> 
 			listCollectionViewOptions =

@@ -29,14 +29,22 @@
 					<span class="small-space"></span>
 					<button class="btn btn-default list-sort list-sort-date-asc" type="button"><i class="fa fa-fw fa-sort-numeric-asc"></i></button>
 					<button class="btn btn-default list-sort list-sort-date-desc" type="button"><i class="fa fa-fw fa-sort-numeric-desc"></i></button>
-					<span class="small-space"></span>
+					<span class="small-space hidden"></span>
 					<button class="btn btn-default list-sort list-sort-amount-asc hidden" type="button"><i class="fa fa-fw fa-sort-amount-asc"></i></button>
 					<button class="btn btn-default list-sort list-sort-amount-desc hidden" type="button"><i class="fa fa-fw fa-sort-amount-desc"></i></button>
+						
+					<span class="small-space"></span>
+					<button class="btn btn-default toggle-style" type="button"><i class="fa fa-th-list"></i></button>
+					
 				</div>
 			"""
 			events :
 				'click .toggle-list-options' : () ->
 					@$('.sort-options').toggleClass('folded')
+					
+				'click .toggle-style' : () ->
+					@$('.toggle-style').toggleClass('active')
+					App.vent.trigger 'todolist:lists:toggle:style'
 				
 				'click .list-sort-date-asc' : () ->
 					@$('button.list-sort').removeClass('active')

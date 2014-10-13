@@ -5,7 +5,7 @@
 				<div class="container-fluid">
 					<button type="button" class="btn btn-default sync-pouchdb navbar-btn pull-right" title="unsynced">
 						<i class="fa fa-long-arrow-down text-muted"></i>
-						<i class="fa fa-exclamation text-warning snyc-needed"></i>
+						<i class="fa fa-exclamation text-warning snyc-needed hidden"></i>
 						<i class="fa fa-long-arrow-up text-muted"></i>
 					</button>
 					<button type="button" class="btn btn-default show-settings navbar-btn pull-right" title="Settings">

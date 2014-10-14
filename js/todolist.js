@@ -321,41 +321,39 @@
 
       EntryInputView.prototype.className = "form-group";
 
-      EntryInputView.prototype.template = _.template("<form>\n	<label for=\"entryname\">Eintrag eintragen</label>\n	<div class=\"input-group\">\n		<span class=\"input-group-btn\">\n			<button class=\"btn btn-default toggle-entry-options\" type=\"button\"><i class=\"fa fa-tasks\"></i></button>\n		</span>\n		<input type=\"text\" class=\"form-control\" id=\"entryname\" placeholder=\"Eintrag\">\n		<span class=\"input-group-btn\">\n			<button class=\"btn btn-success add-item\" type=\"submit\"><i class=\"fa fa-plus\"></i></button>\n		</span>\n	</div>\n</form>\n<div class=\"entry-options folded\">\n	<button class=\"btn btn-default list-sort list-sort-name-asc active\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-name-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default list-sort list-sort-date-asc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-date-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default list-sort list-hide-checked\" type=\"button\"><i class=\"fa fa-fw fa-sort-amount-asc\"></i></button>\n	<button class=\"btn btn-default list-sort list-sort-checked-at-end\" type=\"button\"><i class=\"fa fa-fw fa-sort-amount-desc\"></i></button>\n</div>");
+      EntryInputView.prototype.template = _.template("<form>\n	<label for=\"entryname\">Eintrag eintragen</label>\n	<div class=\"input-group\">\n		<span class=\"input-group-btn\">\n			<button class=\"btn btn-default toggle-entry-options\" type=\"button\"><i class=\"fa fa-tasks\"></i></button>\n		</span>\n		<input type=\"text\" class=\"form-control\" id=\"entryname\" placeholder=\"Eintrag\">\n		<span class=\"input-group-btn\">\n			<button class=\"btn btn-success add-item\" type=\"submit\"><i class=\"fa fa-plus\"></i></button>\n		</span>\n	</div>\n</form>\n<div class=\"entry-options folded\">\n	<button class=\"btn btn-default entry-sort entry-sort-name-asc active\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-asc\"></i></button>\n	<button class=\"btn btn-default entry-sort entry-sort-name-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-alpha-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default entry-sort entry-sort-date-asc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-asc\"></i></button>\n	<button class=\"btn btn-default entry-sort entry-sort-date-desc\" type=\"button\"><i class=\"fa fa-fw fa-sort-numeric-desc\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default toggle-show-checked\" type=\"button\"><i class=\"fa fa-fw fa-check-square-o\"></i></button>\n	<span class=\"small-space\"></span>\n	<button class=\"btn btn-default toggle-style\" type=\"button\"><i class=\"fa fa-th-list\"></i></button>\n</div>");
 
       EntryInputView.prototype.events = {
         'click .toggle-entry-options': function() {
           return this.$('.entry-options').toggleClass('folded');
         },
-        'click .list-sort-date-asc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-date-asc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:date:asc');
+        'click .entry-sort-date-asc': function() {
+          this.$('button.entry-sort').removeClass('active');
+          this.$('button.entry-sort-date-asc').addClass('active');
+          return App.vent.trigger('todolist:entries:sort:date:asc');
         },
-        'click .list-sort-date-desc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-date-desc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:date:desc');
+        'click .entry-sort-date-desc': function() {
+          this.$('button.entry-sort').removeClass('active');
+          this.$('button.entry-sort-date-desc').addClass('active');
+          return App.vent.trigger('todolist:entries:sort:date:desc');
         },
-        'click .list-sort-name-asc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-name-asc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:name:asc');
+        'click .entry-sort-name-asc': function() {
+          this.$('button.entry-sort').removeClass('active');
+          this.$('button.entry-sort-name-asc').addClass('active');
+          return App.vent.trigger('todolist:entries:sort:name:asc');
         },
-        'click .list-sort-name-desc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-name-desc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:name:desc');
+        'click .entry-sort-name-desc': function() {
+          this.$('button.entry-sort').removeClass('active');
+          this.$('button.entry-sort-name-desc').addClass('active');
+          return App.vent.trigger('todolist:entries:sort:name:desc');
         },
-        'click .list-sort-amount-asc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-amount-asc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:amount:asc');
+        'click .toggle-style': function() {
+          this.$('.toggle-style').toggleClass('active');
+          return App.vent.trigger('todolist:entries:toggle:style');
         },
-        'click .list-sort-amount-desc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-amount-desc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:amount:desc');
+        'click .toggle-show-checked': function() {
+          this.$('.toggle-show-checked').toggleClass('active');
+          return App.vent.trigger('todolist:entries:toggle:show:checked');
         }
       };
 
@@ -557,6 +555,19 @@
         'click': function() {
           if (!this.$el.hasClass('list-group-item-info')) {
             this.$el.siblings().removeClass('list-group-item-info');
+            this.$el.siblings().find('.editable').editable('destroy');
+            this.$(".content").editable({
+              type: 'text',
+              name: 'Name eingeben',
+              value: this.model.get('name'),
+              pk: this.model.get('id'),
+              url: '',
+              mode: 'inline',
+              success: function(response, newValue) {
+                thisModel.set('name', newValue);
+                return thisModel.save();
+              }
+            });
             return App.vent.trigger('todolist:changelist', this.model);
           }
         }
@@ -577,19 +588,6 @@
       ListItemView.prototype.onRender = function() {
         var thisModel;
         thisModel = this.model;
-        this.$(".content").editable({
-          type: 'text',
-          name: 'Name eingeben',
-          value: this.model.get('name'),
-          pk: this.model.get('id'),
-          url: '',
-          mode: 'inline',
-          success: function(response, newValue) {
-            thisModel.set('name', newValue);
-            return thisModel.save();
-          }
-        });
-        this.$(".content").editable(null);
         return true;
       };
 
@@ -873,6 +871,25 @@
           this.model.toggleCheck();
           this.model.save();
           return false;
+        },
+        'click': function() {
+          if (!this.$el.hasClass('list-group-item-info')) {
+            this.$el.siblings().removeClass('list-group-item-info');
+            this.$el.siblings().find('.editable').editable('destroy');
+            this.$el.addClass('list-group-item-info');
+            return this.$(".content").editable({
+              type: 'text',
+              name: 'Name eingeben',
+              value: this.model.get('name'),
+              pk: this.model.get('id'),
+              url: '',
+              mode: 'inline',
+              success: function(response, newValue) {
+                thisModel.set('name', newValue);
+                return thisModel.save();
+              }
+            }, this.renderCheckStatus());
+          }
         }
       };
 
@@ -891,18 +908,6 @@
       EntryItemView.prototype.onRender = function() {
         var thisModel;
         thisModel = this.model;
-        this.$(".content").editable({
-          type: 'text',
-          name: 'Name eingeben',
-          value: this.model.get('name'),
-          pk: this.model.get('id'),
-          url: '',
-          mode: 'inline',
-          success: function(response, newValue) {
-            thisModel.set('name', newValue);
-            return thisModel.save();
-          }
-        }, this.renderCheckStatus());
         this.renderCheckStatus();
         return true;
       };
@@ -936,6 +941,16 @@
         'sync': function() {
           return App.request("todolistapp:Configuration").set('fetchingEntryData', false);
         }
+      };
+
+      EntryCollectionView.prototype.initialize = function() {
+        this.listenTo(App.vent, "todolist:lists:sort:date:asc", this.sortCollectionDateAsc);
+        this.listenTo(App.vent, "todolist:lists:sort:date:desc", this.sortCollectionDateDesc);
+        this.listenTo(App.vent, "todolist:lists:sort:name:asc", this.sortCollectionNameAsc);
+        this.listenTo(App.vent, "todolist:lists:sort:name:desc", this.sortCollectionNameDesc);
+        this.listenTo(App.vent, "todolist:lists:sort:amount:asc", this.sortCollectionAmountAsc);
+        this.listenTo(App.vent, "todolist:lists:sort:amount:desc", this.sortCollectionAmountDesc);
+        return this.listenTo(App.vent, "todolist:lists:toggle:style", this.toggleStyle);
       };
 
       return EntryCollectionView;

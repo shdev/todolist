@@ -1,6 +1,6 @@
 @import "compass/css3";
 
-$animationtime : 0.3s;
+$animationtime : 0.4s;
 
 $defmargin : 20px;
 $midmargin : 15px;
@@ -96,6 +96,25 @@ hr {
 }
 
 .todolistapp-container {
+	
+	li.todolist-entry {
+		@include transition-property(background-color);
+		@include transition-duration($animationtime);
+	}
+	
+	li.list-group-item {
+		@include transition-property(background-color);
+		@include transition-duration($animationtime);
+	}
+	
+	.list-inline {
+		text-align:center;
+		.list-group-item {
+			margin:5px;
+			@include border-radius(4px);
+		}
+	}
+	
 	nav.navbar {
 		&>.container-fluid {
 			.list-name {
@@ -145,13 +164,7 @@ hr {
 
 #todolistapp-lists-view {
 	
-	.list-inline {
-		.list-group-item {
-			margin:5px;
 
-			@include border-radius(4px);
-		}
-	}
 	
 	.list-group-item {
 		padding-right : 35px;

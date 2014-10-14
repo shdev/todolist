@@ -64,6 +64,17 @@
 				'click' : () ->
 					if not @$el.hasClass('list-group-item-info')
 						@$el.siblings().removeClass 'list-group-item-info'
+						@$el.siblings().find('.editable').editable('destroy')
+						@$(".content").editable
+							type	: 'text'
+							name	: 'Name eingeben'
+							value	: @model.get('name')
+							pk	: @model.get('id')
+							url	: ''
+							mode : 'inline'
+							success	: (response, newValue) ->
+								thisModel.set('name', newValue)
+								thisModel.save()						
 						App.vent.trigger 'todolist:changelist', @model
 			modelEvents :
 				'destroy' : (a) -> 
@@ -77,20 +88,6 @@
 			#
 			onRender : ->
 				thisModel = @model
-			
-				@$(".content").editable
-					type	: 'text'
-					name	: 'Name eingeben'
-					value	: @model.get('name')
-					pk	: @model.get('id')
-					url	: ''
-					mode : 'inline'
-					success	: (response, newValue) ->
-						thisModel.set('name', newValue)
-						thisModel.save()
-						
-				@$(".content").editable null
-				
 				return true
 			onDestroy : () ->
 				@model.correspondingView = null

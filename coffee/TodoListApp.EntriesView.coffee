@@ -64,6 +64,23 @@
 					@model.toggleCheck() 
 					@model.save()
 					false
+				'click' : () ->
+					if not @$el.hasClass('list-group-item-info')
+						@$el.siblings().removeClass 'list-group-item-info'
+						@$el.siblings().find('.editable').editable('destroy')
+						@$el.addClass('list-group-item-info')
+						@$(".content").editable
+							type	: 'text'
+							name	: 'Name eingeben'
+							value	: @model.get('name')
+							pk	: @model.get('id')
+							url	: ''
+							mode : 'inline'
+							success	: (response, newValue) ->
+								thisModel.set('name', newValue)
+								thisModel.save()
+							@renderCheckStatus()
+
 			# onBeforeRender :  ->
 			# 	console.debug @model.get('eMail')
 			reRenderName : ->
@@ -75,17 +92,7 @@
 					@$el.removeClass 'ischecked'
 			onRender : ->
 				thisModel = @model
-				@$(".content").editable
-					type	: 'text'
-					name	: 'Name eingeben'
-					value	: @model.get('name')
-					pk	: @model.get('id')
-					url	: ''
-					mode : 'inline'
-					success	: (response, newValue) ->
-						thisModel.set('name', newValue)
-						thisModel.save()
-					@renderCheckStatus()
+
 				@renderCheckStatus()
 				return true
 			onDestroy : () ->
@@ -101,6 +108,17 @@
 					App.request("todolistapp:Configuration").set('fetchingEntryData', true)
 				'sync' : () ->
 					App.request("todolistapp:Configuration").set('fetchingEntryData', false)
+			initialize : () ->
+				@listenTo App.vent, "todolist:lists:sort:date:asc", @sortCollectionDateAsc
+				@listenTo App.vent, "todolist:lists:sort:date:desc", @sortCollectionDateDesc
+			
+				@listenTo App.vent, "todolist:lists:sort:name:asc", @sortCollectionNameAsc
+				@listenTo App.vent, "todolist:lists:sort:name:desc", @sortCollectionNameDesc
+			
+				@listenTo App.vent, "todolist:lists:sort:amount:asc", @sortCollectionAmountAsc
+				@listenTo App.vent, "todolist:lists:sort:amount:desc", @sortCollectionAmountDesc
+				
+				@listenTo App.vent, "todolist:lists:toggle:style", @toggleStyle
 
 		
 		EntryModelFactory = (todolistid) -> 

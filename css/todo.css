@@ -10,10 +10,10 @@ body {
   -o-transition-property: background-color;
   -webkit-transition-property: background-color;
   transition-property: background-color;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
 }
 /* line 27, ../scss/todo.scss */
 .delete.badge:hover {
@@ -58,10 +58,43 @@ hr {
 }
 
 /* line 100, ../scss/todo.scss */
+.todolistapp-container li.todolist-entry {
+  -moz-transition-property: background-color;
+  -o-transition-property: background-color;
+  -webkit-transition-property: background-color;
+  transition-property: background-color;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+}
+/* line 105, ../scss/todo.scss */
+.todolistapp-container li.list-group-item {
+  -moz-transition-property: background-color;
+  -o-transition-property: background-color;
+  -webkit-transition-property: background-color;
+  transition-property: background-color;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+}
+/* line 110, ../scss/todo.scss */
+.todolistapp-container .list-inline {
+  text-align: center;
+}
+/* line 112, ../scss/todo.scss */
+.todolistapp-container .list-inline .list-group-item {
+  margin: 5px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+}
+/* line 119, ../scss/todo.scss */
 .todolistapp-container nav.navbar > .container-fluid {
   position: relative;
 }
-/* line 101, ../scss/todo.scss */
+/* line 120, ../scss/todo.scss */
 .todolistapp-container nav.navbar > .container-fluid .list-name {
   text-overflow: ellipsis;
   height: 20px;
@@ -75,47 +108,40 @@ hr {
   font-size: 12px;
   line-height: 20px;
 }
-/* line 119, ../scss/todo.scss */
+/* line 138, ../scss/todo.scss */
 .todolistapp-container .sort-options, .todolistapp-container .entry-options {
   -moz-transition-property: all;
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
   margin-top: 15px;
   text-align: center;
   overflow: hidden;
   max-height: 34px;
   opacity: 1;
 }
-/* line 128, ../scss/todo.scss */
+/* line 147, ../scss/todo.scss */
 .todolistapp-container .sort-options.folded, .todolistapp-container .entry-options.folded {
   margin-top: 0px;
   max-height: 0px;
   opacity: 0;
 }
 
-/* line 136, ../scss/todo.scss */
+/* line 155, ../scss/todo.scss */
 #todolistapp-lists.hidden + hr {
   display: none;
 }
 
-/* line 141, ../scss/todo.scss */
+/* line 160, ../scss/todo.scss */
 #topbar button.pull-right + button.pull-right {
   margin-right: 10px;
 }
 
-/* line 149, ../scss/todo.scss */
-#todolistapp-lists-view .list-inline .list-group-item {
-  margin: 5px;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
-}
-/* line 156, ../scss/todo.scss */
+/* line 169, ../scss/todo.scss */
 #todolistapp-lists-view .list-group-item {
   padding-right: 35px;
   position: relative;
@@ -125,12 +151,12 @@ hr {
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
 }
-/* line 165, ../scss/todo.scss */
+/* line 178, ../scss/todo.scss */
 #todolistapp-lists-view .list-group-item div.checkbox {
   margin: 0px;
   padding: 0px;
@@ -148,10 +174,10 @@ hr {
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
   left: 0px;
   border-right-width: 1px;
 }
@@ -168,7 +194,7 @@ hr {
   position: relative;
   top: -10px;
 }
-/* line 171, ../scss/todo.scss */
+/* line 184, ../scss/todo.scss */
 #todolistapp-lists-view .list-group-item div.delete {
   margin: 0px;
   padding: 0px;
@@ -186,10 +212,10 @@ hr {
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
   right: 0px;
   border-left-width: 1px;
 }
@@ -206,7 +232,7 @@ hr {
   position: relative;
   top: -10px;
 }
-/* line 177, ../scss/todo.scss */
+/* line 190, ../scss/todo.scss */
 #todolistapp-lists-view .list-group-item div.no {
   margin: 0px;
   padding: 0px;
@@ -224,10 +250,10 @@ hr {
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
   right: -30px;
   border-left-width: 1px;
 }
@@ -244,26 +270,26 @@ hr {
   position: relative;
   top: -10px;
 }
-/* line 183, ../scss/todo.scss */
+/* line 196, ../scss/todo.scss */
 #todolistapp-lists-view .list-group-item.delete-mode {
   padding-right: 65px;
 }
-/* line 187, ../scss/todo.scss */
+/* line 200, ../scss/todo.scss */
 #todolistapp-lists-view .list-group-item.delete-mode div.checkbox {
   left: -30px;
 }
-/* line 191, ../scss/todo.scss */
+/* line 204, ../scss/todo.scss */
 #todolistapp-lists-view .list-group-item.delete-mode div.delete {
   right: 30px;
   background-color: #f2dede;
 }
-/* line 196, ../scss/todo.scss */
+/* line 209, ../scss/todo.scss */
 #todolistapp-lists-view .list-group-item.delete-mode div.no {
   right: 0px;
   background-color: #dff0d8;
 }
 
-/* line 207, ../scss/todo.scss */
+/* line 220, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry {
   padding-left: 35px;
   padding-right: 35px;
@@ -273,12 +299,12 @@ hr {
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
 }
-/* line 216, ../scss/todo.scss */
+/* line 229, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry div.checkbox {
   margin: 0px;
   padding: 0px;
@@ -296,10 +322,10 @@ hr {
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
   left: 0px;
   border-right-width: 1px;
 }
@@ -316,11 +342,11 @@ hr {
   position: relative;
   top: -10px;
 }
-/* line 221, ../scss/todo.scss */
+/* line 234, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry div.checkbox i {
   opacity: 0;
 }
-/* line 226, ../scss/todo.scss */
+/* line 239, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry div.delete {
   margin: 0px;
   padding: 0px;
@@ -338,10 +364,10 @@ hr {
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
   right: 0px;
   border-left-width: 1px;
 }
@@ -358,7 +384,7 @@ hr {
   position: relative;
   top: -10px;
 }
-/* line 232, ../scss/todo.scss */
+/* line 245, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry div.no {
   margin: 0px;
   padding: 0px;
@@ -376,10 +402,10 @@ hr {
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
   right: -30px;
   border-left-width: 1px;
 }
@@ -396,26 +422,26 @@ hr {
   position: relative;
   top: -10px;
 }
-/* line 238, ../scss/todo.scss */
+/* line 251, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry.delete-mode {
   padding-left: 5px;
   padding-right: 65px;
 }
-/* line 243, ../scss/todo.scss */
+/* line 256, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry.delete-mode div.checkbox {
   left: -30px;
 }
-/* line 247, ../scss/todo.scss */
+/* line 260, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry.delete-mode div.delete {
   right: 30px;
   background-color: #f2dede;
 }
-/* line 252, ../scss/todo.scss */
+/* line 265, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry.delete-mode div.no {
   right: 0px;
   background-color: #dff0d8;
 }
-/* line 260, ../scss/todo.scss */
+/* line 273, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry.ischecked:after {
   content: "";
   position: absolute;
@@ -424,46 +450,46 @@ hr {
   right: 0px;
   left: 30px;
 }
-/* line 271, ../scss/todo.scss */
+/* line 284, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry.ischecked div.checkbox i {
   opacity: 1;
 }
-/* line 276, ../scss/todo.scss */
+/* line 289, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry.ischecked > * {
   opacity: 0.3;
 }
-/* line 279, ../scss/todo.scss */
+/* line 292, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry.ischecked .content {
   text-decoration: line-through;
 }
-/* line 282, ../scss/todo.scss */
+/* line 295, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry.ischecked .checktoggle {
   opacity: 1;
 }
-/* line 285, ../scss/todo.scss */
+/* line 298, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry.ischecked .delete {
   display: none;
 }
-/* line 289, ../scss/todo.scss */
+/* line 302, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry > * {
   -moz-transition-property: all;
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
 }
-/* line 293, ../scss/todo.scss */
+/* line 306, ../scss/todo.scss */
 #todolistapp-entries-view .todolist-entry .checktoggle {
   -moz-transition-property: all;
   -o-transition-property: all;
   -webkit-transition-property: all;
   transition-property: all;
-  -moz-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
   opacity: 0;
 }

@@ -113,9 +113,19 @@ hr {
 			margin:5px;
 			@include border-radius(4px);
 		}
+		
+		.no-entry-view {
+			display:block !important;
+		}
 	}
 	
-	nav.navbar {
+	nav.navbar.navbar-fixed-top {
+		opacity : 0.6;
+		@include transition-property(opacity);
+		@include transition-duration($animationtime);
+		&:hover {
+			opacity : 1;
+		}
 		&>.container-fluid {
 			.list-name {
 				text-overflow: ellipsis;

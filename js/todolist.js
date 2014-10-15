@@ -348,12 +348,37 @@
           return App.vent.trigger('todolist:entries:sort:name:desc');
         },
         'click .toggle-style': function() {
-          this.$('.toggle-style').toggleClass('active');
-          return App.vent.trigger('todolist:entries:toggle:style');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            return config.toggleEntryStyle();
+          }
         },
         'click .toggle-show-checked': function() {
           this.$('.toggle-show-checked').toggleClass('active');
           return App.vent.trigger('todolist:entries:toggle:show:checked');
+        }
+      };
+
+      EntryInputView.prototype.changeStyle = function(model, value) {
+        if ('inline' === value) {
+          return this.$('.toggle-style').removeClass('active');
+        } else {
+          return this.$('.toggle-style').addClass('active');
+        }
+      };
+
+      EntryInputView.prototype.onRender = function() {
+        var config;
+        config = App.request("todolistapp:Configuration");
+        return this.changeStyle(config, config.get('entryStyle'));
+      };
+
+      EntryInputView.prototype.initialize = function() {
+        var config;
+        config = App.request("todolistapp:Configuration");
+        if (config != null) {
+          return this.listenTo(config, "change:entryStyle", this.changeStyle);
         }
       };
 
@@ -406,38 +431,102 @@
           return this.$('.sort-options').toggleClass('folded');
         },
         'click .toggle-style': function() {
-          this.$('.toggle-style').toggleClass('active');
-          return App.vent.trigger('todolist:lists:toggle:style');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            return config.toggleListStyle();
+          }
         },
         'click .list-sort-date-asc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-date-asc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:date:asc');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            config.set('listSort', 'dateAsc');
+            return config.save();
+          }
         },
         'click .list-sort-date-desc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-date-desc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:date:desc');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            config.set('listSort', 'dateDesc');
+            return config.save();
+          }
         },
         'click .list-sort-name-asc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-name-asc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:name:asc');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            config.set('listSort', 'nameAsc');
+            return config.save();
+          }
         },
         'click .list-sort-name-desc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-name-desc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:name:desc');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            config.set('listSort', 'nameDesc');
+            return config.save();
+          }
         },
         'click .list-sort-amount-asc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-amount-asc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:amount:asc');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            config.set('listSort', 'amountAsc');
+            return config.save();
+          }
         },
         'click .list-sort-amount-desc': function() {
-          this.$('button.list-sort').removeClass('active');
-          this.$('button.list-sort-amount-desc').addClass('active');
-          return App.vent.trigger('todolist:lists:sort:amount:desc');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            config.set('listSort', 'amountDesc');
+            return config.save();
+          }
+        }
+      };
+
+      ListInputView.prototype.changeStyle = function(model, value) {
+        if ('inline' === value) {
+          return this.$('.toggle-style').removeClass('active');
+        } else {
+          return this.$('.toggle-style').addClass('active');
+        }
+      };
+
+      ListInputView.prototype.changeSort = function(model, sortType) {
+        console.debug(sortType);
+        this.$('button.list-sort').removeClass('active');
+        switch (sortType) {
+          case "nameAsc":
+            return this.$('button.list-sort-name-asc').addClass('active');
+          case "nameDesc":
+            return this.$('button.list-sort-name-desc').addClass('active');
+          case "dateAsc":
+            return this.$('button.list-sort-date-asc').addClass('active');
+          case "dateDesc":
+            return this.$('button.list-sort-date-desc').addClass('active');
+          case "amountAsc":
+            return this.$('button.list-sort-amount-asc').addClass('active');
+          case "amountDesc":
+            return this.$('button.list-sort-amount-desc').addClass('active');
+        }
+      };
+
+      ListInputView.prototype.onRender = function() {
+        var config;
+        config = App.request("todolistapp:Configuration");
+        this.changeStyle(config, config.get('listStyle'));
+        return this.changeSort(config, config.get('listSort'));
+      };
+
+      ListInputView.prototype.initialize = function() {
+        var config;
+        config = App.request("todolistapp:Configuration");
+        if (config != null) {
+          this.listenTo(config, "change:listStyle", this.changeStyle);
+          return this.listenTo(config, "change:listSort", this.changeSort);
         }
       };
 
@@ -490,7 +579,7 @@
 
       NoEntrieView.prototype.tagName = "li";
 
-      NoEntrieView.prototype.className = "list-group-item list-group-item-warning";
+      NoEntrieView.prototype.className = "list-group-item list-group-item-warning no-entry-view";
 
       NoEntrieView.prototype.getTemplate = function() {
         if (!!this.model.get('fetchingListData')) {
@@ -672,18 +761,45 @@
         return this.collection.comparator = DescSort('_id');
       };
 
-      ListCollectionView.prototype.toggleStyle = function() {
-        return this.$el.toggleClass('list-inline');
+      ListCollectionView.prototype.changeStyle = function(model, value) {
+        if ('inline' === value) {
+          return this.$el.addClass('list-inline');
+        } else {
+          return this.$el.removeClass('list-inline');
+        }
+      };
+
+      ListCollectionView.prototype.changeSort = function(model, sortType) {
+        switch (sortType) {
+          case "nameAsc":
+            return this.sortCollectionNameAsc();
+          case "nameDesc":
+            return this.sortCollectionNameDesc();
+          case "dateAsc":
+            return this.sortCollectionDateAsc();
+          case "dateDesc":
+            return this.sortCollectionDateDesc();
+          case "amountAsc":
+            return this.sortCollectionAmountAsc();
+          case "amountDesc":
+            return this.sortCollectionAmountDesc();
+        }
+      };
+
+      ListCollectionView.prototype.onRender = function() {
+        var config;
+        config = App.request("todolistapp:Configuration");
+        this.changeStyle(config, config.get('listStyle'));
+        return this.changeSort(config, config.get('listSort'));
       };
 
       ListCollectionView.prototype.initialize = function() {
-        this.listenTo(App.vent, "todolist:lists:sort:date:asc", this.sortCollectionDateAsc);
-        this.listenTo(App.vent, "todolist:lists:sort:date:desc", this.sortCollectionDateDesc);
-        this.listenTo(App.vent, "todolist:lists:sort:name:asc", this.sortCollectionNameAsc);
-        this.listenTo(App.vent, "todolist:lists:sort:name:desc", this.sortCollectionNameDesc);
-        this.listenTo(App.vent, "todolist:lists:sort:amount:asc", this.sortCollectionAmountAsc);
-        this.listenTo(App.vent, "todolist:lists:sort:amount:desc", this.sortCollectionAmountDesc);
-        return this.listenTo(App.vent, "todolist:lists:toggle:style", this.toggleStyle);
+        var config;
+        config = App.request("todolistapp:Configuration");
+        if (config != null) {
+          this.listenTo(config, "change:listSort", this.changeSort);
+          return this.listenTo(config, "change:listStyle", this.changeStyle);
+        }
       };
 
       return ListCollectionView;
@@ -802,7 +918,7 @@
 
       NoEntryView.prototype.tagName = "li";
 
-      NoEntryView.prototype.className = "list-group-item list-group-item-warning";
+      NoEntryView.prototype.className = "list-group-item list-group-item-warning no-entry-view";
 
       NoEntryView.prototype.getTemplate = function() {
         if (!!this.model.get('fetchingEntryData')) {
@@ -943,14 +1059,32 @@
         }
       };
 
+      EntryCollectionView.prototype.changeStyle = function(model, value) {
+        if ('inline' === value) {
+          return this.$el.addClass('list-inline');
+        } else {
+          return this.$el.removeClass('list-inline');
+        }
+      };
+
+      EntryCollectionView.prototype.onRender = function() {
+        var config;
+        config = App.request("todolistapp:Configuration");
+        return this.changeStyle(config, config.get('entryStyle'));
+      };
+
       EntryCollectionView.prototype.initialize = function() {
-        this.listenTo(App.vent, "todolist:lists:sort:date:asc", this.sortCollectionDateAsc);
-        this.listenTo(App.vent, "todolist:lists:sort:date:desc", this.sortCollectionDateDesc);
-        this.listenTo(App.vent, "todolist:lists:sort:name:asc", this.sortCollectionNameAsc);
-        this.listenTo(App.vent, "todolist:lists:sort:name:desc", this.sortCollectionNameDesc);
-        this.listenTo(App.vent, "todolist:lists:sort:amount:asc", this.sortCollectionAmountAsc);
-        this.listenTo(App.vent, "todolist:lists:sort:amount:desc", this.sortCollectionAmountDesc);
-        return this.listenTo(App.vent, "todolist:lists:toggle:style", this.toggleStyle);
+        var config;
+        config = App.request("todolistapp:Configuration");
+        if (config != null) {
+          this.listenTo(config, "todolist:lists:sort:date:asc", this.sortCollectionDateAsc);
+          this.listenTo(config, "todolist:lists:sort:date:desc", this.sortCollectionDateDesc);
+          this.listenTo(config, "todolist:lists:sort:name:asc", this.sortCollectionNameAsc);
+          this.listenTo(config, "todolist:lists:sort:name:desc", this.sortCollectionNameDesc);
+          this.listenTo(config, "todolist:lists:sort:amount:asc", this.sortCollectionAmountAsc);
+          this.listenTo(config, "todolist:lists:sort:amount:desc", this.sortCollectionAmountDesc);
+          return this.listenTo(config, "change:entryStyle", this.changeStyle);
+        }
       };
 
       return EntryCollectionView;
@@ -1129,13 +1263,36 @@
         deleteCheckedEntries: 5 * 24 * 60 * 60,
         deleteUnusedEntries: 24 * 60 * 60,
         fetchingListData: false,
-        fetchingEntryData: false
+        fetchingEntryData: false,
+        listStyle: "list",
+        listSort: "nameAsc",
+        entryStyle: "list",
+        entrySort: "nameAsc",
+        entryShowChecked: true
       };
 
       TodoConfigurationModel.prototype.blacklistAtrributes = [];
 
       TodoConfigurationModel.prototype.toJSON = function(options) {
         return _.omit(this.attributes, this.blacklist);
+      };
+
+      TodoConfigurationModel.prototype.toggleEntryStyle = function() {
+        if ('list' === this.get('entryStyle')) {
+          this.set('entryStyle', 'inline');
+        } else {
+          this.set('entryStyle', 'list');
+        }
+        return this.save();
+      };
+
+      TodoConfigurationModel.prototype.toggleListStyle = function() {
+        if ('list' === this.get('listStyle')) {
+          this.set('listStyle', 'inline');
+        } else {
+          this.set('listStyle', 'list');
+        }
+        return this.save();
       };
 
       TodoConfigurationModel.prototype.validate = function(attributes, options) {

@@ -43,35 +43,73 @@
 					@$('.sort-options').toggleClass('folded')
 					
 				'click .toggle-style' : () ->
-					@$('.toggle-style').toggleClass('active')
-					App.vent.trigger 'todolist:lists:toggle:style'
-				
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.toggleListStyle()
+						 
 				'click .list-sort-date-asc' : () ->
-					@$('button.list-sort').removeClass('active')
-					@$('button.list-sort-date-asc').addClass('active')
-					App.vent.trigger 'todolist:lists:sort:date:asc'
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.set('listSort', 'dateAsc')
+						 config.save()
 				'click .list-sort-date-desc' : () ->
-					@$('button.list-sort').removeClass('active')
-					@$('button.list-sort-date-desc').addClass('active')
-					App.vent.trigger 'todolist:lists:sort:date:desc'
-				
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.set('listSort', 'dateDesc')
+						 config.save()
+						 
 				'click .list-sort-name-asc' : () ->
-					@$('button.list-sort').removeClass('active')
-					@$('button.list-sort-name-asc').addClass('active')
-					App.vent.trigger 'todolist:lists:sort:name:asc'
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.set('listSort', 'nameAsc')
+						 config.save()
 				'click .list-sort-name-desc' : () ->
-					@$('button.list-sort').removeClass('active')
-					@$('button.list-sort-name-desc').addClass('active')
-					App.vent.trigger 'todolist:lists:sort:name:desc'
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.set('listSort', 'nameDesc')
+						 config.save()
 				
 				'click .list-sort-amount-asc' : () ->
-					@$('button.list-sort').removeClass('active')
-					@$('button.list-sort-amount-asc').addClass('active')
-					App.vent.trigger 'todolist:lists:sort:amount:asc'
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.set('listSort', 'amountAsc')
+						 config.save()
 				'click .list-sort-amount-desc' : () ->
-					@$('button.list-sort').removeClass('active')
-					@$('button.list-sort-amount-desc').addClass('active')
-					App.vent.trigger 'todolist:lists:sort:amount:desc'
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.set('listSort', 'amountDesc')
+						 config.save()
+			changeStyle : (model,value) ->
+				if 'inline' == value
+					@$('.toggle-style').removeClass('active')
+				else
+					@$('.toggle-style').addClass('active')
+			changeSort : (model,sortType) ->
+				console.debug sortType
+				
+				@$('button.list-sort').removeClass('active')
+				switch sortType 
+					when "nameAsc"
+						@$('button.list-sort-name-asc').addClass('active')
+					when "nameDesc"
+						@$('button.list-sort-name-desc').addClass('active')
+					when "dateAsc"
+						@$('button.list-sort-date-asc').addClass('active')
+					when "dateDesc"
+						@$('button.list-sort-date-desc').addClass('active')
+					when "amountAsc"
+						@$('button.list-sort-amount-asc').addClass('active')
+					when "amountDesc"
+						@$('button.list-sort-amount-desc').addClass('active')
+			onRender : () ->
+				config = App.request("todolistapp:Configuration")
+				@changeStyle(config, config.get('listStyle'))
+				@changeSort(config, config.get('listSort'))
+			initialize : () ->
+				config = App.request("todolistapp:Configuration")
+				if config?
+					@listenTo config, "change:listStyle", @changeStyle
+					@listenTo config, "change:listSort", @changeSort
 			
 		App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 		App.TodoListApp.classes.ListInputView = ListInputView

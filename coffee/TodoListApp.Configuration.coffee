@@ -10,11 +10,29 @@
 				deleteUnusedEntries : 24 *  60 * 60
 				fetchingListData : false
 				fetchingEntryData : false
+				
+				listStyle : "list"
+				listSort : "nameAsc"
+				
+				entryStyle : "list"
+				entrySort : "nameAsc"
+				entryShowChecked : true
 			
 			blacklistAtrributes : []
 			toJSON : (options) ->
 				_.omit(this.attributes, this.blacklist)
-			
+			toggleEntryStyle : () -> 
+				if 'list' == @get('entryStyle')
+					@set('entryStyle', 'inline')
+				else
+					@set('entryStyle', 'list')
+				@save();
+			toggleListStyle : () -> 
+				if 'list' == @get('listStyle')
+					@set('listStyle', 'inline')
+				else
+					@set('listStyle', 'list')
+				@save();
 			validate : (attributes, options) ->
 				returnValue = []			
 				if not attributes.username? or not _.isString(attributes.username) or attributes.username.trim().length == 0

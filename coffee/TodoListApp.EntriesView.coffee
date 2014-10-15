@@ -2,7 +2,7 @@
 
 		class NoEntryView extends Marionette.ItemView
 			tagName : "li"
-			className : "list-group-item list-group-item-warning"
+			className : "list-group-item list-group-item-warning no-entry-view"
 			getTemplate: () ->
 				if !!@model.get('fetchingEntryData')
 					_.template """
@@ -108,17 +108,31 @@
 					App.request("todolistapp:Configuration").set('fetchingEntryData', true)
 				'sync' : () ->
 					App.request("todolistapp:Configuration").set('fetchingEntryData', false)
-			initialize : () ->
-				@listenTo App.vent, "todolist:lists:sort:date:asc", @sortCollectionDateAsc
-				@listenTo App.vent, "todolist:lists:sort:date:desc", @sortCollectionDateDesc
-			
-				@listenTo App.vent, "todolist:lists:sort:name:asc", @sortCollectionNameAsc
-				@listenTo App.vent, "todolist:lists:sort:name:desc", @sortCollectionNameDesc
-			
-				@listenTo App.vent, "todolist:lists:sort:amount:asc", @sortCollectionAmountAsc
-				@listenTo App.vent, "todolist:lists:sort:amount:desc", @sortCollectionAmountDesc
+			changeStyle : (model,value) ->
+				if 'inline' == value
+					@$el.addClass('list-inline')
+				else
+					@$el.removeClass('list-inline')
+			onRender : () ->
+				config = App.request("todolistapp:Configuration")
+				@changeStyle(config, config.get('entryStyle'))
 				
-				@listenTo App.vent, "todolist:lists:toggle:style", @toggleStyle
+				
+			initialize : () ->
+				
+				config = App.request("todolistapp:Configuration")
+				
+				if config?
+					@listenTo config, "todolist:lists:sort:date:asc", @sortCollectionDateAsc
+					@listenTo config, "todolist:lists:sort:date:desc", @sortCollectionDateDesc
+			
+					@listenTo config, "todolist:lists:sort:name:asc", @sortCollectionNameAsc
+					@listenTo config, "todolist:lists:sort:name:desc", @sortCollectionNameDesc
+			
+					@listenTo config, "todolist:lists:sort:amount:asc", @sortCollectionAmountAsc
+					@listenTo config, "todolist:lists:sort:amount:desc", @sortCollectionAmountDesc
+				
+					@listenTo config, "change:entryStyle", @changeStyle
 
 		
 		EntryModelFactory = (todolistid) -> 

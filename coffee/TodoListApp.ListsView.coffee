@@ -14,7 +14,7 @@
 
 		class NoEntrieView extends Marionette.ItemView
 			tagName : "li"
-			className : "list-group-item list-group-item-warning"
+			className : "list-group-item list-group-item-warning no-entry-view"
 			getTemplate: () ->
 				if !!@model.get('fetchingListData')
 					_.template """
@@ -129,20 +129,39 @@
 				@collection.sort()
 			sortCollectionAmountDesc : () ->
 				@collection.comparator = DescSort '_id'
+
+			changeStyle : (model,value) ->
+				if 'inline' == value
+					@$el.addClass('list-inline')
+				else
+					@$el.removeClass('list-inline')
+			changeSort : (model,sortType) ->
+				switch sortType 
+					when "nameAsc"
+						@sortCollectionNameAsc()
+					when "nameDesc"
+						@sortCollectionNameDesc()
+					when "dateAsc"
+						@sortCollectionDateAsc()
+					when "dateDesc"
+						@sortCollectionDateDesc()
+					when "amountAsc"
+						@sortCollectionAmountAsc()
+					when "amountDesc"
+						@sortCollectionAmountDesc()
 				
-			toggleStyle : () ->
-				@$el.toggleClass 'list-inline'
+			onRender : () ->
+				config = App.request("todolistapp:Configuration")
+				@changeStyle(config, config.get('listStyle'))
+				@changeSort(config, config.get('listSort'))
+				
+			
 			initialize : () ->
-				@listenTo App.vent, "todolist:lists:sort:date:asc", @sortCollectionDateAsc
-				@listenTo App.vent, "todolist:lists:sort:date:desc", @sortCollectionDateDesc
-			
-				@listenTo App.vent, "todolist:lists:sort:name:asc", @sortCollectionNameAsc
-				@listenTo App.vent, "todolist:lists:sort:name:desc", @sortCollectionNameDesc
-			
-				@listenTo App.vent, "todolist:lists:sort:amount:asc", @sortCollectionAmountAsc
-				@listenTo App.vent, "todolist:lists:sort:amount:desc", @sortCollectionAmountDesc
+				config = App.request("todolistapp:Configuration")
 				
-				@listenTo App.vent, "todolist:lists:toggle:style", @toggleStyle
+				if config?
+					@listenTo config, "change:listSort", @changeSort
+					@listenTo config, "change:listStyle", @changeStyle
 
 		pouchdb = App.request("todolistapp:PouchDB")
 

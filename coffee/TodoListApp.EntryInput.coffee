@@ -41,6 +41,7 @@
 			events :
 				'click .toggle-entry-options' : () ->
 					@$('.entry-options').toggleClass('folded')
+					@$('.toggle-entry-options').toggleClass('active')
 				
 				'click .entry-sort-date-asc' : () ->
 					@$('button.entry-sort').removeClass('active')
@@ -64,13 +65,19 @@
 					if config?
 						 config.toggleEntryStyle()
 				'click .toggle-show-checked' : () ->
-					@$('.toggle-show-checked').toggleClass('active')
-					App.vent.trigger 'todolist:entries:toggle:show:checked'
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.toggleEntryShowChecked()
 			changeStyle : (model,value) ->
 				if 'inline' == value
 					@$('.toggle-style').removeClass('active')
 				else
 					@$('.toggle-style').addClass('active')
+			toggleShowChecked : (model,value) ->
+				if value
+					@$('.toggle-show-checked').addClass('active')
+				else
+					@$('.toggle-show-checked').removeClass('active')
 			onRender : () ->
 				config = App.request("todolistapp:Configuration")
 				@changeStyle(config, config.get('entryStyle'))
@@ -78,6 +85,7 @@
 				config = App.request("todolistapp:Configuration")
 				if config?
 					@listenTo config, "change:entryStyle", @changeStyle
+					@listenTo config, "change:entryShowChecked", @toggleShowChecked
 	
 		App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 		App.TodoListApp.classes.EntryInputView = EntryInputView

@@ -41,6 +41,7 @@
 			events :
 				'click .toggle-list-options' : () ->
 					@$('.sort-options').toggleClass('folded')
+					@$('.toggle-list-options').toggleClass('active')
 					
 				'click .toggle-style' : () ->
 					config = App.request("todolistapp:Configuration")

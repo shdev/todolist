@@ -113,15 +113,18 @@
 					@$el.addClass('list-inline')
 				else
 					@$el.removeClass('list-inline')
+			toggleShowChecked : (model,value) ->
+				if value
+					@$el.removeClass('hide-checked')
+				else
+					@$el.addClass('hide-checked')
 			onRender : () ->
 				config = App.request("todolistapp:Configuration")
 				@changeStyle(config, config.get('entryStyle'))
-				
+				@toggleShowChecked(config, config.get('entryShowChecked'))
 				
 			initialize : () ->
-				
 				config = App.request("todolistapp:Configuration")
-				
 				if config?
 					@listenTo config, "todolist:lists:sort:date:asc", @sortCollectionDateAsc
 					@listenTo config, "todolist:lists:sort:date:desc", @sortCollectionDateDesc
@@ -133,8 +136,8 @@
 					@listenTo config, "todolist:lists:sort:amount:desc", @sortCollectionAmountDesc
 				
 					@listenTo config, "change:entryStyle", @changeStyle
+					@listenTo config, "change:entryShowChecked", @toggleShowChecked
 
-		
 		EntryModelFactory = (todolistid) -> 
 			pouchdb = App.request("todolistapp:PouchDB")
 			class EntryModel extends Backbone.Model

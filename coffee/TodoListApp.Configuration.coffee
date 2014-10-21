@@ -27,6 +27,12 @@
 				else
 					@set('entryStyle', 'list')
 				@save();
+			toggleEntryShowChecked : () -> 
+				if @get('entryShowChecked')
+					@set('entryShowChecked', false)
+				else
+					@set('entryShowChecked', true)
+				@save();
 			toggleListStyle : () -> 
 				if 'list' == @get('listStyle')
 					@set('listStyle', 'inline')

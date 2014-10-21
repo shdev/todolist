@@ -325,7 +325,8 @@
 
       EntryInputView.prototype.events = {
         'click .toggle-entry-options': function() {
-          return this.$('.entry-options').toggleClass('folded');
+          this.$('.entry-options').toggleClass('folded');
+          return this.$('.toggle-entry-options').toggleClass('active');
         },
         'click .entry-sort-date-asc': function() {
           this.$('button.entry-sort').removeClass('active');
@@ -355,8 +356,11 @@
           }
         },
         'click .toggle-show-checked': function() {
-          this.$('.toggle-show-checked').toggleClass('active');
-          return App.vent.trigger('todolist:entries:toggle:show:checked');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            return config.toggleEntryShowChecked();
+          }
         }
       };
 
@@ -365,6 +369,14 @@
           return this.$('.toggle-style').removeClass('active');
         } else {
           return this.$('.toggle-style').addClass('active');
+        }
+      };
+
+      EntryInputView.prototype.toggleShowChecked = function(model, value) {
+        if (value) {
+          return this.$('.toggle-show-checked').addClass('active');
+        } else {
+          return this.$('.toggle-show-checked').removeClass('active');
         }
       };
 
@@ -378,7 +390,8 @@
         var config;
         config = App.request("todolistapp:Configuration");
         if (config != null) {
-          return this.listenTo(config, "change:entryStyle", this.changeStyle);
+          this.listenTo(config, "change:entryStyle", this.changeStyle);
+          return this.listenTo(config, "change:entryShowChecked", this.toggleShowChecked);
         }
       };
 
@@ -428,7 +441,8 @@
 
       ListInputView.prototype.events = {
         'click .toggle-list-options': function() {
-          return this.$('.sort-options').toggleClass('folded');
+          this.$('.sort-options').toggleClass('folded');
+          return this.$('.toggle-list-options').toggleClass('active');
         },
         'click .toggle-style': function() {
           var config;
@@ -1067,10 +1081,19 @@
         }
       };
 
+      EntryCollectionView.prototype.toggleShowChecked = function(model, value) {
+        if (value) {
+          return this.$el.removeClass('hide-checked');
+        } else {
+          return this.$el.addClass('hide-checked');
+        }
+      };
+
       EntryCollectionView.prototype.onRender = function() {
         var config;
         config = App.request("todolistapp:Configuration");
-        return this.changeStyle(config, config.get('entryStyle'));
+        this.changeStyle(config, config.get('entryStyle'));
+        return this.toggleShowChecked(config, config.get('entryShowChecked'));
       };
 
       EntryCollectionView.prototype.initialize = function() {
@@ -1083,7 +1106,8 @@
           this.listenTo(config, "todolist:lists:sort:name:desc", this.sortCollectionNameDesc);
           this.listenTo(config, "todolist:lists:sort:amount:asc", this.sortCollectionAmountAsc);
           this.listenTo(config, "todolist:lists:sort:amount:desc", this.sortCollectionAmountDesc);
-          return this.listenTo(config, "change:entryStyle", this.changeStyle);
+          this.listenTo(config, "change:entryStyle", this.changeStyle);
+          return this.listenTo(config, "change:entryShowChecked", this.toggleShowChecked);
         }
       };
 
@@ -1282,6 +1306,15 @@
           this.set('entryStyle', 'inline');
         } else {
           this.set('entryStyle', 'list');
+        }
+        return this.save();
+      };
+
+      TodoConfigurationModel.prototype.toggleEntryShowChecked = function() {
+        if (this.get('entryShowChecked')) {
+          this.set('entryShowChecked', false);
+        } else {
+          this.set('entryShowChecked', true);
         }
         return this.save();
       };

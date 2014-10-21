@@ -227,6 +227,13 @@ hr {
 
 
 #todolistapp-entries-view {
+	
+	.todolist-entries-list.hide-checked {
+		.ischecked {
+			display:none;
+		}
+	}
+	
 	.todolist-entry {
 		padding-left : 35px;
 		padding-right : 35px;

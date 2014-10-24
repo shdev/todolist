@@ -329,24 +329,36 @@
           return this.$('.toggle-entry-options').toggleClass('active');
         },
         'click .entry-sort-date-asc': function() {
-          this.$('button.entry-sort').removeClass('active');
-          this.$('button.entry-sort-date-asc').addClass('active');
-          return App.vent.trigger('todolist:entries:sort:date:asc');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            config.set('entrySort', 'dateAsc');
+            return config.save();
+          }
         },
         'click .entry-sort-date-desc': function() {
-          this.$('button.entry-sort').removeClass('active');
-          this.$('button.entry-sort-date-desc').addClass('active');
-          return App.vent.trigger('todolist:entries:sort:date:desc');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            config.set('entrySort', 'dateDesc');
+            return config.save();
+          }
         },
         'click .entry-sort-name-asc': function() {
-          this.$('button.entry-sort').removeClass('active');
-          this.$('button.entry-sort-name-asc').addClass('active');
-          return App.vent.trigger('todolist:entries:sort:name:asc');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            config.set('entrySort', 'nameAsc');
+            return config.save();
+          }
         },
         'click .entry-sort-name-desc': function() {
-          this.$('button.entry-sort').removeClass('active');
-          this.$('button.entry-sort-name-desc').addClass('active');
-          return App.vent.trigger('todolist:entries:sort:name:desc');
+          var config;
+          config = App.request("todolistapp:Configuration");
+          if (config != null) {
+            config.set('entrySort', 'nameDesc');
+            return config.save();
+          }
         },
         'click .toggle-style': function() {
           var config;
@@ -372,6 +384,20 @@
         }
       };
 
+      EntryInputView.prototype.changeSort = function(model, sortType) {
+        this.$('button.entry-sort').removeClass('active');
+        switch (sortType) {
+          case "nameAsc":
+            return this.$('button.entry-sort-name-asc').addClass('active');
+          case "nameDesc":
+            return this.$('button.entry-sort-name-desc').addClass('active');
+          case "dateAsc":
+            return this.$('button.entry-sort-date-asc').addClass('active');
+          case "dateDesc":
+            return this.$('button.entry-sort-date-desc').addClass('active');
+        }
+      };
+
       EntryInputView.prototype.toggleShowChecked = function(model, value) {
         if (value) {
           return this.$('.toggle-show-checked').addClass('active');
@@ -383,7 +409,9 @@
       EntryInputView.prototype.onRender = function() {
         var config;
         config = App.request("todolistapp:Configuration");
-        return this.changeStyle(config, config.get('entryStyle'));
+        this.changeStyle(config, config.get('entryStyle'));
+        this.changeSort(config, config.get('entrySort'));
+        return this.toggleShowChecked(config, config.get('entryShowChecked'));
       };
 
       EntryInputView.prototype.initialize = function() {
@@ -391,7 +419,8 @@
         config = App.request("todolistapp:Configuration");
         if (config != null) {
           this.listenTo(config, "change:entryStyle", this.changeStyle);
-          return this.listenTo(config, "change:entryShowChecked", this.toggleShowChecked);
+          this.listenTo(config, "change:entryShowChecked", this.toggleShowChecked);
+          return this.listenTo(config, "change:entrySort", this.changeSort);
         }
       };
 
@@ -1073,11 +1102,44 @@
         }
       };
 
+      EntryCollectionView.prototype.sortCollectionDateAsc = function() {
+        this.collection.comparator = this.collection.sortFun("created", "asc");
+        return this.collection.sort();
+      };
+
+      EntryCollectionView.prototype.sortCollectionDateDesc = function() {
+        this.collection.comparator = this.collection.sortFun("created", "desc");
+        return this.collection.sort();
+      };
+
+      EntryCollectionView.prototype.sortCollectionNameAsc = function() {
+        this.collection.comparator = this.collection.sortFun("name", "asc");
+        return this.collection.sort();
+      };
+
+      EntryCollectionView.prototype.sortCollectionNameDesc = function() {
+        this.collection.comparator = this.collection.sortFun("name", "desc");
+        return this.collection.sort();
+      };
+
       EntryCollectionView.prototype.changeStyle = function(model, value) {
         if ('inline' === value) {
           return this.$el.addClass('list-inline');
         } else {
           return this.$el.removeClass('list-inline');
+        }
+      };
+
+      EntryCollectionView.prototype.changeSort = function(model, sortType) {
+        switch (sortType) {
+          case "nameAsc":
+            return this.sortCollectionNameAsc();
+          case "nameDesc":
+            return this.sortCollectionNameDesc();
+          case "dateAsc":
+            return this.sortCollectionDateAsc();
+          case "dateDesc":
+            return this.sortCollectionDateDesc();
         }
       };
 
@@ -1093,21 +1155,17 @@
         var config;
         config = App.request("todolistapp:Configuration");
         this.changeStyle(config, config.get('entryStyle'));
-        return this.toggleShowChecked(config, config.get('entryShowChecked'));
+        this.toggleShowChecked(config, config.get('entryShowChecked'));
+        return this.changeSort(config, config.get('entrySort'));
       };
 
       EntryCollectionView.prototype.initialize = function() {
         var config;
         config = App.request("todolistapp:Configuration");
         if (config != null) {
-          this.listenTo(config, "todolist:lists:sort:date:asc", this.sortCollectionDateAsc);
-          this.listenTo(config, "todolist:lists:sort:date:desc", this.sortCollectionDateDesc);
-          this.listenTo(config, "todolist:lists:sort:name:asc", this.sortCollectionNameAsc);
-          this.listenTo(config, "todolist:lists:sort:name:desc", this.sortCollectionNameDesc);
-          this.listenTo(config, "todolist:lists:sort:amount:asc", this.sortCollectionAmountAsc);
-          this.listenTo(config, "todolist:lists:sort:amount:desc", this.sortCollectionAmountDesc);
           this.listenTo(config, "change:entryStyle", this.changeStyle);
-          return this.listenTo(config, "change:entryShowChecked", this.toggleShowChecked);
+          this.listenTo(config, "change:entryShowChecked", this.toggleShowChecked);
+          return this.listenTo(config, "change:entrySort", this.changeSort);
         }
       };
 
@@ -1195,6 +1253,56 @@
         function EntryCollection() {
           return EntryCollection.__super__.constructor.apply(this, arguments);
         }
+
+        EntryCollection.prototype.sortFun = function(attribute, direction) {
+          if (direction.toLowerCase() === 'desc') {
+            return function(a, b) {
+              var aDate, bDate;
+              if ((a.get('checked') === null && b.get('checked') === null) || (a.get('checked') !== null && b.get('checked') !== null)) {
+                aDate = a.get(attribute).toString().toLowerCase();
+                bDate = b.get(attribute).toString().toLowerCase();
+                if (aDate === bDate) {
+                  return 0;
+                } else {
+                  if (aDate > bDate) {
+                    return -1;
+                  } else {
+                    return 1;
+                  }
+                }
+              } else {
+                if (a.get('checked') === null && b.get('checked') !== null) {
+                  return -1;
+                } else {
+                  return 1;
+                }
+              }
+            };
+          } else {
+            return function(a, b) {
+              var aDate, bDate;
+              if ((a.get('checked') === null && b.get('checked') === null) || (a.get('checked') !== null && b.get('checked') !== null)) {
+                aDate = a.get(attribute).toString().toLowerCase();
+                bDate = b.get(attribute).toString().toLowerCase();
+                if (aDate === bDate) {
+                  return 0;
+                } else {
+                  if (aDate > bDate) {
+                    return 1;
+                  } else {
+                    return -1;
+                  }
+                }
+              } else {
+                if (a.get('checked') === null && b.get('checked') !== null) {
+                  return -1;
+                } else {
+                  return 1;
+                }
+              }
+            };
+          }
+        };
 
         EntryCollection.prototype.model = EntryModelFactory(todolistid);
 

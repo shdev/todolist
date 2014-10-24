@@ -44,22 +44,27 @@
 					@$('.toggle-entry-options').toggleClass('active')
 				
 				'click .entry-sort-date-asc' : () ->
-					@$('button.entry-sort').removeClass('active')
-					@$('button.entry-sort-date-asc').addClass('active')
-					App.vent.trigger 'todolist:entries:sort:date:asc'
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.set('entrySort', 'dateAsc')
+						 config.save()
 				'click .entry-sort-date-desc' : () ->
-					@$('button.entry-sort').removeClass('active')
-					@$('button.entry-sort-date-desc').addClass('active')
-					App.vent.trigger 'todolist:entries:sort:date:desc'
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.set('entrySort', 'dateDesc')
+						 config.save()
 				
 				'click .entry-sort-name-asc' : () ->
-					@$('button.entry-sort').removeClass('active')
-					@$('button.entry-sort-name-asc').addClass('active')
-					App.vent.trigger 'todolist:entries:sort:name:asc'
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.set('entrySort', 'nameAsc')
+						 config.save()
 				'click .entry-sort-name-desc' : () ->
-					@$('button.entry-sort').removeClass('active')
-					@$('button.entry-sort-name-desc').addClass('active')
-					App.vent.trigger 'todolist:entries:sort:name:desc'
+					config = App.request("todolistapp:Configuration")
+					if config?
+						 config.set('entrySort', 'nameDesc')
+						 config.save()
+						 
 				'click .toggle-style' : () ->
 					config = App.request("todolistapp:Configuration")
 					if config?
@@ -73,6 +78,17 @@
 					@$('.toggle-style').removeClass('active')
 				else
 					@$('.toggle-style').addClass('active')
+			changeSort : (model,sortType) ->
+				@$('button.entry-sort').removeClass('active')
+				switch sortType 
+					when "nameAsc"
+						@$('button.entry-sort-name-asc').addClass('active')
+					when "nameDesc"
+						@$('button.entry-sort-name-desc').addClass('active')
+					when "dateAsc"
+						@$('button.entry-sort-date-asc').addClass('active')
+					when "dateDesc"
+						@$('button.entry-sort-date-desc').addClass('active')
 			toggleShowChecked : (model,value) ->
 				if value
 					@$('.toggle-show-checked').addClass('active')
@@ -80,12 +96,15 @@
 					@$('.toggle-show-checked').removeClass('active')
 			onRender : () ->
 				config = App.request("todolistapp:Configuration")
-				@changeStyle(config, config.get('entryStyle'))
+				@changeStyle config, config.get('entryStyle')
+				@changeSort config, config.get('entrySort')
+				@toggleShowChecked config, config.get('entryShowChecked')
 			initialize : () ->
 				config = App.request("todolistapp:Configuration")
 				if config?
 					@listenTo config, "change:entryStyle", @changeStyle
 					@listenTo config, "change:entryShowChecked", @toggleShowChecked
+					@listenTo config, "change:entrySort", @changeSort
 	
 		App.TodoListApp.classes = {} if not App.TodoListApp.classes?
 		App.TodoListApp.classes.EntryInputView = EntryInputView

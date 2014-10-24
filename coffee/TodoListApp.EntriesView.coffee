@@ -108,35 +108,53 @@
 					App.request("todolistapp:Configuration").set('fetchingEntryData', true)
 				'sync' : () ->
 					App.request("todolistapp:Configuration").set('fetchingEntryData', false)
+
+			sortCollectionDateAsc : () ->
+				@collection.comparator = @collection.sortFun "created", "asc"
+				@collection.sort()
+			sortCollectionDateDesc : () ->
+				@collection.comparator = @collection.sortFun "created", "desc"
+				@collection.sort()
+			
+			sortCollectionNameAsc : () ->
+				@collection.comparator = @collection.sortFun "name", "asc"
+				@collection.sort()
+			sortCollectionNameDesc : () ->
+				@collection.comparator = @collection.sortFun "name", "desc"
+				@collection.sort()
 			changeStyle : (model,value) ->
 				if 'inline' == value
 					@$el.addClass('list-inline')
 				else
 					@$el.removeClass('list-inline')
+			changeSort : (model,sortType) ->
+				switch sortType 
+					when "nameAsc"
+						@sortCollectionNameAsc()
+					when "nameDesc"
+						@sortCollectionNameDesc()
+					when "dateAsc"
+						@sortCollectionDateAsc()
+					when "dateDesc"
+						@sortCollectionDateDesc()
 			toggleShowChecked : (model,value) ->
 				if value
 					@$el.removeClass('hide-checked')
 				else
 					@$el.addClass('hide-checked')
+					
 			onRender : () ->
 				config = App.request("todolistapp:Configuration")
 				@changeStyle(config, config.get('entryStyle'))
 				@toggleShowChecked(config, config.get('entryShowChecked'))
+				@changeSort(config, config.get('entrySort'))
 				
 			initialize : () ->
 				config = App.request("todolistapp:Configuration")
 				if config?
-					@listenTo config, "todolist:lists:sort:date:asc", @sortCollectionDateAsc
-					@listenTo config, "todolist:lists:sort:date:desc", @sortCollectionDateDesc
-			
-					@listenTo config, "todolist:lists:sort:name:asc", @sortCollectionNameAsc
-					@listenTo config, "todolist:lists:sort:name:desc", @sortCollectionNameDesc
-			
-					@listenTo config, "todolist:lists:sort:amount:asc", @sortCollectionAmountAsc
-					@listenTo config, "todolist:lists:sort:amount:desc", @sortCollectionAmountDesc
-				
 					@listenTo config, "change:entryStyle", @changeStyle
 					@listenTo config, "change:entryShowChecked", @toggleShowChecked
+					@listenTo config, "change:entrySort", @changeSort
 
 		EntryModelFactory = (todolistid) -> 
 			pouchdb = App.request("todolistapp:PouchDB")
@@ -163,7 +181,9 @@
 						@check()
 			return EntryModel
 		
+		
 		EntryCollectionFactory = (todolistid) ->		
+		
 			pouchdb = App.request("todolistapp:PouchDB")
 			mapfunc =  (doc) ->
 				if doc.type? and doc["todolist-id"]?
@@ -183,6 +203,41 @@
 					# 		return doc._deleted || doc.type == 'todoentry'
 						
 			class EntryCollection extends Backbone.Collection
+				sortFun : (attribute, direction) ->
+					if direction.toLowerCase() == 'desc'
+						(a, b) ->
+							if (a.get('checked') == null and b.get('checked') == null) or (a.get('checked') != null and b.get('checked') != null)
+								aDate = a.get(attribute).toString().toLowerCase()
+								bDate = b.get(attribute).toString().toLowerCase()
+								if aDate == bDate 
+									0
+								else
+									if aDate > bDate
+										-1
+									else
+										1
+							else
+								if a.get('checked') == null and b.get('checked') != null
+									-1
+								else
+									1
+					else
+						(a, b) ->
+							if (a.get('checked') == null and b.get('checked') == null) or (a.get('checked') != null and b.get('checked') != null)
+								aDate = a.get(attribute).toString().toLowerCase()
+								bDate = b.get(attribute).toString().toLowerCase()
+								if aDate == bDate 
+									0
+								else
+									if aDate > bDate
+										1
+									else
+										-1
+							else
+								if a.get('checked') == null and b.get('checked') != null
+									-1
+								else
+									1
 				model : EntryModelFactory(todolistid)
 				sync : BackbonePouch.sync pouchdbOptions
 				"todolist-id" : todolistid

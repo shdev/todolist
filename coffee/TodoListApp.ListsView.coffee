@@ -1,5 +1,7 @@
 	App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _) ->
 
+		# FIXME put the sort function into the model and include the to lower 
+		
 		DescSort = (attribute) ->
 			(a, b) ->
 				aDate = a.get(attribute)

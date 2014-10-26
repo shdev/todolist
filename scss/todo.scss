@@ -53,7 +53,9 @@ body {
 input[type="number"] {
 	text-align : right;
 }
-
+.editable-unsaved {
+	font-weight:normal;
+}
 
 @mixin todolistapp-entries-view-butttons {
 	margin: 0px;

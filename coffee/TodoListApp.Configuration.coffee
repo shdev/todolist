@@ -17,6 +17,9 @@
 				entryStyle : "list"
 				entrySort : "nameAsc"
 				entryShowChecked : true
+				
+				unsyncedListChanges : 0
+				unsyncedEntryChanges : 0
 			
 			blacklistAtrributes : []
 			toJSON : (options) ->
@@ -26,25 +29,37 @@
 					@set('entryStyle', 'inline')
 				else
 					@set('entryStyle', 'list')
-				@save();
+				@save()
 			toggleEntryShowChecked : () -> 
 				if @get('entryShowChecked')
 					@set('entryShowChecked', false)
 				else
 					@set('entryShowChecked', true)
-				@save();
+				@save()
 			toggleListStyle : () -> 
 				if 'list' == @get('listStyle')
 					@set('listStyle', 'inline')
 				else
 					@set('listStyle', 'list')
-				@save();
+				@save()
+			incListChanges : () ->
+				@set('unsyncedListChanges', parseInt(@get('unsyncedListChanges ')) + 1)
+				@save()
+			resetListChanges : () ->
+				@set('unsyncedListChanges', 0)
+				@save()
+			incEntryChanges : () ->
+				@set('unsyncedEntryChanges', parseInt(@get('unsyncedEntryChanges ')) + 1)
+				@save()
+			resetEntryChanges : () ->
+				@set('unsyncedEntryChanges', 0)
+				@save()
 			validate : (attributes, options) ->
 				returnValue = []			
 				if not attributes.username? or not _.isString(attributes.username) or attributes.username.trim().length == 0
 					returnValue.push  'username'
 				urlRegEx = /^(https?:\/\/)(?:\S+(?::\S*)?@)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i
-				if not attributes.replicateurl? or not _.isString(attributes.replicateurl) or attributes.replicateurl.trim().length = 0
+				if not attributes.replicateurl? or not _.isString(attributes.replicateurl) or attributes.replicateurl.trim().length == 0
 				
 				else 
 					if not urlRegEx.test(attributes.replicateurl)
@@ -54,6 +69,15 @@
 					undefined
 				else
 					returnValue
+			initialize : () -> 
+				@listenTo App.vent, 'replication:pouchdb:to:complete', () ->
+					console.debug 'replication:pouchdb:to:complete'
+					@resetEntryChanges()
+					@resetListChanges()
+				@listenTo App.vent, 'replication:pouchdb:to:uptodate', () ->
+					console.debug 'replication:pouchdb:to:uptodate'
+					@resetEntryChanges()
+					@resetListChanges()
 			
 		class TodoConfigurationCollection extends Backbone.Collection
 			localStorage: new Backbone.LocalStorage("TodoListApp")
@@ -187,7 +211,7 @@
 			"""
 			onRender : () ->
 				@setValues()
-			
+							
 		configurationLoaded = ->
 			App.vent.trigger 'todolist:configurationloaded', Configuration.todoConfiguration
 			

@@ -69,6 +69,7 @@
 						@$el.siblings().removeClass 'list-group-item-info'
 						@$el.siblings().find('.editable').editable('destroy')
 						@$el.addClass('list-group-item-info')
+						thisModel = @.model
 						@$(".content").editable
 							type	: 'text'
 							name	: 'Name eingeben'
@@ -78,6 +79,10 @@
 							mode : 'inline'
 							success	: (response, newValue) ->
 								thisModel.set('name', newValue)
+								try 
+									App.request("todolistapp:Configuration").incEntryChanges()
+								catch
+									console.error 'Error configuration operation'
 								thisModel.save()
 							@renderCheckStatus()
 

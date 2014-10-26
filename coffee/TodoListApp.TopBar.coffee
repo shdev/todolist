@@ -5,7 +5,7 @@
 				<div class="container-fluid">
 					<button type="button" class="btn btn-default sync-pouchdb navbar-btn pull-right" title="unsynced">
 						<i class="fa fa-long-arrow-down text-muted"></i>
-						<i class="fa fa-exclamation text-warning snyc-needed hidden"></i>
+						<i class="fa fa-exclamation text-warning sync-needed"></i>
 						<i class="fa fa-long-arrow-up text-muted"></i>
 					</button>
 					<button type="button" class="btn btn-default show-settings navbar-btn pull-right" title="Settings">
@@ -20,6 +20,7 @@
 			"""		
 			hashTo : '.fa-long-arrow-up'
 			hashFrom : '.fa-long-arrow-down'
+			hashSyncNeeded : '.sync-needed'
 			events : 
 				'click button.sync-pouchdb' : () ->
 					App.vent.trigger 'todolistapp:startReplication'
@@ -42,6 +43,18 @@
 					@normalizeFrom().addClass(cssclass)
 					@$('.sync-pouchdb').attr('title', moment().format('llll'))
 				@listenTo App.vent, event, eventHandler
+			handlerForSyncNeededChange : (model) ->
+				console.debug 'handlerForSyncNeededChange'
+				console.debug model
+				try
+					if model.get('unsyncedListChanges') == 0 and model.get('unsyncedEntryChanges') == 0
+						console.debug 'hide'
+						@$(@hashSyncNeeded).addClass('hidden')
+					else 
+						console.debug 'unhide'
+						@$(@hashSyncNeeded).removeClass('hidden')
+				catch
+					
 			listChanged : (todolistmodel) ->
 					@$('.list-name').text todolistmodel.get('name')
 			listDeleted : (a) ->
@@ -52,13 +65,17 @@
 					@$('.list-name').text '<nix ausgewählt>'
 			onRender : () ->
 				@$('.list-name').text '<nix ausgewählt>'
+				try
+					@handlerForSyncNeededChange App.request("todolistapp:Configuration")
+				catch
+					
 			initialize : () ->
 				@mapDBEventToClass 'replication:pouchdb:to:cancel', 'text-warning'
 				@mapDBEventToClass 'replication:pouchdb:to:change', 'text-primary faa-flash animated'
 				@mapDBEventToClass 'replication:pouchdb:to:error', 'text-danger'
 				@mapDBEventToClass 'replication:pouchdb:to:complete', 'text-warning'
 				@mapDBEventToClass 'replication:pouchdb:to:uptodate', 'text-success'
-		
+						
 				@mapDBEventFromClass 'replication:pouchdb:from:cancel', 'text-warning'
 				@mapDBEventFromClass 'replication:pouchdb:from:change', 'text-primary faa-flash animated'
 				@mapDBEventFromClass 'replication:pouchdb:from:error', 'text-danger'
@@ -67,6 +84,12 @@
 			
 				@listenTo App.vent, 'todolist:deleted-list', @listDeleted
 				@listenTo App.vent, 'todolist:changelist', @listChanged
+				
+				config = App.request("todolistapp:Configuration")
+				
+				if config?
+					@listenTo config, "change:unsyncedListChanges", @handlerForSyncNeededChange
+					@listenTo config, "change:unsyncedEntryChanges", @handlerForSyncNeededChange
 	
 		App.reqres.setHandler "todolistapp:class:TopBarView", () ->
 			TopBarView

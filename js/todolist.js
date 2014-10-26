@@ -669,9 +669,11 @@
           return false;
         },
         'click': function() {
+          var thisModel;
           if (!this.$el.hasClass('list-group-item-info')) {
             this.$el.siblings().removeClass('list-group-item-info');
             this.$el.siblings().find('.editable').editable('destroy');
+            thisModel = this.model;
             this.$(".content").editable({
               type: 'text',
               name: 'Name eingeben',
@@ -681,6 +683,11 @@
               mode: 'inline',
               success: function(response, newValue) {
                 thisModel.set('name', newValue);
+                try {
+                  App.request("todolistapp:Configuration").incListChanges();
+                } catch (_error) {
+                  console.error('Error configuration operation');
+                }
                 return thisModel.save();
               }
             });
@@ -1037,10 +1044,12 @@
           return false;
         },
         'click': function() {
+          var thisModel;
           if (!this.$el.hasClass('list-group-item-info')) {
             this.$el.siblings().removeClass('list-group-item-info');
             this.$el.siblings().find('.editable').editable('destroy');
             this.$el.addClass('list-group-item-info');
+            thisModel = this.model;
             return this.$(".content").editable({
               type: 'text',
               name: 'Name eingeben',
@@ -1050,6 +1059,11 @@
               mode: 'inline',
               success: function(response, newValue) {
                 thisModel.set('name', newValue);
+                try {
+                  App.request("todolistapp:Configuration").incEntryChanges();
+                } catch (_error) {
+                  console.error('Error configuration operation');
+                }
                 return thisModel.save();
               }
             }, this.renderCheckStatus());
@@ -1405,7 +1419,9 @@
         listSort: "nameAsc",
         entryStyle: "list",
         entrySort: "nameAsc",
-        entryShowChecked: true
+        entryShowChecked: true,
+        unsyncedListChanges: 0,
+        unsyncedEntryChanges: 0
       };
 
       TodoConfigurationModel.prototype.blacklistAtrributes = [];
@@ -1441,6 +1457,26 @@
         return this.save();
       };
 
+      TodoConfigurationModel.prototype.incListChanges = function() {
+        this.set('unsyncedListChanges', parseInt(this.get('unsyncedListChanges ')) + 1);
+        return this.save();
+      };
+
+      TodoConfigurationModel.prototype.resetListChanges = function() {
+        this.set('unsyncedListChanges', 0);
+        return this.save();
+      };
+
+      TodoConfigurationModel.prototype.incEntryChanges = function() {
+        this.set('unsyncedEntryChanges', parseInt(this.get('unsyncedEntryChanges ')) + 1);
+        return this.save();
+      };
+
+      TodoConfigurationModel.prototype.resetEntryChanges = function() {
+        this.set('unsyncedEntryChanges', 0);
+        return this.save();
+      };
+
       TodoConfigurationModel.prototype.validate = function(attributes, options) {
         var returnValue, urlRegEx;
         returnValue = [];
@@ -1448,7 +1484,7 @@
           returnValue.push('username');
         }
         urlRegEx = /^(https?:\/\/)(?:\S+(?::\S*)?@)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
-        if ((attributes.replicateurl == null) || !_.isString(attributes.replicateurl) || (attributes.replicateurl.trim().length = 0)) {
+        if ((attributes.replicateurl == null) || !_.isString(attributes.replicateurl) || attributes.replicateurl.trim().length === 0) {
 
         } else {
           if (!urlRegEx.test(attributes.replicateurl)) {
@@ -1460,6 +1496,19 @@
         } else {
           return returnValue;
         }
+      };
+
+      TodoConfigurationModel.prototype.initialize = function() {
+        this.listenTo(App.vent, 'replication:pouchdb:to:complete', function() {
+          console.debug('replication:pouchdb:to:complete');
+          this.resetEntryChanges();
+          return this.resetListChanges();
+        });
+        return this.listenTo(App.vent, 'replication:pouchdb:to:uptodate', function() {
+          console.debug('replication:pouchdb:to:uptodate');
+          this.resetEntryChanges();
+          return this.resetListChanges();
+        });
       };
 
       return TodoConfigurationModel;
@@ -1618,11 +1667,13 @@
         return TopBarView.__super__.constructor.apply(this, arguments);
       }
 
-      TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n	<div class=\"container-fluid\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn pull-right\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-exclamation text-warning snyc-needed hidden\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-settings navbar-btn pull-right\" title=\"Settings\">\n			<i class=\"fa fa-cogs fa-fw\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-lists navbar-btn pull-left active\" title=\"Show Lists\">\n			<i class=\"fa fa-bars fa-fw\"></i>\n		</button>\n		<p class=\"navbar-text list-name\"></p>\n	</div>\n</nav>");
+      TopBarView.prototype.template = _.template("<nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n	<div class=\"container-fluid\">\n		<button type=\"button\" class=\"btn btn-default sync-pouchdb navbar-btn pull-right\" title=\"unsynced\">\n			<i class=\"fa fa-long-arrow-down text-muted\"></i>\n			<i class=\"fa fa-exclamation text-warning sync-needed\"></i>\n			<i class=\"fa fa-long-arrow-up text-muted\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-settings navbar-btn pull-right\" title=\"Settings\">\n			<i class=\"fa fa-cogs fa-fw\"></i>\n		</button>\n		<button type=\"button\" class=\"btn btn-default show-lists navbar-btn pull-left active\" title=\"Show Lists\">\n			<i class=\"fa fa-bars fa-fw\"></i>\n		</button>\n		<p class=\"navbar-text list-name\"></p>\n	</div>\n</nav>");
 
       TopBarView.prototype.hashTo = '.fa-long-arrow-up';
 
       TopBarView.prototype.hashFrom = '.fa-long-arrow-down';
+
+      TopBarView.prototype.hashSyncNeeded = '.sync-needed';
 
       TopBarView.prototype.events = {
         'click button.sync-pouchdb': function() {
@@ -1663,6 +1714,22 @@
         return this.listenTo(App.vent, event, eventHandler);
       };
 
+      TopBarView.prototype.handlerForSyncNeededChange = function(model) {
+        console.debug('handlerForSyncNeededChange');
+        console.debug(model);
+        try {
+          if (model.get('unsyncedListChanges') === 0 && model.get('unsyncedEntryChanges') === 0) {
+            console.debug('hide');
+            return this.$(this.hashSyncNeeded).addClass('hidden');
+          } else {
+            console.debug('unhide');
+            return this.$(this.hashSyncNeeded).removeClass('hidden');
+          }
+        } catch (_error) {
+
+        }
+      };
+
       TopBarView.prototype.listChanged = function(todolistmodel) {
         return this.$('.list-name').text(todolistmodel.get('name'));
       };
@@ -1678,10 +1745,16 @@
       };
 
       TopBarView.prototype.onRender = function() {
-        return this.$('.list-name').text('<nix ausgewählt>');
+        this.$('.list-name').text('<nix ausgewählt>');
+        try {
+          return this.handlerForSyncNeededChange(App.request("todolistapp:Configuration"));
+        } catch (_error) {
+
+        }
       };
 
       TopBarView.prototype.initialize = function() {
+        var config;
         this.mapDBEventToClass('replication:pouchdb:to:cancel', 'text-warning');
         this.mapDBEventToClass('replication:pouchdb:to:change', 'text-primary faa-flash animated');
         this.mapDBEventToClass('replication:pouchdb:to:error', 'text-danger');
@@ -1693,7 +1766,12 @@
         this.mapDBEventFromClass('replication:pouchdb:from:complete', 'text-warning');
         this.mapDBEventFromClass('replication:pouchdb:from:uptodate', 'text-success');
         this.listenTo(App.vent, 'todolist:deleted-list', this.listDeleted);
-        return this.listenTo(App.vent, 'todolist:changelist', this.listChanged);
+        this.listenTo(App.vent, 'todolist:changelist', this.listChanged);
+        config = App.request("todolistapp:Configuration");
+        if (config != null) {
+          this.listenTo(config, "change:unsyncedListChanges", this.handlerForSyncNeededChange);
+          return this.listenTo(config, "change:unsyncedEntryChanges", this.handlerForSyncNeededChange);
+        }
       };
 
       return TopBarView;

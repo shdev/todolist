@@ -53,6 +53,7 @@
 					if not @$el.hasClass('list-group-item-info')
 						@$el.siblings().removeClass 'list-group-item-info'
 						@$el.siblings().find('.editable').editable('destroy')
+						thisModel = @.model
 						@$(".content").editable
 							type	: 'text'
 							name	: 'Name eingeben'
@@ -62,6 +63,10 @@
 							mode : 'inline'
 							success	: (response, newValue) ->
 								thisModel.set('name', newValue)
+								try 
+									App.request("todolistapp:Configuration").incListChanges()
+								catch
+									console.error 'Error configuration operation'
 								thisModel.save()						
 						App.vent.trigger 'todolist:changelist', @model
 			modelEvents :
@@ -208,6 +213,13 @@
 			comparator : 'name'
 			parse : (result) ->
 				return _.pluck(result.rows, 'doc')
+			# initialize : () ->
+			# 	@listenTo @, 'all', (a,b,c,d) ->
+			# 		console.debug 'list all'
+			# 		console.debug a
+			# 		console.debug b
+			# 		console.debug c
+			# 		console.debug d
 
 		
 		App.TodoListApp.classes = {} if not App.TodoListApp.classes?

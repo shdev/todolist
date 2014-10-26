@@ -1,19 +1,5 @@
 	App.module 'TodoListApp.ListsView', (ListsView, App, Backbone, Marionette, $, _) ->
-
-		# FIXME put the sort function into the model and include the to lower 
 		
-		DescSort = (attribute) ->
-			(a, b) ->
-				aDate = a.get(attribute)
-				bDate = b.get(attribute)
-				if aDate == bDate 
-					0
-				else
-					if aDate > bDate
-						-1
-					else
-						1
-
 		class NoEntrieView extends Marionette.ItemView
 			tagName : "li"
 			className : "list-group-item list-group-item-warning no-entry-view"
@@ -113,24 +99,24 @@
 						do (oneModel) ->
 							elem.append oneModel.correspondingView.$el
 			sortCollectionDateAsc : () ->
-				@collection.comparator = "created"
+				@collection.comparator = @collection.sortFun "created", "asc"
 				@collection.sort()
 			sortCollectionDateDesc : () ->
-				@collection.comparator = DescSort 'created'
+				@collection.comparator = @collection.sortFun "created", "desc"
 				@collection.sort()
 			
 			sortCollectionNameAsc : () ->
-				@collection.comparator = "name"
+				@collection.comparator = @collection.sortFun "name", "asc"
 				@collection.sort()
 			sortCollectionNameDesc : () ->
-				@collection.comparator = DescSort 'name'
+				@collection.comparator = @collection.sortFun "name", "desc"
 				@collection.sort()
 			
-			sortCollectionAmountAsc : () ->
-				@collection.comparator = "_id"
-				@collection.sort()
-			sortCollectionAmountDesc : () ->
-				@collection.comparator = DescSort '_id'
+			# sortCollectionAmountAsc : () ->
+			# 	@collection.comparator = "_id"
+			# 	@collection.sort()
+			# sortCollectionAmountDesc : () ->
+			# 	@collection.comparator = DescSort '_id'
 
 			changeStyle : (model,value) ->
 				if 'inline' == value
@@ -147,10 +133,10 @@
 						@sortCollectionDateAsc()
 					when "dateDesc"
 						@sortCollectionDateDesc()
-					when "amountAsc"
-						@sortCollectionAmountAsc()
-					when "amountDesc"
-						@sortCollectionAmountDesc()
+					# when "amountAsc"
+					# 	@sortCollectionAmountAsc()
+					# when "amountDesc"
+					# 	@sortCollectionAmountDesc()
 				
 			onRender : () ->
 				config = App.request("todolistapp:Configuration")
@@ -194,6 +180,29 @@
 				# 		return doc._deleted || doc.type == 'todolist'
 
 		class ListCollection extends Backbone.Collection
+			sortFun : (attribute, direction) ->
+				if direction.toLowerCase() == 'desc'
+					(a, b) ->
+						aDate = a.get(attribute).toString().toLowerCase()
+						bDate = b.get(attribute).toString().toLowerCase()
+						if aDate == bDate 
+							0
+						else
+							if aDate > bDate
+								-1
+							else
+								1
+				else
+					(a, b) ->
+						aDate = a.get(attribute).toString().toLowerCase()
+						bDate = b.get(attribute).toString().toLowerCase()
+						if aDate == bDate 
+							0
+						else
+							if aDate > bDate
+								1
+							else
+								-1
 			model : ListModel
 			sync : BackbonePouch.sync pouchdbOptions
 			comparator : 'name'

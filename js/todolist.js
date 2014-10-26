@@ -596,23 +596,7 @@
   });
 
   App.module('TodoListApp.ListsView', function(ListsView, App, Backbone, Marionette, $, _) {
-    var DescSort, ListCollection, ListCollectionView, ListItemView, ListModel, NoEntrieView, listCollection, pouchdb, pouchdbOptions, refetchData;
-    DescSort = function(attribute) {
-      return function(a, b) {
-        var aDate, bDate;
-        aDate = a.get(attribute);
-        bDate = b.get(attribute);
-        if (aDate === bDate) {
-          return 0;
-        } else {
-          if (aDate > bDate) {
-            return -1;
-          } else {
-            return 1;
-          }
-        }
-      };
-    };
+    var ListCollection, ListCollectionView, ListItemView, ListModel, NoEntrieView, listCollection, pouchdb, pouchdbOptions, refetchData;
     NoEntrieView = (function(_super) {
       __extends(NoEntrieView, _super);
 
@@ -776,32 +760,23 @@
       };
 
       ListCollectionView.prototype.sortCollectionDateAsc = function() {
-        this.collection.comparator = "created";
+        this.collection.comparator = this.collection.sortFun("created", "asc");
         return this.collection.sort();
       };
 
       ListCollectionView.prototype.sortCollectionDateDesc = function() {
-        this.collection.comparator = DescSort('created');
+        this.collection.comparator = this.collection.sortFun("created", "desc");
         return this.collection.sort();
       };
 
       ListCollectionView.prototype.sortCollectionNameAsc = function() {
-        this.collection.comparator = "name";
+        this.collection.comparator = this.collection.sortFun("name", "asc");
         return this.collection.sort();
       };
 
       ListCollectionView.prototype.sortCollectionNameDesc = function() {
-        this.collection.comparator = DescSort('name');
+        this.collection.comparator = this.collection.sortFun("name", "desc");
         return this.collection.sort();
-      };
-
-      ListCollectionView.prototype.sortCollectionAmountAsc = function() {
-        this.collection.comparator = "_id";
-        return this.collection.sort();
-      };
-
-      ListCollectionView.prototype.sortCollectionAmountDesc = function() {
-        return this.collection.comparator = DescSort('_id');
       };
 
       ListCollectionView.prototype.changeStyle = function(model, value) {
@@ -822,10 +797,6 @@
             return this.sortCollectionDateAsc();
           case "dateDesc":
             return this.sortCollectionDateDesc();
-          case "amountAsc":
-            return this.sortCollectionAmountAsc();
-          case "amountDesc":
-            return this.sortCollectionAmountDesc();
         }
       };
 
@@ -898,6 +869,40 @@
       function ListCollection() {
         return ListCollection.__super__.constructor.apply(this, arguments);
       }
+
+      ListCollection.prototype.sortFun = function(attribute, direction) {
+        if (direction.toLowerCase() === 'desc') {
+          return function(a, b) {
+            var aDate, bDate;
+            aDate = a.get(attribute).toString().toLowerCase();
+            bDate = b.get(attribute).toString().toLowerCase();
+            if (aDate === bDate) {
+              return 0;
+            } else {
+              if (aDate > bDate) {
+                return -1;
+              } else {
+                return 1;
+              }
+            }
+          };
+        } else {
+          return function(a, b) {
+            var aDate, bDate;
+            aDate = a.get(attribute).toString().toLowerCase();
+            bDate = b.get(attribute).toString().toLowerCase();
+            if (aDate === bDate) {
+              return 0;
+            } else {
+              if (aDate > bDate) {
+                return 1;
+              } else {
+                return -1;
+              }
+            }
+          };
+        }
+      };
 
       ListCollection.prototype.model = ListModel;
 

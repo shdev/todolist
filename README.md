@@ -46,3 +46,24 @@ or enable compile on file change with the build in watch funtions
 
 `compass watch &`
 
+## Preliminaries 
+
+For the indizies it is needed to create the following desing documents in your [CP]ouchDB
+
+```json
+{
+   "_id": "_design/todolist",
+   "language": "javascript",
+   "views": {
+       "lists": {
+           "map": "function(doc) {\n  if (doc.type == 'todolist')\n\temit(doc.created, doc.name)\n}"
+       },
+       "entries": {
+           "map": "function(doc) {\n   if (doc.type && doc[\"todolist-id\"] && doc.type == 'todoentry' )\n\temit(doc[\"todolist-id\"], doc.name) \n}"
+       }
+   }
+}
+```
+
+
+

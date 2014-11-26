@@ -119,6 +119,23 @@
 
     /*
     		TODO requestHandling for the classes
+    
+    		
+    		This is needed as design document in the couchDB for the indizes
+    
+    
+    		{
+    			"_id": "_design/todolist",
+    			"language": "javascript",
+    			"views": {
+    				"lists": {
+    					"map": "function(doc) {\n  if (doc.type == 'todolist')\n\temit(doc.created, doc.name)\n}"
+    				},
+    				"entries": {
+    					"map": "function(doc) {\n   if (doc.type && doc[\"todolist-id\"] && doc.type == 'todoentry' )\n\temit(doc[\"todolist-id\"], doc.name) \n}"
+    				}
+    			}
+    		}
      */
     var TodoListAppView, doReplicationFrom, doReplicationTo, pouchDB, pouchdbRepFrom, pouchdbRepTo, timeOutRepFrom, timeOutRepTo;
     TodoListAppView = (function(_super) {
@@ -860,16 +877,12 @@
       options: {
         query: {
           include_docs: true,
-          fun: {
-            map: function(doc) {
-              if (doc.type === 'todolist') {
-                return emit(doc.position, null);
-              }
-            }
-          }
+          fun: "todolist/lists"
         }
       }
     };
+    console.debug(pouchdbOptions);
+    console.debug("pouchdbOptions");
     ListCollection = (function(_super) {
       __extends(ListCollection, _super);
 
@@ -1244,24 +1257,15 @@
       return EntryModel;
     };
     EntryCollectionFactory = function(todolistid) {
-      var EntryCollection, mapfunc, pouchdb, pouchdbOptions;
+      var EntryCollection, pouchdb, pouchdbOptions;
       pouchdb = App.request("todolistapp:PouchDB");
-      mapfunc = function(doc) {
-        if ((doc.type != null) && (doc["todolist-id"] != null)) {
-          if (doc.type === 'todoentry') {
-            return emit(doc["todolist-id"], doc.pos);
-          }
-        }
-      };
       pouchdbOptions = {
         db: pouchdb,
         fetch: 'query',
         options: {
           query: {
             include_docs: true,
-            fun: {
-              map: mapfunc
-            },
+            fun: "todolist/entries",
             key: todolistid
           }
         }

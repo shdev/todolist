@@ -190,17 +190,17 @@
 		EntryCollectionFactory = (todolistid) ->		
 		
 			pouchdb = App.request("todolistapp:PouchDB")
-			mapfunc =  (doc) ->
-				if doc.type? and doc["todolist-id"]?
-					emit doc["todolist-id"], doc.pos if doc.type == 'todoentry'
+			# mapfunc =  (doc) ->
+			# 	if doc.type? and doc["todolist-id"]?
+			# 		emit doc["todolist-id"], doc.pos if doc.type == 'todoentry'
 			pouchdbOptions = 
 				db : pouchdb
 				fetch : 'query'
 				options :
 					query :
 						include_docs: true
-						fun :
-							map : mapfunc
+						fun : "todolist/entries"
+							# map : mapfunc
 						key : todolistid
 					# changes :
 					# 	include_docs: true,

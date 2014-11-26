@@ -169,20 +169,25 @@
 			initialize : () -> 
 
 				
+						# map : (doc) ->
+						# 	if doc.type == 'todolist'
+						# 		emit doc.position, null
+
 		pouchdbOptions = 
 			db : pouchdb
 			fetch : 'query'
 			options :
 				query :
 					include_docs: true
-					fun :
-						map : (doc) ->
-							if doc.type == 'todolist'
-								emit doc.position, null
+					fun : "todolist/lists"
 				# changes :
 				# 	include_docs: true,
 				# 	filter : (doc) ->
 				# 		return doc._deleted || doc.type == 'todolist'
+
+		console.debug pouchdbOptions
+
+		console.debug "pouchdbOptions"
 
 		class ListCollection extends Backbone.Collection
 			sortFun : (attribute, direction) ->
@@ -212,6 +217,7 @@
 			sync : BackbonePouch.sync pouchdbOptions
 			comparator : 'name'
 			parse : (result) ->
+
 				return _.pluck(result.rows, 'doc')
 			# initialize : () ->
 			# 	@listenTo @, 'all', (a,b,c,d) ->

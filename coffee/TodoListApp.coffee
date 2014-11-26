@@ -1,6 +1,24 @@
 	App.module 'TodoListApp', (TodoListApp, App, Backbone, Marionette, $, _) ->
 		###
 		TODO requestHandling for the classes
+
+		
+		This is needed as design document in the couchDB for the indizes
+
+
+		{
+			"_id": "_design/todolist",
+			"language": "javascript",
+			"views": {
+				"lists": {
+					"map": "function(doc) {\n  if (doc.type == 'todolist')\n\temit(doc.created, doc.name)\n}"
+				},
+				"entries": {
+					"map": "function(doc) {\n   if (doc.type && doc[\"todolist-id\"] && doc.type == 'todoentry' )\n\temit(doc[\"todolist-id\"], doc.name) \n}"
+				}
+			}
+		}
+
 		###
 		class TodoListAppView extends Marionette.LayoutView
 			className : "container-fluid todolistapp-container"

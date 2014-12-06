@@ -6,11 +6,12 @@ A todo list that syncs over devices with a [CP]ouchDB in the back.
 
 I liked Wunderlist as todo list.
 But I don't liked that they have my todos.
-So I only want to share my todos with my a wife and over our devices.
+So I only want to share my todos with my wife and over our devices.
 For this reason the web app should work on PCs as well as on IOS/ Android devices.
 I focused on webkit engines of latest version.
 For the syncing mechanism I use CouchDB, because I like the project and wanted to start with at least a small project.
-In addition to that I also wanted to start with CoffeeScript, because of the Python like syntax. 
+In addition to that I also wanted to start with CoffeeScript, because of the Python like syntax.
+The next thing I want to to try is to work with Python so now there is a commandline tool made with Python 3.4.
 
 ## Needed programms
 

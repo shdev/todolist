@@ -207,6 +207,30 @@
 						<button class="btn-block btn btn-primary cleanup-db">Aufräumen</button>
 					</div>
 				</div>
+				<hr />
+				<div class="row">
+					<div class="col-xs-12">
+
+						<div class="control-label">Library versions</div>
+
+						<dl class="dl-horizontal">
+	  						<dt>PouchDB</dt>
+	  						<dd><%= PouchDB.version %></dd>
+	  						<dt>jQuery</dt>
+	  						<dd><%= $().jquery %></dd>
+	  						<dt>Underscore</dt>
+	  						<dd><%= _.VERSION %></dd>
+	  						<dt>Backbone</dt>
+	  						<dd><%= Backbone.VERSION %></dd>
+	  						<dt>Marionette</dt>
+	  						<dd><%= Marionette.VERSION %></dd>
+							<dt>NumeralJS</dt>
+							<dd><%= numeral.version %></dd>
+							<dt>MomentJS</dt>
+							<dd><%= moment.version %></dd>
+						</dl>
+					</div>
+				</div>
 			
 			"""
 			onRender : () ->

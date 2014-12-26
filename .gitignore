@@ -1,3 +1,7 @@
+# own excludes
+
+couchtodo.log
+
 # Created by http://www.gitignore.io
 
 ### Sass ###
@@ -18,7 +22,8 @@ tmtags
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*

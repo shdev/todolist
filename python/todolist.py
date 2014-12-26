@@ -1,52 +1,57 @@
 #!/usr/bin/env python3
 
-from couchdb import Server
-import sys
-import logging
 import argparse
+from couchdb import Document, Server
+import logging
+import sys
+import traceback
 
+def main():
+    #
+    #   Setup the parser and the loglevel
+    #
+    parser = argparse.ArgumentParser(description='A todo list with a couchdb '
+                                     'backend',
+                                     epilog="I wish you a peaceful time.")
 
-#
-#   Setup the parser and the loglevel
-#
-parser = argparse.ArgumentParser(description='A todo list with a couchdb '
-                                 'backend',
-                                 epilog="I wish you a peaceful time.")
+    parser.add_argument('--log', dest='loglevel', choices=["CRITICAL", "ERROR",
+                        "WARNING", "INFO", "DEBUG"], default="ERROR",
+                        help="choose your log level")
 
-parser.add_argument('--log', dest='loglevel', choices=["CRITICAL", "ERROR",
-                    "WARNING", "INFO", "DEBUG"], default="ERROR",
-                    help="choose your log level")
+    parser.add_argument('--server', dest='server', help="couchdb server",
+                        default="localhost")
 
-parser.add_argument('--server', dest='server', help="couchdb server",
-                    required=True)
+    parser.add_argument('--port', dest='port', help="server port", type=int,
+                        required=True)
 
-parser.add_argument('--port', dest='port', help="server port", type=int,
-                    required=True)
+    parser.add_argument('--credentials', dest='credentials',
+                        help="credentials", type=str, required=True)
 
-parser.add_argument('--credentials', dest='credentials', help="credentials",
-                    type=str, required=True)
+    parser.add_argument('--database', dest='database', help="database",
+                        type=str, required=True)
 
-parser.add_argument('--database', dest='database', help="database",
-                    type=str, required=True)
+    parser.add_argument('--protocol', dest='protocol', help="protocol",
+                        type=str, default="http")
 
-parser.add_argument('--protocol', dest='protocol', help="protocol",
-                    type=str, required=True)
+    args = parser.parse_args()
 
+    loglevel = args.loglevel
 
-args = parser.parse_args()
+    numeric_level = getattr(logging, loglevel.upper(), None)
+    if not isinstance(numeric_level, int):
+        raise ValueError('Invalid log level: %s' % loglevel)
 
-loglevel = args.loglevel
+    logging.basicConfig(filename='couchtodo.log', level=numeric_level,
+                        format='%(asctime)s [%(levelname)s]: %(message)s')
 
-numeric_level = getattr(logging, loglevel.upper(), None)
-if not isinstance(numeric_level, int):
-    raise ValueError('Invalid log level: %s' % loglevel)
+    todolist = SHTodolist(args.server, str(args.port), args.credentials,
+                          args.protocol, args.database)
 
-logging.basicConfig(filename='logs/couchtodo.log', level=numeric_level,
-                    format='%(asctime)s [%(levelname)s]: %(message)s')
+    todolist.delete_checked_entries()
 
-#
-#   setup is done
-#
+    #
+    #   setup is done
+    #
 
 
 class SHTodolist:
@@ -67,7 +72,8 @@ class SHTodolist:
                  protocol="http",
                  database="",
                  list_view="todolist/lists",
-                 entry_view="todolist/entries"):
+                 entry_view="todolist/entries",
+                 checked_entries_view="todolist/checked_entries"):
         self.__configuration['server_name'] = server_name.strip()
         self.__configuration['credentials'] = credentials
         self.__configuration['protocol'] = protocol
@@ -82,6 +88,7 @@ class SHTodolist:
         self.__configuration['database'] = database
         self.__configuration['list_view'] = list_view
         self.__configuration['entry_view'] = entry_view
+        self.__configuration['checked_entries_view'] = checked_entries_view
 
     def server_url(self):
         return self.__configuration['protocol'] + "://" + \
@@ -111,17 +118,28 @@ class SHTodolist:
         for list_name in sorted(lists, key=str.lower):
             print(list_name)
 
+    def delete_checked_entries(self):
+        self.initDB()
+
+        # entries = self.__db.view(self.__configuration["checked_entries_view"], startkey='2014-10-03',
+        #     endkey='z')
+
+        entries = self.__db.view(self.__configuration["checked_entries_view"],
+                                 startkey='2014-10-03', endkey='z')
+
+        # people = results[['Person']:['Person','ZZZZ']]
+        for row in entries:
+            del self.__db[row.id]
+
+
 if __name__ == '__main__':
     try:
-        logging.info('Oh yeah it starts')
-        todolist = SHTodolist(args.server, str(args.port), args.credentials,
-                              args.protocol, args.database)
-        todolist.print_lists()
-
+        main()
     except Exception as e:
         sys.stderr.write("Something went here extremly wrong, and I don't "
                          "know why\n")
         logging.critical("Something went here extremly wrong, and I don't "
                          "know why")
+        print(traceback.format_exc())
     finally:
         pass

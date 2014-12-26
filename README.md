@@ -61,6 +61,9 @@ For the indizies it is needed to create the following desing documents in your [
        },
        "entries": {
            "map": "function(doc) {\n   if (doc.type && doc[\"todolist-id\"] && doc.type == 'todoentry' )\n\temit(doc[\"todolist-id\"], doc.name) \n}"
+       },
+       "checked_entries": {
+           "map": "function(doc) {\n   if (doc.type && doc[\"todolist-id\"] && doc.type == 'todoentry' && doc.checked != null)\n\temit(doc.checked) \n}"
        }
    }
 }

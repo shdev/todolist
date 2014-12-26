@@ -22,7 +22,7 @@ The next thing I want to to try is to work with Python so now there is a command
 
 ## Used libraries 
 
-* [PouchDB](http://pouchdb.com), here I used the this commit [e56d07f](https://github.com/pouchdb/pouchdb/commit/e56d07f)
+* [PouchDB](http://pouchdb.com)
 * [jQuery 2.x](http://jquery.com)
 * [Underscore.js](http://underscorejs.org)
 * [Backone.js](http://backbonejs.org)

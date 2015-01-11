@@ -19,6 +19,9 @@
     "marionette": "~2.1.0",
     "numeral": "~1.5.2",
     "moment": "~2.4.0",
-    "fontawesome": "~4.2.0"
+    "fontawesome": "~4.2.0",
+    "bootstrap-editable": "",
+    "backbone-pouchdb": "",
+    "Backbone.localStorage": "~1.1.15"  
   }
 }

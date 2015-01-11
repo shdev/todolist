@@ -1,0 +1,24 @@
+{
+  "name": "todolist",
+  "version": "0.0.1",
+  "homepage": "https://github.com/shdev/todolist",
+  "authors": [
+    "Sebastian Holtz <mail@sh-dev.de>"
+  ],
+  "main": "index.html",
+  "license": "GPL-3.0",
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ],
+  "dependencies": {
+    "backbone": "~1.1.0",
+    "pouchdb": "~3.2.0",
+    "jquery": "~2.0.3",
+    "underscore": "~1.5.2",
+    "marionette": "~2.1.0",
+    "numeral": "~1.5.2",
+    "moment": "~2.4.0",
+    "fontawesome": "~4.2.0"
+  }
+}

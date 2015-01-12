@@ -1,5 +1,7 @@
 # own excludes
 
+webapp/build/[a-zA-Z]*
+
 couchtodo.log
 
 # Created by http://www.gitignore.io

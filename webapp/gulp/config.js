@@ -1,4 +1,6 @@
 
+// http://stefanimhoff.de/2014/gulp-tutorial-1-intro-setup
+
 var destBase = 'build';
 
 var dirs = {
@@ -35,7 +37,7 @@ module.exports = {
   browsersync: {
     development: {
       server: {
-        baseDir: [dirs.dest.base]
+        baseDir: [dirs.dest.base, dirs.src.sass]
       },
       port: 9999,
       files: [

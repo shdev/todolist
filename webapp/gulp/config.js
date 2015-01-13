@@ -48,6 +48,19 @@ module.exports = {
       ]
     }
   },
+  coffee: {
+    src: [
+      dirs.src.coffee + '/todolistmain.litcoffee',
+      dirs.src.coffee + '/TodoListApp.coffee'
+      // dirs.src.coffee + '/GeneralBehavior.coffee'
+    ],
+    dest: dirs.dest.js,
+    options: {
+      // bare: true,
+      literate: true
+    },
+    joinedFile: 'todolist.js'
+  },
   coffeelint: {
     src : dirs.src.coffee + '/*.{coffee,litcoffee}'
   },
@@ -62,7 +75,10 @@ module.exports = {
     time: true,
   },
   copyFiles: {
-    src:  dirs.src.files + '/**/*',
+    src:  [
+      dirs.src.files + '/**/*',
+
+    ],
     dest: dirs.dest.base
   },
   delete: {
@@ -71,6 +87,17 @@ module.exports = {
   dirs : dirs,
   jshint: {
     src: dirs.dest.js + '/*.js'
+  },
+  manifest: {
+    src: dirs.dest.base + '/**/*',
+    dest: dirs.dest.base,
+    options: {
+      hash: true,
+      timestamp: true,
+      network: ['http://*', 'https://*', '*'],
+      filename: 'app.manifest',
+      exclude: ['app.manifest']
+     }
   },
   optimize : {
     html: {
@@ -92,7 +119,9 @@ module.exports = {
     js: {
       src:  dirs.dest.js + '/*.js',
       dest: dirs.dest.js + '/',
-      options: {}
+      options: {
+        compress: true
+      }
     }
   },
   sass: {

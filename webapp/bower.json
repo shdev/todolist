@@ -23,5 +23,10 @@
     "bootstrap-editable": "",
     "backbone-pouchdb": "",
     "Backbone.localStorage": "~1.1.15"  
+  },
+  "preen":{
+    "jquery": [
+      "dist/*.js"
+    ]
   }
 }

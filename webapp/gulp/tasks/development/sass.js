@@ -2,6 +2,8 @@ var gulp         = require('gulp');
 var plumber      = require('gulp-plumber');
 var browsersync  = require('browser-sync');
 var gulpFilter   = require('gulp-filter');
+var minifycss    = require('gulp-minify-css');
+var size         = require('gulp-size');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps   = require('gulp-sourcemaps');
 var config       = require('../../config');
@@ -40,7 +42,9 @@ gulp.task('sass', function() {
     .pipe(sourcemaps.init())
     .pipe(autoprefixer(config.autoprefixer))
     .pipe(filter) // Don’t write sourcemaps of sourcemaps
+    .pipe(minifycss(config.sass.minifyOptions))
     .pipe(sourcemaps.write('.', { includeContent: false }))
     .pipe(filter.restore()) // Restore original files
-    .pipe(gulp.dest(config.sass.dest));
+    .pipe(gulp.dest(config.sass.dest))
+    .pipe(size());
 });

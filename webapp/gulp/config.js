@@ -37,7 +37,7 @@ module.exports = {
   browsersync: {
     development: {
       server: {
-        baseDir: [dirs.dest.base, dirs.src.sass]
+        baseDir: [dirs.dest.base]
       },
       port: 9999,
       files: [
@@ -47,6 +47,9 @@ module.exports = {
         dirs.dest.fonts + '/*'
       ]
     }
+  },
+  coffeelint: {
+    src : dirs.src.coffee + '/*.{coffee,litcoffee}'
   },
   compass: {
     config_file: dirs.src.compass,
@@ -58,13 +61,39 @@ module.exports = {
     style: "compressed",
     time: true,
   },
+  copyFiles: {
+    src:  dirs.src.files + '/**/*',
+    dest: dirs.dest.base
+  },
   delete: {
     src: [dirs.dest.base]
   },
   dirs : dirs,
-  copyFiles: {
-    src:  dirs.src.files + '/**/*',
-    dest: dirs.dest.base
+  jshint: {
+    src: dirs.dest.js + '/*.js'
+  },
+  optimize : {
+    html: {
+      src: dirs.dest.base + '/**/*.html',
+      dest: dirs.dest.base + '/',
+      options: {
+        collapseWhitespace: true
+      }
+    },
+    images: {
+      src:  dirs.dest.images + '/**/*.{jpg,jpeg,png,gif}',
+      dest: dirs.dest.images + '/',
+      options: {
+        optimizationLevel: 3,
+        progessive: true,
+        interlaced: true
+      }
+    },
+    js: {
+      src:  dirs.dest.js + '/*.js',
+      dest: dirs.dest.js + '/',
+      options: {}
+    }
   },
   sass: {
     src:  dirs.src.sass + '/**/*.{sass,scss}',
@@ -75,6 +104,14 @@ module.exports = {
       bundleExec: true,
       sourcemap: false,
       sourcemapPath: '../../_assets/scss'
+    },
+    minifyOptions : {
+      keepSpecialComments: 0
     }
+  },
+  watch: {
+    sass: dirs.src.sass + '/**/*.{sass,scss}',
+    files: dirs.src.files + '/**/*',
+    coffee: dirs.src.coffee + '/**/*.{coffee,litcoffee}',
   },
 };

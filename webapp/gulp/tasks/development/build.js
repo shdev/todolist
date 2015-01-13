@@ -6,7 +6,7 @@ var runSequence = require('run-sequence');
  */
 gulp.task('build', function(callback) {
   runSequence('delete',
-    'copyfiles',
+    'copyfile',
     [
       'sass',
       // 'scripts',

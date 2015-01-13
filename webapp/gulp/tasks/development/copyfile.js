@@ -7,7 +7,7 @@ var config      = require('../../config').copyFiles;
  * Copy images to build folder
  * if not changed
  */
-gulp.task('copyfiles', function() {
+gulp.task('copyfile', function() {
   return gulp.src(config.src)
     .pipe(changed(config.dest)) // Ignore unchanged files
     .pipe(gulp.dest(config.dest));

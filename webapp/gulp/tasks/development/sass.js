@@ -8,6 +8,7 @@ var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps   = require('gulp-sourcemaps');
 var config       = require('../../config');
 var compass      = require('gulp-compass');
+var reload       = browsersync.reload;
 
 /**
  * Generate CSS from SCSS
@@ -46,5 +47,7 @@ gulp.task('sass', function() {
     .pipe(sourcemaps.write('.', { includeContent: false }))
     .pipe(filter.restore()) // Restore original files
     .pipe(gulp.dest(config.sass.dest))
-    .pipe(size());
+    .pipe(size())
+    .pipe(reload({stream:true}));
+
 });

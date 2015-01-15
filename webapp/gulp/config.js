@@ -168,3 +168,9 @@ module.exports = {
     bower: dirs.src.bower_components + '/**/*.{js,css,png,gif,jpeg,jpg}',
   },
 };
+
+
+
+// TODO tar.gz
+// https://www.npmjs.com/package/gulp-gzip/ 
+// https://www.npmjs.com/package/gulp-tar/

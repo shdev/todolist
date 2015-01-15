@@ -16,7 +16,8 @@ var dirs = {
     sass : 'scss',
     files : 'files',
     coffee : 'coffee',
-    compass : 'config/compass.rb'
+    compass : 'config/compass.rb',
+    bower : 'bower_components'
   }
 }
 
@@ -51,8 +52,14 @@ module.exports = {
   coffee: {
     src: [
       dirs.src.coffee + '/todolistmain.litcoffee',
-      dirs.src.coffee + '/TodoListApp.coffee'
-      // dirs.src.coffee + '/GeneralBehavior.coffee'
+      dirs.src.coffee + '/GeneralBehavior.coffee',
+      dirs.src.coffee + '/TodoListApp.coffee',
+      dirs.src.coffee + '/TodoListApp.EntryInput.coffee',
+      dirs.src.coffee + '/TodoListApp.ListInput.coffee',
+      dirs.src.coffee + '/TodoListApp.ListsView.coffee',
+      dirs.src.coffee + '/TodoListApp.EntriesView.coffee',
+      dirs.src.coffee + '/TodoListApp.Configuration.coffee',
+      dirs.src.coffee + '/TodoListApp.TopBar.coffee'
     ],
     dest: dirs.dest.js,
     options: {
@@ -74,13 +81,32 @@ module.exports = {
     style: "compressed",
     time: true,
   },
-  copyFiles: {
-    src:  [
-      dirs.src.files + '/**/*',
-
+  copyBower: 
+    [ 
+      { src: dirs.src.bower + '/**/*.css',
+        dest: dirs.dest.css
+      },
+      { src: dirs.src.bower + '/**/*.js',
+        dest: dirs.dest.js_ext
+      },
+      { src: dirs.src.bower + '/**/fonts/*',
+        dest: dirs.dest.fonts
+      },
+      { src: dirs.src.bower + '/**/img/*',
+        dest: dirs.dest.base,
+        renameFunc : function (path) {
+          path.dirname = "img";
+        }
+      } 
     ],
-    dest: dirs.dest.base
-  },
+  copyFiles: 
+    [ { src: dirs.src.files + '/**/*',
+        dest: dirs.dest.base
+      },
+      { src: dirs.src.bower + '/**/img/*',
+        dest: dirs.dest.base
+      } 
+    ],
   delete: {
     src: [dirs.dest.base]
   },
@@ -142,5 +168,6 @@ module.exports = {
     sass: dirs.src.sass + '/**/*.{sass,scss}',
     files: dirs.src.files + '/**/*',
     coffee: dirs.src.coffee + '/**/*.{coffee,litcoffee}',
+    bower: dirs.src.bower_components + '/**/*.{js,css,png,gif,jpeg,jpg}',
   },
 };

@@ -8,5 +8,6 @@ gulp.task('watch', ['browsersync'], function() {
 	gulp.watch(config.sass, ['sass']);
 	// gulp.watch(config.sass, ['sass', 'scsslint']);
 	gulp.watch(config.files, ['copyfile']);
+	gulp.watch(config.bower, ['copy:bower']);
 	gulp.watch(config.coffee, ['coffee']);
 });

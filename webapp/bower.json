@@ -50,7 +50,11 @@
     "numeral": ["min/*.min.js"],
     "pouchdb": ["**/pouchdb.min.js"],
     "underscore": ["underscore-min.js"],
-    "x-editable": ["dist/bootstrap3-editable/**/*"],
+    "x-editable": [
+      "dist/bootstrap3-editable/**/img/*",
+      "dist/bootstrap3-editable/**/css/*",
+      "dist/bootstrap3-editable/**/js/*min.js"
+    ],
     
     "backbone.babysitter" : [ "" ],
     "backbone.wreqr" : [ "" ]

@@ -102,9 +102,6 @@ module.exports = {
   copyFiles: 
     [ { src: dirs.src.files + '/**/*',
         dest: dirs.dest.base
-      },
-      { src: dirs.src.bower + '/**/img/*',
-        dest: dirs.dest.base
       } 
     ],
   delete: {

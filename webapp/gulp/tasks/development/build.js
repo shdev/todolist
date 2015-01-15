@@ -6,10 +6,11 @@ var runSequence = require('run-sequence');
  */
 gulp.task('build', function(callback) {
   runSequence('delete',
-    'copy:file',
-    'copy:bower',
     [
+      'copy:file',
+      'copy:bower',
       'sass',
+      'coffee'
     ],
     'manifest',
     // 'base64',

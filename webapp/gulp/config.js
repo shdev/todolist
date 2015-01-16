@@ -10,7 +10,8 @@ var dirs = {
     images : destBase + '/images',
     fonts : destBase + '/fonts',
     js : destBase + '/js',
-    js_ext : destBase + '/js/external' 
+    js_ext : destBase + '/js/external',
+    archives : 'archives'
   },
   src : {
     sass : 'scss',
@@ -23,6 +24,8 @@ var dirs = {
 
 
 module.exports = {
+  name : 'todolist',
+
   autoprefixer: {
     browsers: [
       'last 2 versions',

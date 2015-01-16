@@ -9,7 +9,7 @@ gulp.task('coffee', function() {
   gulp.src(config.src)
   	.pipe(plumber())
   	.pipe(concat(config.joinedFile))
-  	.pipe(gulp.dest(config.dest + '/../test'))
+  	.pipe(gulp.dest(config.dest + '/'))
     .pipe(coffee(config.options))
     .pipe(gulp.dest(config.dest))
 });

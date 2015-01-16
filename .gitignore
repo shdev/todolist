@@ -2,6 +2,8 @@
 
 webapp/build/[a-zA-Z]*
 
+webapp/archives
+
 couchtodo.log
 
 # Created by http://www.gitignore.io

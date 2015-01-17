@@ -1,0 +1,62 @@
+{
+  "name": "todolist",
+  "version": "0.0.1",
+  "homepage": "https://github.com/shdev/todolist",
+  "authors": [
+    "Sebastian Holtz <mail@sh-dev.de>"
+  ],
+  "main": "index.html",
+  "license": "GPL-3.0",
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ],
+  "dependencies": {
+    "backbone": "~1.1.0",
+    "backbone-pouchdb": "",
+    "Backbone.localStorage": "~1.1.15",
+    "bootstrap": "~3.3.1",
+    "font-awesome": "~4.2.0",
+    "font-awesome-animation": "~0.0.6", 
+    "jquery": "~2.0.3",
+    "marionette": "~2.1.0",
+    "moment": "~2.4.0",
+    "numeral": "~1.5.2",
+    "pouchdb": "~3.2.0",
+    "underscore": "~1.5.2",
+    "x-editable": "~1.5.1"
+  },
+  "preen":{
+    "backbone": ["backbone.js"],
+    "backbone-pouchdb": ["backbone-pouch.js"],
+    "Backbone.localStorage": ["backbone.localStorage-min.js"],
+    "bootstrap": [
+      "dist/**/*min.js",
+      "dist/**/*min.css",
+      "dist/fonts/*"
+    ],
+    "font-awesome": [
+      "**/*.min.css",
+      "fonts/*"
+    ],
+    "font-awesome-animation": [
+      "**/*.min.css"
+    ],
+    "jquery": [
+      "jquery.min.js"
+    ],
+    "marionette": ["lib/backbone.marionette.min.js"],
+    "moment": ["**/moment-with-langs.min.js"],
+    "numeral": ["min/*.min.js"],
+    "pouchdb": ["**/pouchdb.min.js"],
+    "underscore": ["underscore-min.js"],
+    "x-editable": [
+      "dist/bootstrap3-editable/**/img/*",
+      "dist/bootstrap3-editable/**/css/*",
+      "dist/bootstrap3-editable/**/js/*min.js"
+    ],
+    
+    "backbone.babysitter" : [ "" ],
+    "backbone.wreqr" : [ "" ]
+  }
+}

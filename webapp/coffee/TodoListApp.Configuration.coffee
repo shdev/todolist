@@ -112,14 +112,36 @@
                 'submit' : () ->
                     @saveEntries()
                     false
+
                 'reset' : () ->
                     @setValues()
                     false
+
                 'click .destroy-db' : () ->
-                    App.request("todolistapp:PouchDB").destroy()
-                    App.vent.trigger('todolistapp:pouchdb:destroyed')
+
+                    swalOptions = 
+                        title: "Bist Du Dir sicher?"
+                        text: "Soll die Datenbank gelöscht werden."
+                        type: "warning"
+                        showCancelButton: true
+                        confirmButtonClass: "btn-danger"
+                        confirmButtonText: "Hau wech!"
+                        cancelButtonText: "Ne,ne lass mal."
+                        closeOnConfirm: false,
+                        closeOnCancel: true
+
+                    swalAction = (isConfirm) ->
+                        if isConfirm
+                            App.request("todolistapp:PouchDB").destroy()
+                            App.vent.trigger('todolistapp:pouchdb:destroyed')
+                            swal("Gelöscht!", "Alle Daten sind wech.", "success") 
+                    
+                    swal swalOptions, swalAction
+                    false
+
                 'click .cleanup-db' : () ->
                     App.request("todolistapp:PouchDB").compact()
+
             modelEvents : 
                 'change' : () ->
                     @setValues()
@@ -197,9 +219,12 @@
                         <button type="submit" class="btn-block btn btn-primary ">Speichern</button>
                     </div>
                 </div>
-            
                 <hr />
-                <div class="row">
+                <hr />
+                <div class="row form-group">
+                    <div class="col-xs-12">
+                        <label class="control-label ">Datenbank</label>
+                    </div>
                     <div class="col-xs-6">
                         <button class="btn-block btn btn-danger destroy-db">Datenbank löschen</button>
                     </div>

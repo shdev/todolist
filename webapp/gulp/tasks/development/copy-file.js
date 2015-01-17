@@ -1,7 +1,7 @@
 var gulp        = require('gulp');
 var changed     = require('gulp-changed');
 var tap     	= require('gulp-tap');
-var config      = require('../../config').copyFiles;
+var config      = require('../../../gulpconfig').copyFiles;
 
 /**
  * Copy images to build folder

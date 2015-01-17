@@ -1,5 +1,5 @@
 var gulp = require('gulp');
-var config = require('../../config').watch;
+var config = require('../../../gulpconfig').watch;
 
 /**
  * Start browsersync task and then watch files for changes

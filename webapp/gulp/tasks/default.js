@@ -1,3 +1,4 @@
 var gulp = require('gulp');
+var config = require('../../../gulpconfig');
 
-gulp.task('default', ['watch']);
+gulp.task('default', config.defaultTasks);

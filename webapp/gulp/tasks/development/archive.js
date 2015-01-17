@@ -3,7 +3,7 @@ var tar = require('gulp-tar');
 var gzip = require('gulp-gzip');
 var git = require('gulp-git');
 var rename = require('gulp-rename');
-var config = require('../../config');
+var config = require('../../../gulpconfig');
 var dirs = config.dirs;
 
 

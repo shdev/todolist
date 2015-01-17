@@ -86,7 +86,6 @@ module.exports = {
         dest: dirs.dest.base
       } 
     ],
-  defaultTasks : ['watch'],
   delete: {
     src: [dirs.dest.base]
   },

@@ -6,7 +6,7 @@ var minifycss    = require('gulp-minify-css');
 var size         = require('gulp-size');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps   = require('gulp-sourcemaps');
-var config       = require('../../config').sass;
+var config       = require('../../../gulpconfig').sass;
 var compass      = require('gulp-compass');
 var reload       = browsersync.reload;
 

@@ -2,7 +2,7 @@ var gulp        = require('gulp');
 var changed     = require('gulp-changed');
 var rename     	= require('gulp-rename');
 var tap     	= require('gulp-tap');
-var config      = require('../../config').copyBower;
+var config      = require('../../../gulpconfig').copyBower;
 
 /**
  * Copy images to build folder

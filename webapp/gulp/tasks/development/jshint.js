@@ -1,7 +1,7 @@
 var gulp    = require('gulp');
 var jshint  = require('gulp-jshint');
 var stylish = require('jshint-stylish');
-var config  = require('../../config').jshint;
+var config  = require('../../../gulpconfig').jshint;
 
 /**
  * Check JavaScript sytax with JSHint

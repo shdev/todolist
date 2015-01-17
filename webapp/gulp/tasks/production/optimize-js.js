@@ -1,7 +1,7 @@
 var gulp   = require('gulp');
 var uglify = require('gulp-uglify');
 var size   = require('gulp-size');
-var config = require('../../config').optimize.js;
+var config = require('../../../gulpconfig').optimize.js;
 
 /**
  * Copy and minimize JS files

@@ -1,7 +1,7 @@
 var gulp = require('gulp');
 var manifest = require('gulp-manifest');
-var config = require('../../config').manifest;
-var dirs = require('../../config').dirs;
+var config = require('../../../gulpconfig').manifest;
+var dirs = require('../../../gulpconfig').dirs;
 
 
 gulp.task('manifest', function(){

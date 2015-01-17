@@ -3,7 +3,7 @@ var coffee 		 = require('gulp-coffee');
 var gutil 		 = require('gulp-util');
 var concat 		 = require('gulp-concat');
 var plumber 	 = require('gulp-plumber');
-var config       = require('../../config').coffee;
+var config       = require('../../../gulpconfig').coffee;
 
 gulp.task('coffee', function() {
   gulp.src(config.src)

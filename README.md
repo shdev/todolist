@@ -35,7 +35,25 @@ The next thing I want to to try is to work with Python so now there is a command
 * [Numeral JS](http://numeraljs.com)
 * [Font-Awsome](https://fortawesome.github.io/Font-Awesome/)
 
-## How to compile
+## How to compile 
+
+Look at my [Gulp tasks](https://github.com/shdev/gulp-tasks)
+
+### quick during development
+
+```bash
+cd webapp
+gulp build
+```
+
+### polish for production
+
+```bash
+cd webapp
+gulp build:prod
+```
+
+## How to compile with your own hands
 
 `coffee -b -j js/todolist.js -c coffee/todolistmain.litcoffee coffee/GeneralBehavior.coffee  coffee/TodoListApp.coffee coffee/TodoListApp.EntryInput.coffee coffee/TodoListApp.ListInput.coffee  coffee/TodoListApp.ListsView.coffee coffee/TodoListApp.EntriesView.coffee coffee/TodoListApp.Configuration.coffee coffee/TodoListApp.TopBar.coffee`
 

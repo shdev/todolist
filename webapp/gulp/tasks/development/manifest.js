@@ -1,10 +1,11 @@
 var gulp = require('gulp');
 var manifest = require('gulp-manifest');
 var config = require('../../config').manifest;
+var dirs = require('../../config').dirs;
 
 
 gulp.task('manifest', function(){
-  gulp.src(['build/*'])
+  gulp.src([ dirs.dest.base + '/**/*'])
     .pipe(manifest(config.options))
-    .pipe(gulp.dest('build'));
+    .pipe(gulp.dest(dirs.dest.base));
 });

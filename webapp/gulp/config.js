@@ -1,4 +1,6 @@
 
+
+// Inspired by this tutorial  
 // http://stefanimhoff.de/2014/gulp-tutorial-1-intro-setup
 
 var destBase = 'build';
@@ -25,19 +27,6 @@ var dirs = {
 
 module.exports = {
   name : 'todolist',
-
-  autoprefixer: {
-    browsers: [
-      'last 2 versions',
-      'safari 5',
-      'ie 8',
-      'ie 9',
-      'opera 12.1',
-      'ios 6',
-      'android 4'
-    ],
-    cascade: true
-  },
   browsersync: {
     development: {
       server: {
@@ -66,23 +55,13 @@ module.exports = {
     ],
     dest: dirs.dest.js,
     options: {
-      // bare: true,
+      bare: false,
       literate: true
     },
     joinedFile: 'todolist.js'
   },
   coffeelint: {
     src : dirs.src.coffee + '/*.{coffee,litcoffee}'
-  },
-  compass: {
-    config_file: dirs.src.compass,
-    css: dirs.dest.css,
-    image: dirs.dest.images,
-    js: dirs.dest.js,
-    sass: dirs.src.sass,
-    sourcemap: false,
-    style: "compressed",
-    time: true,
   },
   copyBower: 
     [ 
@@ -160,6 +139,28 @@ module.exports = {
       sourcemap: false,
       sourcemapPath: '../../_assets/scss'
     },
+    autoprefixerOptions: {
+      browsers: [
+        'last 2 versions',
+        'safari 5',
+        'ie 8',
+        'ie 9',
+        'opera 12.1',
+        'ios 6',
+        'android 4'
+      ],
+      cascade: true
+    },
+    compassOptions: {
+      config_file: dirs.src.compass,
+      css: dirs.dest.css,
+      image: dirs.dest.images,
+      js: dirs.dest.js,
+      sass: dirs.src.sass,
+      sourcemap: false,
+      style: "compressed",
+      time: true,
+    },
     minifyOptions : {
       keepSpecialComments: 0
     }
@@ -172,8 +173,3 @@ module.exports = {
   },
 };
 
-
-
-// TODO tar.gz
-// https://www.npmjs.com/package/gulp-gzip/ 
-// https://www.npmjs.com/package/gulp-tar/

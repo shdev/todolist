@@ -6,7 +6,7 @@ var minifycss    = require('gulp-minify-css');
 var size         = require('gulp-size');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps   = require('gulp-sourcemaps');
-var config       = require('../../config');
+var config       = require('../../config').sass;
 var compass      = require('gulp-compass');
 var reload       = browsersync.reload;
 
@@ -28,7 +28,7 @@ var reload       = browsersync.reload;
 
 
 gulp.task('sass', function() {
-  var sassConfig = config.sass.options;
+  var sassConfig = config.options;
 
   sassConfig.onError = browsersync.notify;
 
@@ -37,16 +37,16 @@ gulp.task('sass', function() {
 
   browsersync.notify('Compiling Sass');
 
-  return gulp.src(config.sass.src)
+  return gulp.src(config.src)
     .pipe(plumber())
-    .pipe(compass(config.compass))
+    .pipe(compass(config.compassOptions))
     .pipe(sourcemaps.init())
-    .pipe(autoprefixer(config.autoprefixer))
+    .pipe(autoprefixer(config.autoprefixerOptions))
     .pipe(filter) // Don’t write sourcemaps of sourcemaps
-    .pipe(minifycss(config.sass.minifyOptions))
+    .pipe(minifycss(config.minifyOptions))
     .pipe(sourcemaps.write('.', { includeContent: false }))
     .pipe(filter.restore()) // Restore original files
-    .pipe(gulp.dest(config.sass.dest))
+    .pipe(gulp.dest(config.dest))
     .pipe(size())
     .pipe(reload({stream:true}));
 

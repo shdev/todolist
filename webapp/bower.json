@@ -16,24 +16,35 @@
     "backbone-pouchdb": "",
     "Backbone.localStorage": "~1.1.15",
     "bootstrap": "~3.3.1",
+    "bootstrap-sweetalert": "~0.4.3",
     "font-awesome": "~4.2.0",
-    "font-awesome-animation": "~0.0.6", 
-    "jquery": "~2.0.3",
-    "marionette": "~2.1.0",
+    "font-awesome-animation": "~0.0.6",
+    "jquery": "~2.1.3",
+    "marionette": "~2.3.1",
     "moment": "~2.4.0",
     "numeral": "~1.5.2",
     "pouchdb": "~3.2.0",
     "underscore": "~1.5.2",
     "x-editable": "~1.5.1"
   },
-  "preen":{
-    "backbone": ["backbone.js"],
-    "backbone-pouchdb": ["backbone-pouch.js"],
-    "Backbone.localStorage": ["backbone.localStorage-min.js"],
+  "preen": {
+    "backbone": [
+      "backbone.js"
+    ],
+    "backbone-pouchdb": [
+      "backbone-pouch.js"
+    ],
+    "Backbone.localStorage": [
+      "backbone.localStorage-min.js"
+    ],
     "bootstrap": [
       "dist/**/*min.js",
       "dist/**/*min.css",
       "dist/fonts/*"
+    ],
+    "bootstrap-sweetalert": [
+      "lib/sweet-alert.css",
+      "lib/sweet-alert.min.js"
     ],
     "font-awesome": [
       "**/*.min.css",
@@ -43,20 +54,33 @@
       "**/*.min.css"
     ],
     "jquery": [
-      "jquery.min.js"
+      "dist/jquery.min.js"
     ],
-    "marionette": ["lib/backbone.marionette.min.js"],
-    "moment": ["**/moment-with-langs.min.js"],
-    "numeral": ["min/*.min.js"],
-    "pouchdb": ["**/pouchdb.min.js"],
-    "underscore": ["underscore-min.js"],
+    "marionette": [
+      "lib/backbone.marionette.min.js"
+    ],
+    "moment": [
+      "**/moment-with-langs.min.js"
+    ],
+    "numeral": [
+      "min/*.min.js"
+    ],
+    "pouchdb": [
+      "**/pouchdb.min.js"
+    ],
+    "underscore": [
+      "underscore-min.js"
+    ],
     "x-editable": [
       "dist/bootstrap3-editable/**/img/*",
       "dist/bootstrap3-editable/**/css/*",
       "dist/bootstrap3-editable/**/js/*min.js"
     ],
-    
-    "backbone.babysitter" : [ "" ],
-    "backbone.wreqr" : [ "" ]
+    "backbone.babysitter": [
+      ""
+    ],
+    "backbone.wreqr": [
+      ""
+    ]
   }
 }

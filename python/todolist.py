@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
 import argparse
-from couchdb import Document, Server
+from couchdb import Server
 import logging
 import sys
 import traceback
+from datetime import timedelta, datetime
+
 
 def main():
     #
@@ -47,7 +49,9 @@ def main():
     todolist = SHTodolist(args.server, str(args.port), args.credentials,
                           args.protocol, args.database)
 
-    todolist.delete_checked_entries()
+    todolist.delete_checked_entries(timedelta(days=3))
+
+    todolist.compact_db()
 
     #
     #   setup is done
@@ -62,7 +66,8 @@ class SHTodolist:
     __server_instance = None
     __db = None
 
-    def validate_configuration(configuration):
+    @classmethod
+    def validate_configuration(cls, configuration):
         pass
 
     def __init__(self,
@@ -96,7 +101,7 @@ class SHTodolist:
             self.__configuration['server_name'] + ":" + \
             self.__configuration['port']
 
-    def initDB(self):
+    def init_db(self):
         if None == self.__server_instance:
             self.__server_instance = Server(self.server_url())
         if None == self.__db:
@@ -105,7 +110,7 @@ class SHTodolist:
             ]
 
     def print_lists(self):
-        self.initDB()
+        self.init_db()
         lists = {}
 
         for row in self.__db.view(self.__configuration["list_view"]):
@@ -118,18 +123,20 @@ class SHTodolist:
         for list_name in sorted(lists, key=str.lower):
             print(list_name)
 
-    def delete_checked_entries(self):
-        self.initDB()
+    def delete_checked_entries(self, td):
+        self.init_db()
 
-        # entries = self.__db.view(self.__configuration["checked_entries_view"], startkey='2014-10-03',
-        #     endkey='z')
+        d = datetime.utcnow() - td
+        d_str = d.isoformat()[:-3] + 'Z'
 
         entries = self.__db.view(self.__configuration["checked_entries_view"],
-                                 startkey='2014-10-03', endkey='z')
+                                 startkey='0', endkey=d_str)
 
-        # people = results[['Person']:['Person','ZZZZ']]
         for row in entries:
             del self.__db[row.id]
+
+    def compact_db(self):
+        self.__db.compact()
 
 
 if __name__ == '__main__':

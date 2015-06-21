@@ -212,8 +212,22 @@
                     if direction.toLowerCase() == 'desc'
                         (a, b) ->
                             if (a.get('checked') == null and b.get('checked') == null) or (a.get('checked') != null and b.get('checked') != null)
-                                aDate = a.get(attribute).toString().toLowerCase()
-                                bDate = b.get(attribute).toString().toLowerCase()
+                                try
+                                    aDate = a.get(attribute).toString().toLowerCase()    
+                                catch e
+                                    aDate = ""
+                                    console.log("ERROR: '" + attribute + "' cannot be fetched from a")
+                                    console.log(a)
+                                    console.log(e)
+
+                                try
+                                    bDate = b.get(attribute).toString().toLowerCase()
+                                catch e
+                                    aDate = ""
+                                    console.log("ERROR: '" + attribute + "' cannot be fetched from b")
+                                    console.log(b)
+                                    console.log(e)
+
                                 if aDate == bDate 
                                     0
                                 else
@@ -229,8 +243,22 @@
                     else
                         (a, b) ->
                             if (a.get('checked') == null and b.get('checked') == null) or (a.get('checked') != null and b.get('checked') != null)
-                                aDate = a.get(attribute).toString().toLowerCase()
-                                bDate = b.get(attribute).toString().toLowerCase()
+                                try
+                                    aDate = a.get(attribute).toString().toLowerCase()    
+                                catch e
+                                    aDate = ""
+                                    console.log("ERROR: '" + attribute + "' cannot be fetched from a")
+                                    console.log(a)
+                                    console.log(e)
+
+                                try
+                                    bDate = b.get(attribute).toString().toLowerCase()
+                                catch e
+                                    aDate = ""
+                                    console.log("ERROR: '" + attribute + "' cannot be fetched from b")
+                                    console.log(b)
+                                    console.log(e)
+                                
                                 if aDate == bDate 
                                     0
                                 else
